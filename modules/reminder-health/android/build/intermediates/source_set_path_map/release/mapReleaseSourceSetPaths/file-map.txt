@@ -1,0 +1,7 @@
+expo.modules.reminderhealth.reminder-health-pngs-0 /home/user/Le-Cercle/modules/reminder-health/android/build/generated/res/pngs/release
+expo.modules.reminderhealth.reminder-health-resValues-1 /home/user/Le-Cercle/modules/reminder-health/android/build/generated/res/resValues/release
+expo.modules.reminderhealth.reminder-health-mergeReleaseResources-2 /home/user/Le-Cercle/modules/reminder-health/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+expo.modules.reminderhealth.reminder-health-mergeReleaseResources-3 /home/user/Le-Cercle/modules/reminder-health/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+expo.modules.reminderhealth.reminder-health-release-4 /home/user/Le-Cercle/modules/reminder-health/android/build/intermediates/merged_res/release/mergeReleaseResources
+expo.modules.reminderhealth.reminder-health-main-5 /home/user/Le-Cercle/modules/reminder-health/android/src/main/res
+expo.modules.reminderhealth.reminder-health-release-6 /home/user/Le-Cercle/modules/reminder-health/android/src/release/res

@@ -86,7 +86,7 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 | 1 ✅ | Fondations                | Projet Expo, TS strict, navigation, Sentry, erreurs, tests   |
 | 2 ✅ | Supabase & connexion      | Schéma + RLS, connexion par code e-mail, session persistée   |
 | 3 ✅ | Médicaments (hors ligne)  | SQLite local, formulaires, liste, validation                 |
-| 4    | Moteur de rappels         | Notifications locales fiables, actions, redémarrage, tests   |
+| 4 ✅ | Moteur de rappels         | Notifications locales fiables, actions, redémarrage, tests   |
 | 5    | Historique & synchro      | Journal des prises, synchronisation SQLite ↔ Supabase        |
 | 6    | Le Cercle (aidants + SMS) | Invitations, Edge Function Twilio, détection des oublis      |
 | 7    | Scan IA                   | Caméra, Edge Function Claude, écran de vérification          |

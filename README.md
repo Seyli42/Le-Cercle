@@ -5,6 +5,8 @@ Une seule base de code : Expo / React Native / TypeScript.
 
 - Cahier des charges et étapes : [`docs/CAHIER_DES_CHARGES.md`](docs/CAHIER_DES_CHARGES.md)
 - Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
+- Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
+- Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
 ## Démarrer (première fois)
@@ -39,6 +41,7 @@ src/
   features/     Fonctionnalités
     auth/         Connexion par code e-mail
     medications/  Médicaments : validation, stockage local, formulaire, liste
+    reminders/    Rappels : planification, notifications, tâches de fond, diagnostic
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
     db/           Base locale chiffrée et ses migrations
   theme/        Couleurs, tailles, espacements
@@ -46,6 +49,7 @@ __tests__/      Tests automatiques
 docs/           Documentation projet
 supabase/       Base de données : migrations, tests de sécurité, modèles d'e-mail
 scripts/        Outils (test de la base)
+modules/        Code natif maison (reminder-health : diagnostic Android des rappels)
 ```
 
 ## Données sur le téléphone
