@@ -34,6 +34,7 @@ type ScheduleRow = {
   medication_id: string;
   time_of_day: string;
   days_of_week: string;
+  created_at?: string;
 };
 
 function parseDays(raw: string): Weekday[] {
@@ -81,7 +82,7 @@ export async function listMedications(db: LocalDb, userId: string): Promise<Medi
     [userId],
   );
   const schedules = await db.getAllAsync<ScheduleRow>(
-    `SELECT id, medication_id, time_of_day, days_of_week FROM schedules
+    `SELECT id, medication_id, time_of_day, days_of_week, created_at FROM schedules
      WHERE user_id = ? AND deleted_at IS NULL`,
     [userId],
   );
@@ -100,7 +101,7 @@ export async function getMedication(
   );
   if (!row) return null;
   const schedules = await db.getAllAsync<ScheduleRow>(
-    `SELECT id, medication_id, time_of_day, days_of_week FROM schedules
+    `SELECT id, medication_id, time_of_day, days_of_week, created_at FROM schedules
      WHERE medication_id = ? AND user_id = ? AND deleted_at IS NULL`,
     [id, userId],
   );
@@ -250,4 +251,16 @@ export async function deleteMedication(
       [timestamp, timestamp, id, userId],
     );
   });
+}
+
+/** Names of every medication of the account, deleted ones included (for the history). */
+export async function medicationLabels(
+  db: LocalDb,
+  userId: string,
+): Promise<Map<string, { name: string; doseLabel: string }>> {
+  const rows = await db.getAllAsync<{ id: string; name: string; dose_label: string }>(
+    'SELECT id, name, dose_label FROM medications WHERE user_id = ?',
+    [userId],
+  );
+  return new Map(rows.map((r) => [r.id, { name: r.name, doseLabel: r.dose_label }]));
 }

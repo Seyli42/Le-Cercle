@@ -11,6 +11,8 @@ export type Schedule = {
   /** Local time "HH:MM", 24 h. */
   readonly timeOfDay: string;
   readonly daysOfWeek: readonly Weekday[];
+  /** When the schedule was created: no intake is expected before (history). */
+  readonly createdAt?: string;
 };
 
 export type Medication = {

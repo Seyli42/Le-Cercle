@@ -8,6 +8,8 @@ import { Screen } from '@/components/Screen';
 import { env } from '@/config/env';
 import { useAuth } from '@/features/auth/useAuth';
 import { cancelAllReminders } from '@/features/reminders/engine';
+import { getSyncState, syncNow } from '@/features/sync/scheduler';
+import { SyncStatus } from '@/features/sync/SyncStatus';
 import { reportError } from '@/lib/monitoring';
 import { colors, fontSize, spacing } from '@/theme';
 
@@ -27,9 +29,15 @@ export default function AccountScreen() {
     <Screen>
       {email ? <Text style={styles.body}>Connecté avec {email}</Text> : null}
       <Text style={styles.body}>
-        Vos médicaments sont enregistrés sur ce téléphone, chiffrés. Ils restent disponibles sans
-        connexion.
+        Vos médicaments sont enregistrés sur ce téléphone, chiffrés, et sauvegardés en ligne dès
+        qu’il y a du réseau. Ils restent disponibles sans connexion.
       </Text>
+      <SyncStatus />
+      <PrimaryButton
+        label="Sauvegarder maintenant"
+        variant="secondary"
+        onPress={() => void syncNow('manual')}
+      />
       <PrimaryButton
         label="Se déconnecter"
         variant="secondary"
@@ -37,7 +45,10 @@ export default function AccountScreen() {
         onPress={() =>
           Alert.alert(
             'Se déconnecter ?',
-            'Vous ne recevrez plus aucun rappel de médicament sur ce téléphone tant que vous ne serez pas reconnecté.',
+            'Vous ne recevrez plus aucun rappel de médicament sur ce téléphone tant que vous ne serez pas reconnecté.' +
+              (getSyncState().pending > 0
+                ? ' Certaines modifications ne sont pas encore sauvegardées en ligne : elles restent sur ce téléphone et seront envoyées à votre prochaine connexion.'
+                : ''),
             [
               { text: 'Annuler', style: 'cancel' },
               {
@@ -45,7 +56,9 @@ export default function AccountScreen() {
                 style: 'destructive',
                 onPress: () => {
                   setSigningOut(true);
-                  cancelAllReminders()
+                  // Last chance to send unsaved changes (fails silently when offline).
+                  syncNow('sign-out')
+                    .then(() => cancelAllReminders())
                     .catch((error: unknown) => reportError(error, 'auth.signOut.cancelReminders'))
                     .then(() => signOut())
                     .finally(() => setSigningOut(false));

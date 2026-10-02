@@ -13,6 +13,7 @@ import {
 } from '@/features/medications/repository';
 import type { Medication, MedicationInput } from '@/features/medications/types';
 import { useReminders } from '@/features/reminders/ReminderProvider';
+import { requestSync } from '@/features/sync/scheduler';
 import { useDb } from '@/lib/db/DatabaseProvider';
 import type { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
@@ -71,6 +72,7 @@ export function useMedicationActions() {
     // (it is reported, and the next app opening retries).
     const thenSync = async <T>(write: Promise<T>): Promise<T> => {
       const result = await write;
+      requestSync();
       await afterMedicationChange().catch(() => undefined);
       return result;
     };

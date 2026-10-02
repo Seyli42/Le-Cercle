@@ -6,6 +6,7 @@ Une seule base de code : Expo / React Native / TypeScript.
 - Cahier des charges et étapes : [`docs/CAHIER_DES_CHARGES.md`](docs/CAHIER_DES_CHARGES.md)
 - Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
+- Synchronisation et historique : [`docs/SYNCHRO.md`](docs/SYNCHRO.md)
 - Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
@@ -42,6 +43,8 @@ src/
     auth/         Connexion par code e-mail
     medications/  Médicaments : validation, stockage local, formulaire, liste
     reminders/    Rappels : planification, notifications, tâches de fond, diagnostic
+    sync/         Synchronisation téléphone ↔ Supabase
+    history/      Historique des prises
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
     db/           Base locale chiffrée et ses migrations
   theme/        Couleurs, tailles, espacements
@@ -62,7 +65,8 @@ rangée dans le Keychain (iOS) / Keystore (Android).
 > chiffrement est actif dans les vraies versions de l'app (build de développement, TestFlight,
 > stores). N'utilisez Expo Go qu'avec des données de test.
 
-La synchronisation avec Supabase arrive à l'étape 5.
+Dès qu'il y a du réseau, les données sont aussi sauvegardées sur Supabase et partagées
+entre les téléphones du même compte (voir `docs/SYNCHRO.md`).
 
 ## Secrets
 

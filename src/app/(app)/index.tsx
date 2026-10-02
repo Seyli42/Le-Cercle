@@ -41,6 +41,11 @@ export default function MedicationListScreen() {
       {header}
       <ReminderBanner />
       <TodayDoses />
+      <PrimaryButton
+        label="Voir l’historique des prises"
+        variant="secondary"
+        onPress={() => router.push('/history')}
+      />
       {state.status !== 'loading' && state.data.length > 0 && (
         <Text style={styles.heading} accessibilityRole="header">
           Mes traitements

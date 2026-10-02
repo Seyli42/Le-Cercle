@@ -55,6 +55,20 @@ export const MIGRATIONS: readonly string[] = [
   );
   CREATE INDEX dose_events_user_time_idx ON dose_events (user_id, scheduled_at);
   `,
+  // 3 — synchronisation cursors (last server row received, per table and per account).
+  `
+  CREATE TABLE sync_state (
+    user_id TEXT NOT NULL,
+    table_name TEXT NOT NULL,
+    cursor_ts TEXT,
+    cursor_id TEXT,
+    last_success_at TEXT,
+    PRIMARY KEY (user_id, table_name)
+  );
+  CREATE INDEX medications_pending_idx ON medications (user_id, sync_status);
+  CREATE INDEX schedules_pending_idx ON schedules (user_id, sync_status);
+  CREATE INDEX dose_events_pending_idx ON dose_events (user_id, sync_status);
+  `,
 ];
 
 export async function migrate(db: LocalDb): Promise<void> {

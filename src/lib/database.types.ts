@@ -50,6 +50,7 @@ export type Database = {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+          client_updated_at: string;
         };
         Insert: {
           id?: string;
@@ -61,6 +62,7 @@ export type Database = {
           ends_on?: string | null;
           notes?: string | null;
           deleted_at?: string | null;
+          client_updated_at?: string;
         };
         Update: {
           name?: string;
@@ -70,6 +72,7 @@ export type Database = {
           ends_on?: string | null;
           notes?: string | null;
           deleted_at?: string | null;
+          client_updated_at?: string;
         };
         Relationships: [];
       };
@@ -83,6 +86,7 @@ export type Database = {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+          client_updated_at: string;
         };
         Insert: {
           id?: string;
@@ -91,11 +95,13 @@ export type Database = {
           time_of_day: string;
           days_of_week?: number[];
           deleted_at?: string | null;
+          client_updated_at?: string;
         };
         Update: {
           time_of_day?: string;
           days_of_week?: number[];
           deleted_at?: string | null;
+          client_updated_at?: string;
         };
         Relationships: [
           {
@@ -118,6 +124,7 @@ export type Database = {
           responded_at: string | null;
           created_at: string;
           updated_at: string;
+          client_updated_at: string;
         };
         Insert: {
           id?: string;
@@ -127,10 +134,12 @@ export type Database = {
           scheduled_at: string;
           status?: DoseStatus;
           responded_at?: string | null;
+          client_updated_at?: string;
         };
         Update: {
           status?: DoseStatus;
           responded_at?: string | null;
+          client_updated_at?: string;
         };
         Relationships: [
           {
@@ -191,7 +200,16 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      sync_push: {
+        Args: { p_medications?: Json; p_schedules?: Json; p_dose_events?: Json };
+        Returns: Json;
+      };
+      sync_pull: {
+        Args: { p_cursors?: Json; p_limit?: number };
+        Returns: Json;
+      };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };

@@ -24,6 +24,7 @@ import {
 } from '@/features/reminders/engine';
 import { computeIssues, type Issue, type ReminderHealth } from '@/features/reminders/health';
 import { getPermissionState, requestPermission } from '@/features/reminders/notifications';
+import { requestSync } from '@/features/sync/scheduler';
 import { useDb } from '@/lib/db/DatabaseProvider';
 import { reportError } from '@/lib/monitoring';
 
@@ -94,6 +95,8 @@ export function ReminderProvider({ children }: { readonly children: ReactNode })
     const unsubscribe = subscribeToSync((result) => {
       setSync(result);
       setVersion((v) => v + 1);
+      // Reminders are refreshed after every answer: send the answers to the server too.
+      requestSync();
     });
 
     const onResponse = (response: Notifications.NotificationResponse) => {

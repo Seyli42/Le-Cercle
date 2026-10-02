@@ -12,6 +12,8 @@ import {
   syncReminders,
   type ResponseLike,
 } from '@/features/reminders/engine';
+import { runSync } from '@/features/sync/sync';
+import { createSupabaseRemote } from '@/features/sync/supabaseRemote';
 import { getLocalDb } from '@/lib/db/expoDb';
 import { reportError } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
@@ -59,7 +61,16 @@ TaskManager.defineTask(NOTIFICATION_RESPONSE_TASK, async ({ data, error }) => {
 TaskManager.defineTask(REFRESH_TASK, async () => {
   try {
     const userId = await getStoredUserId();
-    if (userId) await syncReminders(await getLocalDb(), userId, { reason: 'background' });
+    if (!userId) return BackgroundTask.BackgroundTaskResult.Success;
+    const db = await getLocalDb();
+    // Data first (changes from another phone, answers given in the background), then the
+    // reminders. A sync failure (e.g. offline) must never prevent the reminders refresh.
+    if (supabase) {
+      await runSync(db, userId, createSupabaseRemote(supabase), { now: () => new Date() }).catch(
+        (e: unknown) => reportError(e, 'sync.background', { expected: true }),
+      );
+    }
+    await syncReminders(db, userId, { reason: 'background' });
     return BackgroundTask.BackgroundTaskResult.Success;
   } catch (e) {
     reportError(e, 'reminders.backgroundRefresh');
