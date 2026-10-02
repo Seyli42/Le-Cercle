@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { AuthProvider } from '@/features/auth/AuthProvider';
@@ -97,9 +97,7 @@ it('signs out', async () => {
     </AuthProvider>,
   );
   await waitFor(() => expect(screen.getByTestId('status').props.children).toBe('signedIn'));
-  await act(async () => {
-    screen.getByTestId('signout').props.onPress();
-  });
+  await fireEvent.press(screen.getByTestId('signout'));
   expect(mockAuth.signOut).toHaveBeenCalledWith({ scope: 'local' });
   expect(screen.getByTestId('status').props.children).toBe('signedOut');
 });
@@ -118,8 +116,7 @@ it('turns a Supabase error into a French message', async () => {
     </AuthProvider>,
   );
   await waitFor(() => expect(screen.getByTestId('status').props.children).toBe('signedOut'));
-  await act(async () => {
-    screen.getByTestId('request').props.onPress();
-  });
+  await fireEvent.press(screen.getByTestId('request'));
+  await waitFor(() => expect(lastError).not.toBeNull());
   expect(lastError).toMatchObject({ userMessage: expect.stringMatching(/Patientez/) });
 });

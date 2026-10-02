@@ -36,14 +36,29 @@ src/
     (app)/      Écrans accessibles une fois connecté
   components/   Éléments d'interface réutilisables
   config/       Configuration publique (variables EXPO_PUBLIC_*)
-  features/     Fonctionnalités (auth/ : connexion par code e-mail)
+  features/     Fonctionnalités
+    auth/         Connexion par code e-mail
+    medications/  Médicaments : validation, stockage local, formulaire, liste
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
+    db/           Base locale chiffrée et ses migrations
   theme/        Couleurs, tailles, espacements
 __tests__/      Tests automatiques
 docs/           Documentation projet
 supabase/       Base de données : migrations, tests de sécurité, modèles d'e-mail
 scripts/        Outils (test de la base)
 ```
+
+## Données sur le téléphone
+
+Les médicaments et horaires sont enregistrés **sur le téléphone** (SQLite), ce qui permet à
+l'app de fonctionner sans réseau. La base est chiffrée (SQLCipher) avec une clé aléatoire
+rangée dans le Keychain (iOS) / Keystore (Android).
+
+> ⚠️ Dans **Expo Go**, la base n'est pas chiffrée (Expo Go n'inclut pas SQLCipher). Le
+> chiffrement est actif dans les vraies versions de l'app (build de développement, TestFlight,
+> stores). N'utilisez Expo Go qu'avec des données de test.
+
+La synchronisation avec Supabase arrive à l'étape 5.
 
 ## Secrets
 

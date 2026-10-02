@@ -1,81 +1,79 @@
-import { Stack } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Link, router, Stack } from 'expo-router';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 
+import { ErrorFallback } from '@/components/ErrorFallback';
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
-import { env } from '@/config/env';
-import { useAuth } from '@/features/auth/useAuth';
-import { reportError } from '@/lib/monitoring';
+import { treatmentStatus } from '@/features/medications/format';
+import { MedicationCard } from '@/features/medications/MedicationCard';
+import { useMedicationList } from '@/features/medications/useMedications';
 import { colors, fontSize, spacing } from '@/theme';
 
-export default function HomeScreen() {
-  const { state, signOut } = useAuth();
-  const [message, setMessage] = useState<string | null>(null);
-  const [shouldCrash, setShouldCrash] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
+export default function MedicationListScreen() {
+  const { state, reload } = useMedicationList();
 
-  if (shouldCrash) {
-    throw new Error('Test volontaire de l’écran d’erreur');
+  const header = (
+    <Stack.Screen
+      options={{
+        headerRight: () => (
+          <Link href="/account" style={styles.headerLink} accessibilityRole="button">
+            Compte
+          </Link>
+        ),
+      }}
+    />
+  );
+
+  if (state.status === 'error') {
+    return (
+      <>
+        {header}
+        <ErrorFallback onRetry={reload} />
+      </>
+    );
   }
-
-  const email = state.status === 'signedIn' ? state.session.user.email : undefined;
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Le Cercle' }} />
-      <Text style={styles.title}>Bienvenue</Text>
-      {email ? <Text style={styles.body}>Connecté avec {email}</Text> : null}
-      <Text style={styles.body}>
-        Le Cercle vous rappelle de prendre les médicaments que vous avez saisis, et prévient vos
-        proches si un rappel reste sans réponse.
-      </Text>
-      <MedicalDisclaimer />
-
-      <PrimaryButton
-        label="Se déconnecter"
-        variant="secondary"
-        loading={signingOut}
-        onPress={() => {
-          setSigningOut(true);
-          void signOut().finally(() => setSigningOut(false));
-        }}
-      />
-
-      {env.environment !== 'production' && (
+      {header}
+      {state.status === 'loading' ? (
+        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
+      ) : state.data.length === 0 ? (
         <>
-          <Text style={styles.section}>Outils de test (masqués en production)</Text>
-          <PrimaryButton
-            label="Tester une erreur gérée"
-            onPress={() => {
-              const error = reportError(new Error('Network request failed'), 'dev.test');
-              setMessage(error.userMessage);
-            }}
-          />
-          <PrimaryButton
-            label="Tester un plantage d’écran"
-            variant="danger"
-            onPress={() => setShouldCrash(true)}
-          />
-          {message && (
-            <Text style={styles.body} accessibilityLiveRegion="polite">
-              {message}
-            </Text>
-          )}
+          <Text style={styles.title}>Aucun médicament pour l’instant</Text>
+          <Text style={styles.body}>
+            Ajoutez vos médicaments et leurs horaires : Le Cercle vous les rappellera.
+          </Text>
         </>
+      ) : (
+        [...state.data]
+          // Ended treatments go to the bottom of the list.
+          .sort(
+            (a, b) =>
+              Number(treatmentStatus(a) === 'ended') - Number(treatmentStatus(b) === 'ended'),
+          )
+          .map((medication) => (
+            <MedicationCard
+              key={medication.id}
+              medication={medication}
+              onPress={() =>
+                router.push({ pathname: '/medications/[id]', params: { id: medication.id } })
+              }
+            />
+          ))
       )}
+      <PrimaryButton
+        label="+ Ajouter un médicament"
+        onPress={() => router.push('/medications/new')}
+      />
+      <MedicalDisclaimer />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  headerLink: { fontSize: fontSize.body, color: colors.primary, padding: spacing.sm },
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
-  section: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-    color: colors.textMuted,
-    marginTop: spacing.lg,
-  },
 });

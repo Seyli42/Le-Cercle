@@ -1,0 +1,63 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { formatLocalDate } from '@/features/medications/dates';
+import { describeSchedules, FORM_LABELS, treatmentStatus } from '@/features/medications/format';
+import type { Medication } from '@/features/medications/types';
+import { colors, fontSize, spacing } from '@/theme';
+
+type Props = { readonly medication: Medication; readonly onPress: () => void };
+
+export function MedicationCard({ medication, onPress }: Props) {
+  const status = treatmentStatus(medication);
+  const lines = describeSchedules(medication.schedules);
+  const badge =
+    status === 'ended'
+      ? `Terminé le ${formatLocalDate(medication.endsOn ?? '')}`
+      : status === 'upcoming'
+        ? `Commence le ${formatLocalDate(medication.startsOn)}`
+        : medication.endsOn
+          ? `Jusqu’au ${formatLocalDate(medication.endsOn)}`
+          : null;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${medication.name}, ${medication.doseLabel}, ${lines.join('. ')}. ${badge ?? ''}. Appuyez pour modifier.`}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.card,
+        status === 'ended' && styles.ended,
+        pressed && styles.pressed,
+      ]}
+    >
+      <Text style={styles.name}>{medication.name}</Text>
+      <Text style={styles.detail}>
+        {medication.doseLabel} · {FORM_LABELS[medication.form]}
+      </Text>
+      <View style={styles.lines}>
+        {lines.map((line) => (
+          <Text key={line} style={styles.schedule}>
+            ⏰ {line}
+          </Text>
+        ))}
+      </View>
+      {badge ? <Text style={styles.badge}>{badge}</Text> : null}
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    padding: spacing.md,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    gap: spacing.xs,
+  },
+  ended: { opacity: 0.6 },
+  pressed: { opacity: 0.8 },
+  name: { fontSize: 22, fontWeight: '700', color: colors.text },
+  detail: { fontSize: fontSize.body, color: colors.textMuted },
+  lines: { gap: 2, marginTop: spacing.xs },
+  schedule: { fontSize: fontSize.body, color: colors.text },
+  badge: { fontSize: 16, color: colors.primary, fontWeight: '600', marginTop: spacing.xs },
+});

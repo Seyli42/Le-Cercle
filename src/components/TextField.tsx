@@ -5,7 +5,7 @@ import { colors, fontSize, MIN_TOUCH, spacing } from '@/theme';
 
 type Props = TextInputProps & {
   readonly label: string;
-  readonly error?: string | null;
+  readonly error?: string | null | undefined;
   readonly ref?: Ref<TextInput>;
 };
 
