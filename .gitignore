@@ -47,3 +47,8 @@ yarn-error.*
 
 # Tests
 coverage/
+
+# Native build outputs of local modules
+modules/*/android/build/
+modules/*/android/.gradle/
+modules/*/ios/build/

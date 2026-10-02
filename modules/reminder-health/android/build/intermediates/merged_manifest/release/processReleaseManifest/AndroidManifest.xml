@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="expo.modules.reminderhealth" >
-
-    <uses-sdk android:minSdkVersion="24" />
-    <!-- Exact alarms: without it Android may deliver reminders late (Doze). -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-
-</manifest>
