@@ -1,0 +1,47 @@
+import type { ConfigContext, ExpoConfig } from 'expo/config';
+
+// One codebase, two variants installable side by side on the same phone:
+// "development" for testing, "production" for the stores.
+const IS_DEV = process.env.APP_VARIANT === 'development';
+
+const BUNDLE_ID = IS_DEV ? 'com.lecercle.app.dev' : 'com.lecercle.app';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: IS_DEV ? 'Le Cercle (Dev)' : 'Le Cercle',
+  slug: 'le-cercle',
+  scheme: IS_DEV ? 'lecercle-dev' : 'lecercle',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/icon.png',
+  userInterfaceStyle: 'automatic',
+  ios: {
+    bundleIdentifier: BUNDLE_ID,
+    supportsTablet: false,
+    config: { usesNonExemptEncryption: false },
+  },
+  android: {
+    package: BUNDLE_ID,
+    adaptiveIcon: {
+      backgroundColor: '#E6F4FE',
+      foregroundImage: './assets/android-icon-foreground.png',
+      backgroundImage: './assets/android-icon-background.png',
+      monochromeImage: './assets/android-icon-monochrome.png',
+    },
+    predictiveBackGestureEnabled: false,
+  },
+  plugins: [
+    'expo-router',
+    [
+      '@sentry/react-native/expo',
+      {
+        // Non-secret identifiers; the upload token stays in SENTRY_AUTH_TOKEN (EAS secret).
+        organization: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+      },
+    ],
+  ],
+  experiments: {
+    typedRoutes: true,
+  },
+});

@@ -1,8 +1,4 @@
-import { registerRootComponent } from 'expo';
-
-import App from './App';
-
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+// Custom entry point: monitoring must be running before any screen renders,
+// so that crashes during startup are reported too.
+import '@/lib/monitoring';
+import 'expo-router/entry';
