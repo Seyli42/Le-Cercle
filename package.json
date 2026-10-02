@@ -4,10 +4,13 @@
   "main": "index.ts",
   "dependencies": {
     "@sentry/react-native": "~7.11.0",
+    "@supabase/supabase-js": "^2.117.2",
     "expo": "~57.0.26",
     "expo-constants": "~57.0.20",
     "expo-linking": "~57.0.11",
     "expo-router": "~57.0.24",
+    "expo-secure-store": "~57.0.4",
+    "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -25,6 +28,7 @@
     "jest": "~29.7.0",
     "jest-expo": "~57.0.5",
     "prettier": "^3.9.9",
+    "supabase": "^2.119.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -37,7 +41,10 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
-    "doctor": "npx expo-doctor@latest"
+    "doctor": "npx expo-doctor@latest",
+    "test:db": "./scripts/test-db.sh",
+    "db:link": "supabase link",
+    "db:push": "supabase db push"
   },
   "private": true,
   "jest": {

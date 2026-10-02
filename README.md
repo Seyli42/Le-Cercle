@@ -4,6 +4,7 @@ Application iOS + Android de rappels de médicaments, avec alerte aux proches.
 Une seule base de code : Expo / React Native / TypeScript.
 
 - Cahier des charges et étapes : [`docs/CAHIER_DES_CHARGES.md`](docs/CAHIER_DES_CHARGES.md)
+- Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
 ## Démarrer (première fois)
@@ -25,18 +26,23 @@ Scannez le QR code avec l'app **Expo Go** (iPhone : appareil photo ; Android : a
 | `npm test`          | Lance les tests automatiques.                                    |
 | `npm run check`     | Fait les trois ci-dessus + le formatage, en une fois.            |
 | `npm run doctor`    | Vérifie que la configuration Expo est saine.                     |
+| `npm run test:db`   | Teste les tables et la sécurité (nécessite un Postgres local).   |
 
 ## Structure
 
 ```
 src/
   app/          Écrans (chaque fichier = une page, géré par Expo Router)
+    (app)/      Écrans accessibles une fois connecté
   components/   Éléments d'interface réutilisables
   config/       Configuration publique (variables EXPO_PUBLIC_*)
-  lib/          Logique : erreurs, monitoring (Sentry)…
+  features/     Fonctionnalités (auth/ : connexion par code e-mail)
+  lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
   theme/        Couleurs, tailles, espacements
 __tests__/      Tests automatiques
 docs/           Documentation projet
+supabase/       Base de données : migrations, tests de sécurité, modèles d'e-mail
+scripts/        Outils (test de la base)
 ```
 
 ## Secrets

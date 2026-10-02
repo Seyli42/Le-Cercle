@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 
 import { env } from '@/config/env';
-import { toAppError, type AppError } from '@/lib/errors';
+import { AppError, toAppError } from '@/lib/errors';
 
 // Health data must never leave the phone through crash reports.
 const SENSITIVE_KEYS = /name|medic|dose|phone|email|note|token|password/i;
@@ -33,19 +33,44 @@ Sentry.init({
   },
 });
 
+type ReportOptions = {
+  /**
+   * Expected failures (wrong code, offline…) are kept as a breadcrumb attached to the
+   * next real Sentry event instead of creating an alert of their own.
+   */
+  readonly expected?: boolean;
+};
+
 /**
  * Reports an error to Sentry and returns its AppError form, ready to display.
  * `context` must describe WHERE it failed (e.g. "reminders.schedule"), never user data.
  */
-export function reportError(error: unknown, context: string): AppError {
-  const appError = toAppError(error);
-  Sentry.captureException(appError.cause ?? appError, {
-    tags: { kind: appError.kind, context },
-  });
+export function reportError(
+  error: unknown,
+  context: string,
+  options: ReportOptions = {},
+): AppError {
+  const appError = error instanceof AppError ? error : toAppError(error);
+  if (options.expected) {
+    Sentry.addBreadcrumb({
+      category: context,
+      level: 'warning',
+      message: `${appError.kind}: ${appError.message}`,
+    });
+  } else {
+    Sentry.captureException(appError.cause ?? appError, {
+      tags: { kind: appError.kind, context },
+    });
+  }
   if (env.environment === 'development') {
     console.warn(`[${context}]`, error);
   }
   return appError;
+}
+
+/** Links Sentry events to an account by its opaque id only (no e-mail, no name). */
+export function setMonitoringUser(userId: string | null): void {
+  Sentry.setUser(userId ? { id: userId } : null);
 }
 
 export { Sentry };

@@ -32,6 +32,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    // Excludes the encrypted session from Android backups (it could not be decrypted after restore).
+    ['expo-secure-store', { configureAndroidBackup: true }],
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 200,
+        backgroundColor: '#FFFFFF',
+        dark: { image: './assets/splash-icon.png', backgroundColor: '#0F172A' },
+      },
+    ],
     [
       '@sentry/react-native/expo',
       {
