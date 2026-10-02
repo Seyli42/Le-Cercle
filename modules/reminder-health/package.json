@@ -1,0 +1,7 @@
+{
+  "name": "reminder-health",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Le Cercle: tells whether Android will ring reminders on time (exact alarms, battery optimisation).",
+  "main": "src/index.ts"
+}

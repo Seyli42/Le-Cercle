@@ -44,7 +44,7 @@ beforeEach(async () => {
 it('re-running migrations is harmless', async () => {
   await migrate(db);
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
-  expect(row?.user_version).toBe(1);
+  expect(row?.user_version).toBe(2);
 });
 
 it('creates and reads back a medication with its schedules', async () => {

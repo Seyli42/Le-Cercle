@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
-import { openLocalDb } from '@/lib/db/expoDb';
+import { getLocalDb } from '@/lib/db/expoDb';
 import type { LocalDb } from '@/lib/db/types';
 import { reportError } from '@/lib/monitoring';
 import { colors } from '@/theme';
@@ -21,7 +21,7 @@ export function DatabaseProvider({ children }: { readonly children: ReactNode })
 
   useEffect(() => {
     let active = true;
-    openLocalDb()
+    getLocalDb()
       .then((db) => active && setState({ status: 'ready', db }))
       .catch((error: unknown) => {
         reportError(error, 'db.open');

@@ -1,11 +1,13 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
 import { env } from '@/config/env';
 import { useAuth } from '@/features/auth/useAuth';
+import { cancelAllReminders } from '@/features/reminders/engine';
 import { reportError } from '@/lib/monitoring';
 import { colors, fontSize, spacing } from '@/theme';
 
@@ -32,11 +34,28 @@ export default function AccountScreen() {
         label="Se déconnecter"
         variant="secondary"
         loading={signingOut}
-        onPress={() => {
-          setSigningOut(true);
-          void signOut().finally(() => setSigningOut(false));
-        }}
+        onPress={() =>
+          Alert.alert(
+            'Se déconnecter ?',
+            'Vous ne recevrez plus aucun rappel de médicament sur ce téléphone tant que vous ne serez pas reconnecté.',
+            [
+              { text: 'Annuler', style: 'cancel' },
+              {
+                text: 'Se déconnecter',
+                style: 'destructive',
+                onPress: () => {
+                  setSigningOut(true);
+                  cancelAllReminders()
+                    .catch((error: unknown) => reportError(error, 'auth.signOut.cancelReminders'))
+                    .then(() => signOut())
+                    .finally(() => setSigningOut(false));
+                },
+              },
+            ],
+          )
+        }
       />
+      <PrimaryButton label="Vérifier mes rappels" onPress={() => router.push('/reminders')} />
       <MedicalDisclaimer />
 
       {env.environment !== 'production' && (

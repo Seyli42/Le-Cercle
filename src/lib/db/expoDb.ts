@@ -72,7 +72,7 @@ async function openWithKey(key: string): Promise<SQLite.SQLiteDatabase> {
  * If the file cannot be decrypted (e.g. restored from a backup on a new phone, where the
  * key does not exist), it is recreated empty: the data comes back from the server sync.
  */
-export async function openLocalDb(): Promise<LocalDb> {
+async function openLocalDb(): Promise<LocalDb> {
   const key = await getOrCreateKey();
   let database: SQLite.SQLiteDatabase;
   try {
@@ -87,4 +87,20 @@ export async function openLocalDb(): Promise<LocalDb> {
   const db = toLocalDb(database);
   await migrate(db);
   return db;
+}
+
+let shared: Promise<LocalDb> | null = null;
+
+/**
+ * The single connection shared by the screens and the background tasks (reminder
+ * answers, periodic refresh). A failed opening is retried on the next call.
+ */
+export function getLocalDb(): Promise<LocalDb> {
+  if (!shared) {
+    shared = openLocalDb().catch((error: unknown) => {
+      shared = null;
+      throw error;
+    });
+  }
+  return shared;
 }

@@ -38,6 +38,23 @@ export const MIGRATIONS: readonly string[] = [
   CREATE INDEX schedules_medication_idx ON schedules (medication_id);
   CREATE INDEX schedules_user_idx ON schedules (user_id, deleted_at);
   `,
+  // 2 — intake journal (answers to reminders), mirrors public.dose_events.
+  `
+  CREATE TABLE dose_events (
+    id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
+    medication_id TEXT NOT NULL,
+    schedule_id TEXT NOT NULL,
+    scheduled_at TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'taken', 'snoozed', 'skipped', 'missed')),
+    responded_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    sync_status TEXT NOT NULL DEFAULT 'pending' CHECK (sync_status IN ('pending', 'synced')),
+    UNIQUE (schedule_id, scheduled_at)
+  );
+  CREATE INDEX dose_events_user_time_idx ON dose_events (user_id, scheduled_at);
+  `,
 ];
 
 export async function migrate(db: LocalDb): Promise<void> {

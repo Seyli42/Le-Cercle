@@ -8,6 +8,8 @@ import { Screen } from '@/components/Screen';
 import { treatmentStatus } from '@/features/medications/format';
 import { MedicationCard } from '@/features/medications/MedicationCard';
 import { useMedicationList } from '@/features/medications/useMedications';
+import { ReminderBanner } from '@/features/reminders/ReminderBanner';
+import { TodayDoses } from '@/features/reminders/TodayDoses';
 import { colors, fontSize, spacing } from '@/theme';
 
 export default function MedicationListScreen() {
@@ -37,6 +39,13 @@ export default function MedicationListScreen() {
   return (
     <Screen>
       {header}
+      <ReminderBanner />
+      <TodayDoses />
+      {state.status !== 'loading' && state.data.length > 0 && (
+        <Text style={styles.heading} accessibilityRole="header">
+          Mes traitements
+        </Text>
+      )}
       {state.status === 'loading' ? (
         <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
       ) : state.data.length === 0 ? (
@@ -75,5 +84,6 @@ export default function MedicationListScreen() {
 const styles = StyleSheet.create({
   headerLink: { fontSize: fontSize.body, color: colors.primary, padding: spacing.sm },
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
+  heading: { fontSize: 22, fontWeight: '700', color: colors.text, marginTop: spacing.sm },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
 });

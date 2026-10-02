@@ -20,11 +20,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: false,
     config: { usesNonExemptEncryption: false },
+    entitlements: {
+      // Lets medication reminders break through Focus / Do Not Disturb modes.
+      'com.apple.developer.usernotifications.time-sensitive': true,
+    },
   },
   android: {
     package: BUNDLE_ID,
     // Health data must not leave the phone through Google's automatic backups.
     allowBackup: false,
+    // Exact alarms: reminders on time even in battery-saving mode (user-granted).
+    permissions: ['android.permission.SCHEDULE_EXACT_ALARM'],
+    // Added by default by React Native / Expo but useless here: fewer permissions,
+    // more trust (and an easier Play Store review).
+    blockedPermissions: [
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE',
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
     adaptiveIcon: {
       backgroundColor: '#E6F4FE',
       foregroundImage: './assets/android-icon-foreground.png',
@@ -40,6 +53,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Encrypts the local database (medications, schedules) with SQLCipher.
     ['expo-sqlite', { useSQLCipher: true }],
     '@react-native-community/datetimepicker',
+    [
+      'expo-notifications',
+      {
+        icon: './assets/android-icon-monochrome.png',
+        color: '#1D4ED8',
+      },
+    ],
+    // Periodic refresh of the reminders while the app is closed.
+    'expo-background-task',
     [
       'expo-splash-screen',
       {
