@@ -1,6 +1,7 @@
 # Fiches et déclarations des stores
 
-Textes de présentation : [`store/listing.fr.json`](../store/listing.fr.json), vérifiés par
+Textes de présentation : [`store/listing.fr.json`](../store/listing.fr.json) et une fiche par
+langue (`store/listing.<langue>.json`, voir [`LANGUES.md`](LANGUES.md)), vérifiés par
 `__tests__/storeListing.test.ts` (longueurs maximales, aucune promesse médicale).
 Visuels : `store/icon-512.png`, `store/feature-graphic.png` (regénérés par `npm run icons`).
 

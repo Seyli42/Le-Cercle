@@ -19,8 +19,31 @@ type Claimed = {
 
 function localTime(iso: string | null, timeZone: string): string | null {
   if (!iso) return null;
-  return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone }).format(
-    new Date(iso),
+  return new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone,
+  }).format(new Date(iso));
+}
+
+function adminClient() {
+  return createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'), {
+    auth: { persistSession: false },
+  });
+}
+type Admin = ReturnType<typeof adminClient>;
+
+/** Language of each relative's phone. On failure, alerts still go out (in English). */
+async function tokenLocales(admin: Admin, tokens: string[]): Promise<Map<string, string>> {
+  if (tokens.length === 0) return new Map();
+  const { data, error } = await admin.rpc('push_token_locales', { p_tokens: tokens });
+  if (error) {
+    console.error('push_token_locales', error);
+    return new Map();
+  }
+  return new Map(
+    ((data ?? []) as { token: string; locale: string }[]).map((row) => [row.token, row.locale]),
   );
 }
 
@@ -28,9 +51,7 @@ Deno.serve(async (request) => {
   const secret = request.headers.get('x-cron-secret') ?? '';
   if (!safeEqual(secret, requireEnv('CRON_SECRET'))) return json({ error: 'forbidden' }, 403);
 
-  const admin = createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'), {
-    auth: { persistSession: false },
-  });
+  const admin = adminClient();
   const { data, error } = await admin.rpc('claim_missed_doses');
   if (error) {
     console.error('claim_missed_doses', error);
@@ -39,16 +60,22 @@ Deno.serve(async (request) => {
 
   // Optional: "enhanced push security" access token (expo.dev → Access tokens).
   const accessToken = Deno.env.get('EXPO_ACCESS_TOKEN') || undefined;
+  const claimed = (data ?? []) as Claimed[];
+  const locales = await tokenLocales(
+    admin,
+    claimed.flatMap((alert) => alert.tokens),
+  );
   let sent = 0;
   let failed = 0;
   const dead: string[] = [];
-  for (const alert of (data ?? []) as Claimed[]) {
+  for (const alert of claimed) {
     const messages = buildMessages({
       alertId: alert.alert_id,
       patientFirstName: alert.patient_first_name,
       plannedLocalTime: alert.planned_local_time,
       lastSeenLocalTime: localTime(alert.last_seen_at, alert.timezone),
       tokens: alert.tokens,
+      localeOf: (token) => locales.get(token),
     });
     const outcome = interpretTickets(messages, await sendPush(messages, { accessToken }));
     dead.push(...outcome.deadTokens);

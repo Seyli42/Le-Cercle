@@ -10,11 +10,11 @@
 
 | Catégorie                      | Données                                                                                                          | Origine          |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------- |
-| Compte                         | Adresse e-mail, date de consentement                                                                             | Vous             |
+| Compte                         | Adresse e-mail, date de consentement, langue de l'app                                                            | Vous             |
 | Données de santé (art. 9 RGPD) | Médicaments, quantités, horaires, dates de traitement, notes, réponses aux rappels (pris / passé / non confirmé) | Vous             |
 | Profil                         | Prénom, fuseau horaire, délai d'alerte, dernière connexion                                                       | Vous / l'app     |
 | Proches (« Mon Cercle »)       | Lien entre votre compte et celui de vos proches, leur prénom, codes d'invitation, journal des alertes            | Vous / le proche |
-| Appareils                      | Jeton de notification de vos téléphones (pour recevoir les alertes du Cercle)                                    | L'app            |
+| Appareils                      | Jeton de notification et langue de vos téléphones (pour recevoir les alertes du Cercle)                          | L'app            |
 | Technique                      | Rapports de plantage (sans données de santé ni identité)                                                         | L'app            |
 | Publicité (version gratuite)   | Identifiant publicitaire de l'appareil, adresse IP (localisation approximative), interactions avec les annonces  | SDK Google AdMob |
 | Abonnement Premium             | Historique d'achat (produit, dates, store), identifiant de compte                                                | App Store / Play |

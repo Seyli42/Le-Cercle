@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle: Peringatan Ubat",
+    "subtitle": "Makan ubat tepat pada masa",
+    "keywords": "makan ubat,penggera,preskripsi,pil,tablet,warga emas,penjaga,keluarga,kesihatan,lupa,jadual",
+    "promotionalText": "Peringatan yang boleh dipercayai, walaupun tanpa internet dan telefon dikunci. Jika pengambilan tidak disahkan, orang tersayang pilihan anda dimaklumkan.",
+    "description": "DoseCircle mengingatkan anda makan ubat tepat pada masanya, setiap hari. Dan jika pengambilan ubat tidak disahkan, orang tersayang pilihan anda menerima pemberitahuan di telefon mereka.\n\nPERINGATAN YANG TIDAK TERLEPAS\n• Berfungsi tanpa internet, semasa telefon dikunci dan selepas dimulakan semula.\n• \"Sudah makan\", \"Dalam 10 min\" atau \"Langkau\" terus daripada pemberitahuan.\n• Satu skrin menyemak bahawa peringatan benar-benar dibenarkan dalam telefon anda.\n\nBULATAN KEPERCAYAAN ANDA\n• Tambah anak, jiran atau penjaga.\n• Mereka memasang DoseCircle tanpa kos dan memasukkan kod yang anda kongsi: itulah persetujuan mereka.\n• Mereka menerima pemberitahuan hanya jika pengambilan ubat tidak disahkan tepat pada masanya.\n• Sesiapa sahaja boleh berhenti pada bila-bila masa.\n\nMUDAH DIGUNAKAN\n• Butang besar, teks besar, mod gelap.\n• Tambah ubat dalam beberapa saat: nama, kuantiti, waktu, tempoh.\n• Sejarah pengambilan ubat 30 hari.\n\nDATA ANDA DILINDUNGI\n• Data disulitkan dalam telefon, pelayan di Eropah.\n• Tiada penjualan semula, tiada pemprofilan. Eksport atau padam akaun dengan satu ketikan.\n\nPERCUMA, ATAU PREMIUM TANPA IKLAN\nSemua ciri adalah percuma. Versi percuma memaparkan sedikit iklan yang tidak diperibadikan, tidak pernah semasa peringatan. Langganan Premium membuang semua iklan.\n\nPENTING\nDoseCircle bukan peranti perubatan. Aplikasi ini mengingatkan apa yang anda masukkan: ia tidak memberi nasihat dan tidak menyemak dos atau interaksi ubat. Jika ragu, tanya doktor atau ahli farmasi anda.",
+    "whatsNew": "Versi pertama DoseCircle.",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle: Peringatan Ubat",
+    "shortDescription": "Peringatan ubat yang andal tanpa internet. Orang tersayang turut dimaklumkan.",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}

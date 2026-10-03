@@ -3,3 +3,5 @@ node_modules
 dist
 package-lock.json
 supabase/functions/deno.lock
+# Go template (Supabase): checked by __tests__/emailTemplate.test.ts
+supabase/templates/code.html

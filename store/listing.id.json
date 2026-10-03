@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle: Pengingat Obat",
+    "subtitle": "Minum obat tepat waktu",
+    "keywords": "minum obat,alarm,resep,pil,tablet,lansia,pendamping,keluarga,kesehatan,lupa,jadwal",
+    "promotionalText": "Pengingat andal, bahkan tanpa internet dan saat ponsel terkunci. Jika minum obat tidak dikonfirmasi, orang terdekat pilihan Anda menerima notifikasi.",
+    "description": "DoseCircle mengingatkan Anda minum obat tepat waktu, setiap hari. Dan jika minum obat tidak dikonfirmasi, orang terdekat pilihan Anda menerima notifikasi di ponsel mereka.\n\nPENGINGAT YANG TIDAK MELESET\n• Berfungsi tanpa internet, saat ponsel terkunci, dan setelah dimulai ulang.\n• \"Sudah diminum\", \"10 menit lagi\" atau \"Lewati\" langsung dari notifikasi.\n• Satu layar memeriksa bahwa pengingat benar-benar diizinkan di ponsel Anda.\n\nLINGKARAN KEPERCAYAAN ANDA\n• Tambahkan anak, tetangga, atau pendamping.\n• Mereka memasang DoseCircle tanpa biaya dan memasukkan kode yang Anda bagikan: itulah persetujuan mereka.\n• Mereka hanya menerima notifikasi jika minum obat tidak dikonfirmasi tepat waktu.\n• Siapa pun bisa berhenti kapan saja.\n\nMUDAH DIGUNAKAN\n• Tombol besar, teks besar, mode gelap.\n• Tambahkan obat dalam hitungan detik: nama, jumlah, jam, durasi.\n• Riwayat minum obat 30 hari.\n\nDATA ANDA TERLINDUNGI\n• Data dienkripsi di ponsel, server di Eropa.\n• Tanpa penjualan data, tanpa profiling. Ekspor atau hapus akun dengan satu ketukan.\n\nGRATIS, ATAU PREMIUM TANPA IKLAN\nSemua fitur gratis. Versi gratis menampilkan sedikit iklan yang tidak dipersonalisasi, tidak pernah saat pengingat. Langganan Premium menghapus semua iklan.\n\nPENTING\nDoseCircle bukan alat kesehatan. Aplikasi ini mengingatkan apa yang Anda masukkan: tidak memberi saran dan tidak memeriksa dosis maupun interaksi obat. Jika ragu, tanyakan dokter atau apoteker Anda.",
+    "whatsNew": "Versi pertama DoseCircle.",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle: Pengingat Obat",
+    "shortDescription": "Pengingat obat andal tanpa internet. Orang terdekat diberi tahu jika terlewat.",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}

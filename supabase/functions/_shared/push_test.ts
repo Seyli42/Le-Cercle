@@ -1,6 +1,14 @@
 import { assertEquals, assertMatch, assertStringIncludes } from 'jsr:@std/assert@1';
 
-import { alertText, buildMessages, interpretTickets, sendPush, type PushTicket } from './push.ts';
+import {
+  alertLanguage,
+  alertText,
+  ALERT_WORDS,
+  buildMessages,
+  interpretTickets,
+  sendPush,
+  type PushTicket,
+} from './push.ts';
 
 const alert = {
   alertId: 'a1',
@@ -16,6 +24,42 @@ Deno.test('the alert names the person and the time, never the medication', () =>
   assertStringIncludes(body, '08:00');
   assertStringIncludes(body, '07:45');
   assertMatch(body, /prendre de ses nouvelles/);
+});
+
+Deno.test('each relative reads the alert in the language of their phone', () => {
+  const messages = buildMessages({
+    ...alert,
+    localeOf: (token) => (token === 'ExponentPushToken[one]' ? 'es' : null),
+  });
+  assertEquals(messages[0]?.title, 'Marie no ha confirmado su toma');
+  // Unknown language: English.
+  assertEquals(messages[1]?.title, 'Marie hasn’t confirmed their dose');
+  assertEquals(alertLanguage('pt-BR'), 'pt');
+  assertEquals(alertLanguage('ZH_hans'), 'zh');
+  assertEquals(alertLanguage('de'), 'en');
+  assertEquals(alertLanguage('constructor'), 'en');
+});
+
+Deno.test('every language gives the time, a fallback name, and no empty text', () => {
+  for (const language of Object.keys(ALERT_WORDS)) {
+    const { title, body } = alertText({ ...alert, patientFirstName: '  ' }, language);
+    assertStringIncludes(title, ALERT_WORDS[language as keyof typeof ALERT_WORDS].someone);
+    assertStringIncludes(body, '08:00');
+    assertStringIncludes(body, '07:45');
+  }
+  assertEquals(Object.keys(ALERT_WORDS).sort(), [
+    'ar',
+    'en',
+    'es',
+    'fr',
+    'hi',
+    'id',
+    'ja',
+    'ms',
+    'pt',
+    'ru',
+    'zh',
+  ]);
 });
 
 Deno.test('one message per phone, on the high-priority alert channel', () => {

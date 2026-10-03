@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle: Recordatorio",
+    "subtitle": "Tus tomas, a su hora",
+    "keywords": "medicamentos,pastillero,pastilla,alarma,tratamiento,receta,mayores,cuidador,familia,salud,olvido",
+    "promotionalText": "Recordatorios fiables, incluso sin conexión y con el teléfono bloqueado. Si una toma no se confirma, tus seres queridos reciben un aviso en su teléfono.",
+    "description": "DoseCircle te recuerda tomar tus medicamentos a su hora, todos los días. Y si una toma no se confirma, las personas que elijas reciben una notificación en su teléfono.\n\nRECORDATORIOS QUE NO FALLAN\n• Funciona sin conexión, con el teléfono bloqueado y después de reiniciarlo.\n• «Tomado», «En 10 min» u «Omitir» directamente desde la notificación.\n• Una pantalla comprueba que los recordatorios están permitidos en tu teléfono.\n\nTU CÍRCULO DE CONFIANZA\n• Añade a un hijo, un vecino, un cuidador.\n• Instala DoseCircle sin coste e introduce el código que le compartes: es su consentimiento.\n• Recibe una notificación solo si una toma no se confirma a tiempo.\n• Cualquiera puede dejarlo en cualquier momento.\n\nFÁCIL DE USAR\n• Botones grandes, letra grande, modo oscuro.\n• Añade un medicamento en segundos: nombre, cantidad, horarios, duración.\n• Historial de tomas de 30 días.\n\nTUS DATOS PROTEGIDOS\n• Datos cifrados en el teléfono, servidores en Europa.\n• Sin reventa ni perfiles. Exporta o elimina tu cuenta con un gesto.\n\nGRATIS, O PREMIUM SIN PUBLICIDAD\nTodas las funciones son gratuitas. La versión gratuita muestra algunos anuncios no personalizados, nunca durante un recordatorio. La suscripción Premium los elimina todos: sin publicidad.\n\nIMPORTANTE\nDoseCircle no es un producto sanitario. La aplicación te recuerda lo que has introducido: no da consejos ni comprueba dosis ni interacciones. Si tienes dudas, pregunta a tu médico o farmacéutico.",
+    "whatsNew": "Primera versión de DoseCircle.",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle: Recordatorio",
+    "shortDescription": "Recordatorios de medicamentos fiables sin conexión. Avisa a tus seres queridos.",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}

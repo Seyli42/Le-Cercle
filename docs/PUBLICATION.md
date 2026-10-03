@@ -98,7 +98,8 @@ cherchez l'adresse → **Delete user**. Tout est effacé en cascade. Répondez �
 1. **App Store Connect → Apps → +** : plateforme iOS, nom « DoseCircle – Rappel
    médicament », langue Français, identifiant `com.dosecircle.app`, SKU `dosecircle-ios`.
 2. Remplissez la fiche avec `store/listing.fr.json` et les déclarations de
-   `docs/STORES.md` (confidentialité, âge, abonnements, notes de revue).
+   `docs/STORES.md` (confidentialité, âge, abonnements, notes de revue), puis ajoutez les
+   10 autres langues avec `store/listing.<langue>.json` (voir `docs/LANGUES.md`).
 
 | Commande                                                       | À quoi ça sert                                                                                 |
 | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -114,6 +115,7 @@ cherchez l'adresse → **Delete user**. Tout est effacé en cascade. Répondez �
 1. **Play Console → Créer une application** : nom, Français, Application, Gratuite.
 2. Remplissez **Contenu de l'application** et **Fiche Play Store** avec `docs/STORES.md` et
    `store/listing.fr.json` ; icône `store/icon-512.png`, visuel `store/feature-graphic.png`.
+   Ajoutez les traductions de la fiche (`store/listing.<langue>.json`, voir `docs/LANGUES.md`).
 
 | Commande                                                           | À quoi ça sert                                  |
 | ------------------------------------------------------------------ | ----------------------------------------------- |

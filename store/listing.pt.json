@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle: Lembrete",
+    "subtitle": "As suas tomas, à hora certa",
+    "keywords": "medicamentos,comprimido,alarme,tratamento,receita,idosos,cuidador,família,saúde,esquecimento",
+    "promotionalText": "Lembretes fiáveis, mesmo sem rede e com o telemóvel bloqueado. Se uma toma não for confirmada, os próximos que escolheu são avisados no telemóvel deles.",
+    "description": "O DoseCircle lembra-lhe de tomar os seus medicamentos à hora certa, todos os dias. E se uma toma não for confirmada, os próximos que escolheu recebem uma notificação no telemóvel.\n\nLEMBRETES QUE NÃO FALHAM\n• Funciona sem rede, com o telemóvel bloqueado e depois de reiniciar.\n• «Tomado», «Daqui a 10 min» ou «Saltar» diretamente a partir da notificação.\n• Um ecrã verifica se os lembretes estão autorizados no seu telemóvel.\n\nO SEU CÍRCULO DE CONFIANÇA\n• Adicione um filho, um vizinho, um cuidador.\n• Ele instala o DoseCircle sem custos e introduz o código que lhe partilha: é o consentimento dele.\n• Recebe uma notificação apenas se uma toma não for confirmada a tempo.\n• Qualquer um pode parar a qualquer momento.\n\nSIMPLES DE USAR\n• Botões grandes, letra grande, modo escuro.\n• Adicione um medicamento em segundos: nome, quantidade, horários, duração.\n• Histórico de tomas de 30 dias.\n\nOS SEUS DADOS PROTEGIDOS\n• Dados encriptados no telemóvel, servidores na Europa.\n• Sem revenda nem criação de perfis. Exporte ou elimine a conta num gesto.\n\nGRATUITO, OU PREMIUM SEM PUBLICIDADE\nTodas as funções são gratuitas. A versão gratuita mostra alguns anúncios não personalizados, nunca durante um lembrete. A subscrição Premium remove toda a publicidade.\n\nIMPORTANTE\nO DoseCircle não é um dispositivo médico. A aplicação lembra-lhe o que introduziu: não dá conselhos nem verifica doses ou interações. Em caso de dúvida, pergunte ao seu médico ou farmacêutico.",
+    "whatsNew": "Primeira versão do DoseCircle.",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle: Lembrete",
+    "shortDescription": "Lembretes de medicamentos fiáveis, sem rede. Os seus próximos são avisados.",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}

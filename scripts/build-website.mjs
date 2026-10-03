@@ -10,40 +10,66 @@ const root = new URL('..', import.meta.url).pathname;
 const site = JSON.parse(readFileSync(join(root, 'website/site.json'), 'utf8'));
 const out = join(root, 'website/dist');
 
-const downloadLinks =
-  [
-    site.appStoreUrl && `[Télécharger sur l'App Store](${site.appStoreUrl})`,
-    site.playStoreUrl && `[Disponible sur Google Play](${site.playStoreUrl})`,
-  ]
-    .filter(Boolean)
-    .join(' · ') || '_Bientôt disponible sur l’App Store et Google Play._';
+const LOCALES = {
+  fr: {
+    dir: '',
+    download: ["Télécharger sur l'App Store", 'Disponible sur Google Play'],
+    soon: '_Bientôt disponible sur l’App Store et Google Play._',
+    other: { href: 'en/index.html', label: 'English' },
+    pages: [
+      { file: 'index.html', source: 'website/pages/index.md', title: 'DoseCircle' },
+      {
+        file: 'confidentialite.html',
+        source: 'docs/PRIVACY.md',
+        title: 'Politique de confidentialité',
+      },
+      {
+        file: 'suppression-compte.html',
+        source: 'website/pages/suppression-compte.md',
+        title: 'Supprimer votre compte',
+      },
+      { file: 'support.html', source: 'website/pages/support.md', title: 'Aide et contact' },
+      {
+        file: 'mentions-legales.html',
+        source: 'website/pages/mentions-legales.md',
+        title: 'Mentions légales',
+      },
+    ],
+  },
+  // English pages, for the store listings of every other language (en/…).
+  en: {
+    dir: 'en',
+    download: ['Download on the App Store', 'Get it on Google Play'],
+    soon: '_Coming soon to the App Store and Google Play._',
+    other: { href: '../index.html', label: 'Français' },
+    pages: [
+      { file: 'index.html', source: 'website/pages/en/index.md', title: 'DoseCircle' },
+      { file: 'privacy.html', source: 'docs/PRIVACY.en.md', title: 'Privacy policy' },
+      {
+        file: 'delete-account.html',
+        source: 'website/pages/en/delete-account.md',
+        title: 'Delete your account',
+      },
+      { file: 'support.html', source: 'website/pages/en/support.md', title: 'Help and contact' },
+      { file: 'legal.html', source: 'website/pages/en/legal.md', title: 'Legal notice' },
+    ],
+  },
+};
 
-const fill = (text) =>
-  text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-    if (key === 'downloadLinks') return downloadLinks;
+const fill = (text, locale) => {
+  const links =
+    [
+      site.appStoreUrl && `[${locale.download[0]}](${site.appStoreUrl})`,
+      site.playStoreUrl && `[${locale.download[1]}](${site.playStoreUrl})`,
+    ]
+      .filter(Boolean)
+      .join(' · ') || locale.soon;
+  return text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    if (key === 'downloadLinks') return links;
     if (!(key in site)) throw new Error(`Valeur manquante dans website/site.json : ${key}`);
     return site[key];
   });
-
-const PAGES = [
-  { file: 'index.html', source: 'website/pages/index.md', title: 'DoseCircle' },
-  {
-    file: 'confidentialite.html',
-    source: 'docs/PRIVACY.md',
-    title: 'Politique de confidentialité',
-  },
-  {
-    file: 'suppression-compte.html',
-    source: 'website/pages/suppression-compte.md',
-    title: 'Supprimer votre compte',
-  },
-  { file: 'support.html', source: 'website/pages/support.md', title: 'Aide et contact' },
-  {
-    file: 'mentions-legales.html',
-    source: 'website/pages/mentions-legales.md',
-    title: 'Mentions légales',
-  },
-];
+};
 
 const css = `
 :root{--bg:#fff;--text:#0F172A;--muted:#475569;--primary:#1D4ED8;--surface:#F3F6FA;--border:#64748B}
@@ -55,35 +81,45 @@ h1{font-size:2rem;line-height:1.2}h2{margin-top:2em}blockquote{margin:1em 0;padd
 table{border-collapse:collapse;width:100%;display:block;overflow-x:auto}th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}
 footer{color:var(--muted);font-size:15px;text-align:center;padding:24px 16px}`;
 
-const nav = PAGES.map((p) => `<a href="${p.file}">${p.title}</a>`).join('');
-
 rmSync(out, { recursive: true, force: true });
-mkdirSync(out, { recursive: true });
 const unfilled = [];
-for (const page of PAGES) {
-  const markdown = fill(readFileSync(join(root, page.source), 'utf8'))
-    // The template's editorial note is for you, not for the public.
-    .replace(/^> Modèle rédigé pour l'application[\s\S]*?\n\n/m, '');
-  for (const match of markdown.matchAll(
-    /\[(?:Raison sociale|adresse|SIRET|date|à préciser|e-mail[^\]]*|région choisie|UE ou US[^\]]*|nom ou[^\]]*|7|forme juridique|montant|ville|numéro|nom)\]/g,
-  )) {
-    unfilled.push(`${page.file}: ${match[0]}`);
-  }
-  const html = `<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${page.title} — DoseCircle</title><link rel="icon" href="favicon.png"><style>${css}</style></head>
+for (const [lang, locale] of Object.entries(LOCALES)) {
+  const dir = join(out, locale.dir);
+  mkdirSync(dir, { recursive: true });
+  const up = locale.dir ? '../' : '';
+  const nav =
+    locale.pages.map((p) => `<a href="${p.file}">${p.title}</a>`).join('') +
+    `<a href="${locale.other.href}" lang="${lang === 'fr' ? 'en' : 'fr'}">${locale.other.label}</a>`;
+  for (const page of locale.pages) {
+    const markdown = fill(readFileSync(join(root, page.source), 'utf8'), locale)
+      // The template's editorial note is for you, not for the public.
+      .replace(
+        /^> (?:Modèle rédigé pour l'application|Template written for the app)[\s\S]*?\n\n/m,
+        '',
+      );
+    for (const match of markdown.matchAll(
+      /\[(?:Raison sociale|Company name|adresse|address|SIRET|registration number|date|à préciser|to be specified|e-mail[^\]]*|email[^\]]*|dedicated email[^\]]*|région choisie|chosen region|UE ou US[^\]]*|EU or US[^\]]*|nom ou[^\]]*|name or[^\]]*|7|forme juridique|legal form|montant|amount|ville|city|numéro|number|nom|name)\]/g,
+    )) {
+      unfilled.push(`${join(locale.dir, page.file)}: ${match[0]}`);
+    }
+    const html = `<!doctype html>
+<html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${page.title} — DoseCircle</title><link rel="icon" href="${up}favicon.png"><style>${css}</style></head>
 <body><nav aria-label="Pages">${nav}</nav><main>${marked.parse(markdown)}</main>
 <footer>© ${new Date().getFullYear()} ${site.companyName} · <a href="mailto:${site.contactEmail}">${site.contactEmail}</a></footer></body></html>
 `;
-  writeFileSync(join(out, page.file), html);
+    writeFileSync(join(dir, page.file), html);
+  }
 }
 writeFileSync(
   join(out, 'app-ads.txt'),
-  fill(readFileSync(join(root, 'website/app-ads.txt'), 'utf8')),
+  fill(readFileSync(join(root, 'website/app-ads.txt'), 'utf8'), LOCALES.fr),
 );
 writeFileSync(join(out, 'favicon.png'), readFileSync(join(root, 'assets/favicon.png')));
 
-console.log(`✓ Site généré dans website/dist (${readdirSync(out).length} fichiers).`);
+console.log(
+  `✓ Site généré dans website/dist (${readdirSync(out, { recursive: true }).length} fichiers, français + anglais dans en/).`,
+);
 if (site.admobPublisherId === 'pub-0000000000000000') unfilled.push('site.json: admobPublisherId');
 if (site.companyName.startsWith('[')) unfilled.push('site.json: companyName');
 if (unfilled.length) {

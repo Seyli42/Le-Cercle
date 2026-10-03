@@ -8,6 +8,7 @@ Une seule base de code : Expo / React Native / TypeScript.
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
 - Synchronisation et historique : [`docs/SYNCHRO.md`](docs/SYNCHRO.md)
 - Mon Cercle (proches prévenus par notification, gratuit) : [`docs/CERCLE.md`](docs/CERCLE.md)
+- Les 11 langues de l'app (et ce qu'il faut faire relire) : [`docs/LANGUES.md`](docs/LANGUES.md)
 - Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
@@ -92,10 +93,10 @@ Premium offert aux clients B2B.
 Voir [`docs/PUBLICATION.md`](docs/PUBLICATION.md) (pas à pas) et
 [`docs/STORES.md`](docs/STORES.md) (réponses aux questionnaires Apple et Google).
 
-| Commande                | À quoi ça sert                                                       |
-| ----------------------- | -------------------------------------------------------------------- |
-| `npm run website:build` | Génère le site public dans `website/dist` (à envoyer sur Hostinger). |
-| `npm run icons`         | Regénère les icônes de l'app et des stores.                          |
+| Commande                | À quoi ça sert                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| `npm run website:build` | Génère le site public dans `website/dist` (français + anglais dans `en/`, à envoyer sur Hostinger). |
+| `npm run icons`         | Regénère les icônes de l'app et des stores.                                                         |
 
 ## Secrets
 

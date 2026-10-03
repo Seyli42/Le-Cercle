@@ -1,22 +1,99 @@
 <!doctype html>
-<html lang="fr">
-  <body
-    style="
-      font-family:
-        -apple-system,
-        Segoe UI,
-        Roboto,
-        sans-serif;
-      color: #0f172a;
-    "
-  >
-    <h2>Votre code de connexion</h2>
-    <p>Saisissez ce code dans l'application DoseCircle :</p>
-    <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px">{{ .Token }}</p>
-    <p>Ce code expire dans 10 minutes.</p>
-    <p style="color: #475569">
-      Si vous n'avez pas demandé ce code, ignorez simplement cet e-mail : personne ne pourra se
-      connecter sans lui.
-    </p>
+<!--
+  One email, 11 languages: the app sends the account language in user_metadata.language
+  (src/features/auth/AuthProvider.tsx). Unknown or missing language: French (first users).
+  The subject in supabase/config.toml follows the same rule. Checked by __tests__/emailTemplate.test.ts.
+-->
+<html>
+  <body style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #0f172a">
+    {{ if eq .Data.language "en" }}
+    <div lang="en">
+      <h2>Your sign-in code</h2>
+      <p>Enter this code in the DoseCircle app:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>This code expires in 10 minutes.</p>
+      <p style="color: #475569">If you didn't ask for this code, simply ignore this email: nobody can sign in without it.</p>
+    </div>
+    {{ else if eq .Data.language "es" }}
+    <div lang="es">
+      <h2>Tu código de acceso</h2>
+      <p>Introduce este código en la aplicación DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Este código caduca en 10 minutos.</p>
+      <p style="color: #475569">Si no has pedido este código, ignora este correo: nadie podrá iniciar sesión sin él.</p>
+    </div>
+    {{ else if eq .Data.language "pt" }}
+    <div lang="pt">
+      <h2>O seu código de acesso</h2>
+      <p>Introduza este código na aplicação DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Este código expira dentro de 10 minutos.</p>
+      <p style="color: #475569">Se não pediu este código, ignore simplesmente este e-mail: ninguém poderá iniciar sessão sem ele.</p>
+    </div>
+    {{ else if eq .Data.language "zh" }}
+    <div lang="zh">
+      <h2>您的登录验证码</h2>
+      <p>请在 DoseCircle 应用中输入此验证码：</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>此验证码将在 10 分钟后失效。</p>
+      <p style="color: #475569">如果您没有申请此验证码，请忽略这封邮件：没有它，任何人都无法登录。</p>
+    </div>
+    {{ else if eq .Data.language "ja" }}
+    <div lang="ja">
+      <h2>ログインコード</h2>
+      <p>DoseCircle アプリでこのコードを入力してください：</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>このコードの有効期限は10分です。</p>
+      <p style="color: #475569">このコードに心当たりがない場合は、このメールを無視してください。コードがなければ誰もログインできません。</p>
+    </div>
+    {{ else if eq .Data.language "ru" }}
+    <div lang="ru">
+      <h2>Ваш код входа</h2>
+      <p>Введите этот код в приложении DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Код действует 10 минут.</p>
+      <p style="color: #475569">Если вы не запрашивали этот код, просто проигнорируйте письмо: без него никто не сможет войти.</p>
+    </div>
+    {{ else if eq .Data.language "ar" }}
+    <div lang="ar" dir="rtl">
+      <h2>رمز الدخول الخاص بك</h2>
+      <p>أدخل هذا الرمز في تطبيق DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>تنتهي صلاحية هذا الرمز خلال 10 دقائق.</p>
+      <p style="color: #475569">إذا لم تطلب هذا الرمز، فتجاهل هذه الرسالة ببساطة: لا يمكن لأحد تسجيل الدخول من دونه.</p>
+    </div>
+    {{ else if eq .Data.language "hi" }}
+    <div lang="hi">
+      <h2>आपका लॉगिन कोड</h2>
+      <p>यह कोड DoseCircle ऐप में लिखें:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>यह कोड 10 मिनट में समाप्त हो जाएगा।</p>
+      <p style="color: #475569">अगर आपने यह कोड नहीं माँगा, तो इस ईमेल को अनदेखा करें: इसके बिना कोई भी साइन इन नहीं कर सकता।</p>
+    </div>
+    {{ else if eq .Data.language "id" }}
+    <div lang="id">
+      <h2>Kode masuk Anda</h2>
+      <p>Masukkan kode ini di aplikasi DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Kode ini berlaku selama 10 menit.</p>
+      <p style="color: #475569">Jika Anda tidak meminta kode ini, abaikan saja email ini: tidak ada yang bisa masuk tanpa kode ini.</p>
+    </div>
+    {{ else if eq .Data.language "ms" }}
+    <div lang="ms">
+      <h2>Kod log masuk anda</h2>
+      <p>Masukkan kod ini dalam aplikasi DoseCircle:</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Kod ini tamat tempoh dalam 10 minit.</p>
+      <p style="color: #475569">Jika anda tidak meminta kod ini, abaikan sahaja e-mel ini: tiada sesiapa boleh log masuk tanpanya.</p>
+    </div>
+    {{ else }}
+    <div lang="fr">
+      <h2>Votre code de connexion</h2>
+      <p>Saisissez ce code dans l'application DoseCircle :</p>
+      <p style="font-size: 32px; font-weight: 700; letter-spacing: 8px" dir="ltr">{{ .Token }}</p>
+      <p>Ce code expire dans 10 minutes.</p>
+      <p style="color: #475569">Si vous n'avez pas demandé ce code, ignorez simplement cet e-mail : personne ne pourra se connecter sans lui.</p>
+    </div>
+    {{ end }}
   </body>
 </html>

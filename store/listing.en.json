@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle: Pill Reminder",
+    "subtitle": "Your doses, right on time",
+    "keywords": "medication,medicine,tracker,alarm,pillbox,tablet,schedule,senior,caregiver,family,health,refill",
+    "promotionalText": "Reliable reminders, even offline and with the phone locked. If a dose isn't confirmed, the loved ones you chose get a notification on their phone.",
+    "description": "DoseCircle reminds you to take your medication on time, every day. And if a dose isn't confirmed, the loved ones you chose are alerted by a notification on their phone.\n\nREMINDERS THAT DON'T MISS\n• Works offline, with the phone locked, and after a restart.\n• “Taken”, “In 10 min” or “Skip” right from the notification.\n• A screen checks that reminders are really allowed on your phone.\n\nYOUR CIRCLE OF TRUST\n• Add a child, a neighbour, a home carer.\n• They install DoseCircle for free and enter the code you share: that is their consent.\n• They get a notification only if a dose isn't confirmed in time.\n• Anyone can stop at any time.\n\nEASY TO USE\n• Big buttons, large text, dark mode.\n• Add a medication in seconds: name, amount, times, duration.\n• 30-day dose history.\n\nYOUR DATA PROTECTED\n• Data encrypted on the phone, servers in Europe.\n• No reselling, no profiling. Export or delete your account in one tap.\n\nFREE, OR PREMIUM WITHOUT ADS\nEvery feature is free. The free version shows a few non-personalised ads, never during a reminder. The Premium subscription removes all advertising.\n\nIMPORTANT\nDoseCircle is not a medical device. The app reminds you of what you entered: it gives no advice and checks neither doses nor interactions. If in doubt, ask your doctor or pharmacist.",
+    "whatsNew": "First release of DoseCircle.",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle: Pill Reminder",
+    "shortDescription": "Reliable offline medication reminders. Loved ones alerted if a dose is missed.",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "appStore": {
+    "name": "DoseCircle - 用药提醒",
+    "subtitle": "按时服药，家人安心",
+    "keywords": "吃药,服药,药盒,闹钟,处方,慢性病,老人,家人,护理,健康,打卡,漏服",
+    "promotionalText": "可靠的提醒，即使离线、手机锁屏也会响起。如果某次服药未确认，您选择的亲友会在他们的手机上收到通知。",
+    "description": "DoseCircle 每天按时提醒您服药。如果某次服药没有确认，您选择的亲友会在他们的手机上收到通知。\n\n从不遗漏的提醒\n• 离线、锁屏和重启后都能正常工作。\n• 直接在通知中点按 “已服用”、“10 分钟后”或“跳过”。\n• 专门的页面检查您的手机是否允许提醒。\n\n您的信任圈子\n• 添加子女、邻居或家庭护理人员。\n• 对方免费安装 DoseCircle 并输入您分享的代码：这就是对方的同意。\n• 只有在服药未按时确认时，对方才会收到通知。\n• 任何一方都可以随时停止。\n\n简单易用\n• 大按钮、大字体、深色模式。\n• 几秒钟即可添加药品：名称、用量、时间、疗程。\n• 30 天服药记录。\n\n数据受到保护\n• 数据在手机上加密，服务器位于欧洲。\n• 不转售、不画像。一键导出或删除账号。\n\n免费使用，或选择无广告的 Premium\n所有功能均可免费使用。免费版会显示少量非个性化广告，提醒时绝不显示。Premium 订阅会去除所有广告。\n\n重要提示\nDoseCircle 不是医疗器械。本应用只提醒您自己输入的内容：不提供任何建议，也不检查剂量或药物相互作用。如有疑问，请咨询您的医生或药剂师。",
+    "whatsNew": "DoseCircle 首个版本。",
+    "primaryCategory": "Medical",
+    "secondaryCategory": "Health & Fitness"
+  },
+  "googlePlay": {
+    "title": "DoseCircle - 用药提醒",
+    "shortDescription": "可靠的离线用药提醒。漏服时通知您的亲友。",
+    "fullDescription": "@appStore.description",
+    "category": "Medical"
+  }
+}
