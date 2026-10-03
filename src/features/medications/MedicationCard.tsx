@@ -1,13 +1,14 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { formatLocalDate } from '@/features/medications/dates';
 import { describeSchedules, FORM_LABELS, treatmentStatus } from '@/features/medications/format';
 import type { Medication } from '@/features/medications/types';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 type Props = { readonly medication: Medication; readonly onPress: () => void };
 
 export function MedicationCard({ medication, onPress }: Props) {
+  const styles = useStyles();
   const status = treatmentStatus(medication);
   const lines = describeSchedules(medication.schedules);
   const badge =
@@ -46,7 +47,7 @@ export function MedicationCard({ medication, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     padding: spacing.md,
     borderRadius: 16,
@@ -60,4 +61,4 @@ const styles = StyleSheet.create({
   lines: { gap: 2, marginTop: spacing.xs },
   schedule: { fontSize: fontSize.body, color: colors.text },
   badge: { fontSize: 16, color: colors.primary, fontWeight: '600', marginTop: spacing.xs },
-});
+}));

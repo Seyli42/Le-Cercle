@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
@@ -10,7 +10,7 @@ import { CHANNEL_ID } from '@/features/reminders/notifications';
 import { useReminders } from '@/features/reminders/ReminderProvider';
 import { openSystemSettings } from '@/features/reminders/settingsLinks';
 import { reportError } from '@/lib/monitoring';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
   weekday: 'long',
@@ -21,6 +21,7 @@ const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
 });
 
 function Check({ ok, label }: { readonly ok: boolean | null; readonly label: string }) {
+  const styles = useStyles();
   const icon = ok === null ? '•' : ok ? '✅' : '❌';
   return (
     <Text style={styles.check}>
@@ -31,6 +32,7 @@ function Check({ ok, label }: { readonly ok: boolean | null; readonly label: str
 }
 
 export default function RemindersCheckScreen() {
+  const styles = useStyles();
   const { health, issues, sync, refresh, syncNow, askPermission } = useReminders();
   const [testSent, setTestSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -149,13 +151,13 @@ export default function RemindersCheckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
   strong: { fontWeight: '700' },
   card: { padding: spacing.md, borderRadius: 12, backgroundColor: colors.surface, gap: spacing.sm },
-  critical: { backgroundColor: '#FEE2E2' },
-  warning: { backgroundColor: '#FEF3C7' },
+  critical: { backgroundColor: colors.dangerSurface },
+  warning: { backgroundColor: colors.warningSurface },
   cardTitle: { fontSize: fontSize.body, fontWeight: '700', color: colors.text },
   check: { fontSize: fontSize.body, color: colors.text },
-});
+}));

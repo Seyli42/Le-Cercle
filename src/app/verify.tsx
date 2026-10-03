@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
@@ -14,9 +14,10 @@ import {
   sanitizeOtp,
 } from '@/features/auth/validation';
 import { toAppError } from '@/lib/errors';
-import { colors, fontSize } from '@/theme';
+import { fontSize, makeStyles } from '@/theme';
 
 export default function VerifyScreen() {
+  const styles = useStyles();
   const params = useLocalSearchParams<{ email?: string }>();
   const email = typeof params.email === 'string' ? params.email : '';
   const { verifyCode, requestCode } = useAuth();
@@ -121,9 +122,9 @@ export default function VerifyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
   strong: { fontWeight: '700' },
   info: { fontSize: fontSize.body, color: colors.primary },
   code: { fontSize: fontSize.code, letterSpacing: 8, textAlign: 'center' },
-});
+}));

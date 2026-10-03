@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
@@ -21,21 +21,24 @@ import { startOfLocalDay } from '@/features/reminders/today';
 import { SyncStatus } from '@/features/sync/SyncStatus';
 import { useDb } from '@/lib/db/DatabaseProvider';
 import { reportError } from '@/lib/monitoring';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
 
 const DAYS = 30;
 
-const STATUS: Readonly<Record<HistoryStatus, { label: string; color: string }>> = {
-  taken: { label: '✓ Pris', color: '#15803D' },
+const statusInfo = (
+  colors: Colors,
+): Readonly<Record<HistoryStatus, { label: string; color: string }>> => ({
+  taken: { label: '✓ Pris', color: colors.success },
   skipped: { label: 'Passé', color: colors.textMuted },
   unconfirmed: { label: 'Non confirmé', color: colors.danger },
-};
+});
 
 const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
 type Data = { days: HistoryDay[]; week: HistoryCounts; month: HistoryCounts };
 
 function Counts({ title, counts }: { readonly title: string; readonly counts: HistoryCounts }) {
+  const styles = useStyles();
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{title}</Text>
@@ -57,6 +60,8 @@ function Counts({ title, counts }: { readonly title: string; readonly counts: Hi
 }
 
 export default function HistoryScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const db = useDb();
   const userId = useUserId();
   const { version } = useReminders();
@@ -119,15 +124,15 @@ export default function HistoryScreen() {
               key={item.key}
               style={styles.row}
               accessible
-              accessibilityLabel={`${item.timeOfDay}, ${item.medicationName}, ${STATUS[item.status].label}`}
+              accessibilityLabel={`${item.timeOfDay}, ${item.medicationName}, ${statusInfo(colors)[item.status].label}`}
             >
               <Text style={styles.time}>{item.timeOfDay}</Text>
               <View style={styles.texts}>
                 <Text style={styles.name}>{item.medicationName}</Text>
                 {item.doseLabel ? <Text style={styles.body}>{item.doseLabel}</Text> : null}
               </View>
-              <Text style={[styles.status, { color: STATUS[item.status].color }]}>
-                {STATUS[item.status].label}
+              <Text style={[styles.status, { color: statusInfo(colors)[item.status].color }]}>
+                {statusInfo(colors)[item.status].label}
                 {item.status === 'taken' && item.respondedAt
                   ? `\nà ${TIME.format(new Date(item.respondedAt))}`
                   : ''}
@@ -141,7 +146,7 @@ export default function HistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: { padding: spacing.md, borderRadius: 12, backgroundColor: colors.surface, gap: 4 },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.textMuted },
   big: { fontSize: 22, fontWeight: '700', color: colors.text },
@@ -160,4 +165,4 @@ const styles = StyleSheet.create({
   texts: { flex: 1 },
   name: { fontSize: fontSize.body, fontWeight: '600', color: colors.text },
   status: { fontSize: 16, fontWeight: '600', textAlign: 'right' },
-});
+}));

@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 type Props = {
   readonly label: string;
@@ -12,6 +12,7 @@ type Props = {
 };
 
 export function Chip({ label, selected, onPress, role = 'radio', accessibilityLabel }: Props) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole={role}
@@ -26,7 +27,7 @@ export function Chip({ label, selected, onPress, role = 'radio', accessibilityLa
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   chip: {
     minHeight: 48,
     minWidth: 48,
@@ -41,4 +42,4 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: colors.primary },
   label: { fontSize: fontSize.body, color: colors.primary, fontWeight: '600' },
   labelSelected: { color: colors.onPrimary },
-});
+}));

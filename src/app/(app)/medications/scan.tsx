@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Text, View } from 'react-native';
 
 import { Checkbox } from '@/components/Checkbox';
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
@@ -22,7 +22,7 @@ import type { Extraction } from '@/features/scan/types';
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { requireSupabase } from '@/lib/supabase';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing, useColors } from '@/theme';
 
 type Step =
   | { readonly kind: 'consent' }
@@ -43,6 +43,8 @@ const LEGIBILITY = {
 } as const;
 
 export default function ScanScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const { create } = useMedicationActions();
   const [step, setStep] = useState<Step | null>(null);
   const [agreed, setAgreed] = useState(false);
@@ -290,7 +292,7 @@ export default function ScanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
   muted: { fontSize: 16, color: colors.textMuted, fontStyle: 'italic' },
@@ -299,12 +301,12 @@ const styles = StyleSheet.create({
   warning: {
     padding: spacing.md,
     borderRadius: 12,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.warningSurface,
     borderWidth: 2,
-    borderColor: '#B45309',
+    borderColor: colors.warningBorder,
     gap: spacing.xs,
   },
-  warningText: { fontSize: 16, color: '#92400E', fontWeight: '600' },
-  saved: { fontSize: fontSize.body, color: '#15803D', fontWeight: '700' },
+  warningText: { fontSize: 16, color: colors.warningText, fontWeight: '600' },
+  saved: { fontSize: fontSize.body, color: colors.success, fontWeight: '700' },
   error: { fontSize: fontSize.body, color: colors.danger },
-});
+}));

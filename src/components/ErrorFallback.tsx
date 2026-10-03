@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_MESSAGES } from '@/lib/errors';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 type Props = {
   readonly onRetry: () => void;
@@ -10,6 +10,7 @@ type Props = {
 
 /** Shown instead of a white screen when a screen crashes. The error is already sent to Sentry. */
 export function ErrorFallback({ onRetry }: Props) {
+  const styles = useStyles();
   return (
     <View style={styles.container} accessibilityRole="alert">
       <Text style={styles.title}>Oups, un problème est survenu</Text>
@@ -22,7 +23,7 @@ export function ErrorFallback({ onRetry }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -32,4 +33,4 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.textMuted },
-});
+}));

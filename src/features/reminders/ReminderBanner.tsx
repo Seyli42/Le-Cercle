@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
 import { useReminders } from '@/features/reminders/ReminderProvider';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 /** Red banner on the home screen as long as reminders might not ring. */
 export function ReminderBanner() {
+  const styles = useStyles();
   const { issues } = useReminders();
   const first = issues[0];
   if (!first) return null;
@@ -25,10 +26,10 @@ export function ReminderBanner() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   banner: { padding: spacing.md, borderRadius: 12, gap: spacing.xs, borderWidth: 2 },
-  critical: { backgroundColor: '#FEE2E2', borderColor: colors.danger },
-  warning: { backgroundColor: '#FEF3C7', borderColor: '#B45309' },
+  critical: { backgroundColor: colors.dangerSurface, borderColor: colors.danger },
+  warning: { backgroundColor: colors.warningSurface, borderColor: colors.warningBorder },
   title: { fontSize: fontSize.body, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text },
-});
+}));

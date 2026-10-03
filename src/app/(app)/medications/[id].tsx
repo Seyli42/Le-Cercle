@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Alert, Text } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -9,9 +9,11 @@ import { MedicationForm } from '@/features/medications/MedicationForm';
 import { useMedication, useMedicationActions } from '@/features/medications/useMedications';
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
-import { colors, fontSize } from '@/theme';
+import { fontSize, makeStyles, useColors } from '@/theme';
 
 export default function EditMedicationScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, reload } = useMedication(id);
   const { update, remove } = useMedicationActions();
@@ -91,7 +93,7 @@ export default function EditMedicationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   body: { fontSize: fontSize.body, color: colors.text },
   error: { fontSize: fontSize.body, color: colors.danger },
-});
+}));

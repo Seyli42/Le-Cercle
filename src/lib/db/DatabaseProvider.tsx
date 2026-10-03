@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
 import { getLocalDb } from '@/lib/db/expoDb';
 import type { LocalDb } from '@/lib/db/types';
 import { reportError } from '@/lib/monitoring';
-import { colors } from '@/theme';
+import { makeStyles, useColors } from '@/theme';
 
 const DatabaseContext = createContext<LocalDb | null>(null);
 
@@ -16,6 +16,8 @@ type State =
 
 /** Opens the encrypted local database once, then makes it available to every screen. */
 export function DatabaseProvider({ children }: { readonly children: ReactNode }) {
+  const styles = useStyles();
+  const colors = useColors();
   const [state, setState] = useState<State>({ status: 'opening' });
   const [attempt, setAttempt] = useState(0);
 
@@ -54,11 +56,11 @@ export function useDb(): LocalDb {
   return db;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
   },
-});
+}));

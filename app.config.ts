@@ -14,8 +14,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
-  // Dark mode comes with the design pass (step 8); until then colors are light-only.
-  userInterfaceStyle: 'light',
+  // Follows the phone's light / dark setting (see src/theme).
+  userInterfaceStyle: 'automatic',
   ios: {
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: false,

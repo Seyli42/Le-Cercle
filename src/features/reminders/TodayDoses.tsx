@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Chip } from '@/components/Chip';
 import { useUserId } from '@/features/auth/useUserId';
@@ -17,7 +17,7 @@ import {
 } from '@/features/reminders/today';
 import { useDb } from '@/lib/db/DatabaseProvider';
 import { reportError } from '@/lib/monitoring';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
 
 const STATUS_TEXT: Readonly<Record<TodayStatus, string>> = {
   taken: '✓ Pris',
@@ -28,19 +28,21 @@ const STATUS_TEXT: Readonly<Record<TodayStatus, string>> = {
   upcoming: 'À venir',
 };
 
-const STATUS_COLOR: Readonly<Record<TodayStatus, string>> = {
-  taken: '#15803D',
+const statusColor = (colors: Colors): Readonly<Record<TodayStatus, string>> => ({
+  taken: colors.success,
   skipped: colors.textMuted,
-  snoozed: '#B45309',
+  snoozed: colors.warningBorder,
   due: colors.primary,
   late: colors.danger,
   upcoming: colors.textMuted,
-};
+});
 
 const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
 /** Today's intakes, with "Pris" / "Passer" buttons (also works offline). */
 export function TodayDoses() {
+  const styles = useStyles();
+  const colors = useColors();
   const db = useDb();
   const userId = useUserId();
   const { version } = useReminders();
@@ -115,7 +117,7 @@ export function TodayDoses() {
               <View style={styles.texts}>
                 <Text style={styles.name}>{dose.occurrence.medicationName}</Text>
                 <Text style={styles.dose}>{dose.occurrence.doseLabel}</Text>
-                <Text style={[styles.status, { color: STATUS_COLOR[dose.status] }]}>
+                <Text style={[styles.status, { color: statusColor(colors)[dose.status] }]}>
                   {STATUS_TEXT[dose.status]}
                   {answered && dose.respondedAt
                     ? ` à ${TIME.format(new Date(dose.respondedAt))}`
@@ -159,7 +161,7 @@ export function TodayDoses() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   section: { gap: spacing.sm },
   heading: { fontSize: 22, fontWeight: '700', color: colors.text },
   row: {
@@ -177,4 +179,4 @@ const styles = StyleSheet.create({
   status: { fontSize: 16, fontWeight: '600' },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   error: { fontSize: fontSize.body, color: colors.danger },
-});
+}));

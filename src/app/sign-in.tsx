@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { Checkbox } from '@/components/Checkbox';
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
@@ -10,9 +10,10 @@ import { TextField } from '@/components/TextField';
 import { useAuth } from '@/features/auth/useAuth';
 import { isValidEmail, normalizeEmail } from '@/features/auth/validation';
 import { toAppError } from '@/lib/errors';
-import { colors, fontSize } from '@/theme';
+import { fontSize, makeStyles } from '@/theme';
 
 export default function SignInScreen() {
+  const styles = useStyles();
   const { requestCode } = useAuth();
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
@@ -78,7 +79,7 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
-});
+}));

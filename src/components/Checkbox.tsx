@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { colors, fontSize, MIN_TOUCH, spacing } from '@/theme';
+import { MIN_TOUCH, fontSize, makeStyles, spacing } from '@/theme';
 
 type Props = {
   readonly checked: boolean;
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export function Checkbox({ checked, onChange, label }: Props) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole="checkbox"
@@ -25,7 +26,7 @@ export function Checkbox({ checked, onChange, label }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: MIN_TOUCH },
   box: {
     width: 32,
@@ -39,4 +40,4 @@ const styles = StyleSheet.create({
   boxChecked: { backgroundColor: colors.primary },
   tick: { color: colors.onPrimary, fontSize: 20, fontWeight: '700' },
   label: { flex: 1, fontSize: fontSize.body, color: colors.text, lineHeight: 24 },
-});
+}));

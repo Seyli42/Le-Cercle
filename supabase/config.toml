@@ -441,3 +441,7 @@ verify_jwt = true
 # Called by the app with the user's session (photos of prescriptions, never stored).
 [functions.extract-prescription]
 verify_jwt = true
+
+# Called by the app with the user's session: deletes the account and all its data.
+[functions.delete-account]
+verify_jwt = true

@@ -90,5 +90,5 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 | 5 ✅ | Historique & synchro      | Journal des prises, synchronisation SQLite ↔ Supabase        |
 | 6 ✅ | Le Cercle (aidants + SMS) | Invitations, Edge Function Twilio, détection des oublis      |
 | 7 ✅ | Scan IA                   | Caméra, Edge Function Claude, écran de vérification          |
-| 8    | Finitions                 | Onboarding, accessibilité, suppression de compte, tests E2E  |
+| 8 ✅ | Finitions                 | Onboarding, accessibilité, suppression de compte, tests E2E  |
 | 9    | Publication               | EAS Build/Submit, fiches stores, confidentialité, TestFlight |

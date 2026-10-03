@@ -1,7 +1,7 @@
 import type { Ref } from 'react';
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { colors, fontSize, MIN_TOUCH, spacing } from '@/theme';
+import { MIN_TOUCH, fontSize, makeStyles, spacing, useColors } from '@/theme';
 
 type Props = TextInputProps & {
   readonly label: string;
@@ -10,6 +10,8 @@ type Props = TextInputProps & {
 };
 
 export function TextField({ label, error, style, ref, ...inputProps }: Props) {
+  const styles = useStyles();
+  const colors = useColors();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -29,7 +31,7 @@ export function TextField({ label, error, style, ref, ...inputProps }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: { gap: spacing.xs },
   label: { fontSize: fontSize.body, fontWeight: '600', color: colors.text },
   input: {
@@ -44,4 +46,4 @@ const styles = StyleSheet.create({
   },
   inputError: { borderColor: colors.danger },
   error: { fontSize: fontSize.body, color: colors.danger },
-});
+}));

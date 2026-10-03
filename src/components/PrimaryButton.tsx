@@ -1,6 +1,6 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 
-import { colors, fontSize, MIN_TOUCH, spacing } from '@/theme';
+import { MIN_TOUCH, fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
 
 type Props = {
   readonly label: string;
@@ -10,11 +10,12 @@ type Props = {
   readonly loading?: boolean;
 };
 
-const BACKGROUND = {
-  primary: colors.primary,
-  secondary: colors.surface,
-  danger: colors.danger,
-} as const;
+const background = (colors: Colors) =>
+  ({
+    primary: colors.primary,
+    secondary: colors.surface,
+    danger: colors.danger,
+  }) as const;
 
 export function PrimaryButton({
   label,
@@ -23,6 +24,8 @@ export function PrimaryButton({
   disabled = false,
   loading = false,
 }: Props) {
+  const styles = useStyles();
+  const colors = useColors();
   const inactive = disabled || loading;
   const textColor = variant === 'secondary' ? colors.primary : colors.onPrimary;
   return (
@@ -34,7 +37,7 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: BACKGROUND[variant] },
+        { backgroundColor: background(colors)[variant] },
         inactive && styles.inactive,
         pressed && styles.pressed,
       ]}
@@ -48,7 +51,7 @@ export function PrimaryButton({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   button: {
     minHeight: MIN_TOUCH,
     borderRadius: 12,
@@ -59,4 +62,4 @@ const styles = StyleSheet.create({
   inactive: { opacity: 0.5 },
   pressed: { opacity: 0.8 },
   label: { fontSize: fontSize.button, fontWeight: '600' },
-});
+}));

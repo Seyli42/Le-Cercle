@@ -1,8 +1,9 @@
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 export function MedicalDisclaimer() {
+  const styles = useStyles();
   return (
     <Text style={styles.text}>
       Le Cercle ne donne aucun conseil médical. Pour toute question sur un traitement, adressez-vous
@@ -11,7 +12,7 @@ export function MedicalDisclaimer() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   text: {
     fontSize: fontSize.body,
     color: colors.textMuted,
@@ -20,4 +21,4 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     lineHeight: 24,
   },
-});
+}));

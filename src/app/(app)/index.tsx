@@ -1,5 +1,5 @@
 import { Link, router, Stack } from 'expo-router';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Text } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
 import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
@@ -8,11 +8,14 @@ import { Screen } from '@/components/Screen';
 import { treatmentStatus } from '@/features/medications/format';
 import { MedicationCard } from '@/features/medications/MedicationCard';
 import { useMedicationList } from '@/features/medications/useMedications';
+import { GettingStarted } from '@/features/onboarding/GettingStarted';
 import { ReminderBanner } from '@/features/reminders/ReminderBanner';
 import { TodayDoses } from '@/features/reminders/TodayDoses';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing, useColors } from '@/theme';
 
 export default function MedicationListScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const { state, reload } = useMedicationList();
 
   const header = (
@@ -39,6 +42,7 @@ export default function MedicationListScreen() {
   return (
     <Screen>
       {header}
+      {state.status === 'ready' && <GettingStarted medicationCount={state.data.length} />}
       <ReminderBanner />
       <TodayDoses />
       <PrimaryButton
@@ -96,9 +100,9 @@ export default function MedicationListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   headerLink: { fontSize: fontSize.body, color: colors.primary, padding: spacing.sm },
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   heading: { fontSize: 22, fontWeight: '700', color: colors.text, marginTop: spacing.sm },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
-});
+}));

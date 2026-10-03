@@ -1,8 +1,8 @@
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import type { SyncState } from '@/features/sync/scheduler';
 import { useSyncState } from '@/features/sync/SyncProvider';
-import { colors } from '@/theme';
+import { makeStyles } from '@/theme';
 
 const TIME = new Intl.DateTimeFormat('fr-FR', {
   day: 'numeric',
@@ -33,6 +33,7 @@ export function describeSync(state: SyncState): string {
 
 /** One line telling where the data is: on the phone only, or safe on the server too. */
 export function SyncStatus() {
+  const styles = useStyles();
   const state = useSyncState();
   return (
     <Text style={styles.text} accessibilityLiveRegion="polite">
@@ -41,6 +42,6 @@ export function SyncStatus() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   text: { fontSize: 16, color: colors.textMuted, lineHeight: 22 },
-});
+}));

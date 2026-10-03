@@ -50,10 +50,12 @@ src/
     history/      Historique des prises
     circle/       Le Cercle : proches prévenus par SMS
     scan/         Scan d'ordonnance : photo, lecture IA, pré-remplissage
+    account/      Export des données et suppression du compte (RGPD)
+    onboarding/   Écran d'accueil du premier lancement, « Pour bien démarrer »
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
     db/           Base locale chiffrée et ses migrations
-  theme/        Couleurs, tailles, espacements
-__tests__/      Tests automatiques
+  theme/        Couleurs (clair + sombre), tailles, espacements
+__tests__/      Tests automatiques (dont appFlow : l'app entière, écran par écran)
 docs/           Documentation projet
 supabase/       Base de données : migrations, tests, fonctions serveur (Twilio), e-mails
 scripts/        Outils (test de la base)
@@ -72,6 +74,11 @@ rangée dans le Keychain (iOS) / Keystore (Android).
 
 Dès qu'il y a du réseau, les données sont aussi sauvegardées sur Supabase et partagées
 entre les téléphones du même compte (voir `docs/SYNCHRO.md`).
+
+## Finitions (accessibilité, mode sombre, compte)
+
+Voir [`docs/FINITIONS.md`](docs/FINITIONS.md) : mode sombre automatique, contrastes vérifiés,
+export des données, suppression du compte, page confidentialité, tests de bout en bout.
 
 ## Secrets
 

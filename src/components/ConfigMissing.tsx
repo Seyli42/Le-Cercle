@@ -1,10 +1,11 @@
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { Screen } from '@/components/Screen';
-import { colors, fontSize } from '@/theme';
+import { fontSize, makeStyles } from '@/theme';
 
 /** Development only: production builds refuse to start without this configuration. */
 export function ConfigMissing() {
+  const styles = useStyles();
   return (
     <Screen>
       <Text style={styles.title}>Configuration Supabase manquante</Text>
@@ -17,7 +18,7 @@ export function ConfigMissing() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   title: { fontSize: fontSize.title, fontWeight: '700', color: colors.text },
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
-});
+}));

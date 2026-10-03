@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '@/theme';
+import { makeStyles, spacing } from '@/theme';
 
 /** Standard page: safe areas, scroll, and keyboard that never hides the form. */
 export function Screen({ children }: { readonly children: ReactNode }) {
+  const styles = useStyles();
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
       <KeyboardAvoidingView
@@ -20,8 +21,8 @@ export function Screen({ children }: { readonly children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   content: { padding: spacing.lg, gap: spacing.md },
-});
+}));

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { Checkbox } from '@/components/Checkbox';
 import { Chip } from '@/components/Chip';
@@ -33,7 +33,7 @@ import {
   type FieldErrors,
 } from '@/features/medications/validation';
 import { toAppError } from '@/lib/errors';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing } from '@/theme';
 
 type DraftSchedule = { readonly key: string; timeOfDay: string; daysOfWeek: Weekday[] };
 
@@ -56,6 +56,7 @@ function nextTime(schedules: readonly DraftSchedule[]): string {
 }
 
 export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
+  const styles = useStyles();
   const [name, setName] = useState(initial?.name ?? '');
   const [form, setForm] = useState<Form>(initial?.form ?? 'tablet');
   const [doseLabel, setDoseLabel] = useState(initial?.doseLabel ?? '');
@@ -264,7 +265,7 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   form: { gap: spacing.lg },
   group: { gap: spacing.sm },
   label: { fontSize: fontSize.body, fontWeight: '600', color: colors.text },
@@ -280,4 +281,4 @@ const styles = StyleSheet.create({
   linkDanger: { fontSize: fontSize.body, color: colors.danger, fontWeight: '600' },
   error: { fontSize: fontSize.body, color: colors.danger },
   notes: { minHeight: 96, paddingTop: spacing.sm, textAlignVertical: 'top' },
-});
+}));

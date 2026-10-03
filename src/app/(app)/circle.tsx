@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
 import { Checkbox } from '@/components/Checkbox';
 import { Chip } from '@/components/Chip';
@@ -23,7 +23,7 @@ import { formatPhone, isMobileFr, normalizePhone } from '@/features/circle/phone
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { requireSupabase } from '@/lib/supabase';
-import { colors, fontSize, spacing } from '@/theme';
+import { fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
 
 const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
   day: 'numeric',
@@ -33,11 +33,13 @@ const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
 });
 const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-const CONSENT: Readonly<Record<CircleMember['consent'], { label: string; color: string }>> = {
-  confirmed: { label: '✓ A accepté : sera prévenu(e)', color: '#15803D' },
-  pending: { label: 'En attente de sa réponse « OUI » par SMS', color: '#B45309' },
+const consentInfo = (
+  colors: Colors,
+): Readonly<Record<CircleMember['consent'], { label: string; color: string }>> => ({
+  confirmed: { label: '✓ A accepté : sera prévenu(e)', color: colors.success },
+  pending: { label: 'En attente de sa réponse « OUI » par SMS', color: colors.warningBorder },
   revoked: { label: 'A refusé ou répondu STOP', color: colors.danger },
-};
+});
 
 function errorMessage(error: unknown, context: string): string {
   return reportError(error, context, {
@@ -46,6 +48,8 @@ function errorMessage(error: unknown, context: string): string {
 }
 
 export default function CircleScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const userId = useUserId();
   const [data, setData] = useState<CircleData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -174,8 +178,8 @@ export default function CircleScreen() {
         <View key={member.id} style={styles.card}>
           <Text style={styles.name}>{member.firstName}</Text>
           <Text style={styles.body}>{formatPhone(member.phone)}</Text>
-          <Text style={[styles.status, { color: CONSENT[member.consent].color }]}>
-            {CONSENT[member.consent].label}
+          <Text style={[styles.status, { color: consentInfo(colors)[member.consent].color }]}>
+            {consentInfo(colors)[member.consent].label}
           </Text>
           {member.consent === 'pending' && member.inviteSentAt && (
             <Text style={styles.muted}>
@@ -314,7 +318,7 @@ export default function CircleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   body: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
   muted: { fontSize: 16, color: colors.textMuted, lineHeight: 22 },
   strong: { fontWeight: '700' },
@@ -326,4 +330,4 @@ const styles = StyleSheet.create({
   name: { fontSize: 20, fontWeight: '700', color: colors.text },
   status: { fontSize: 16, fontWeight: '600' },
   error: { color: colors.danger },
-});
+}));

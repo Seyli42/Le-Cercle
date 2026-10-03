@@ -1,9 +1,9 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { colors, fontSize, MIN_TOUCH, spacing } from '@/theme';
+import { MIN_TOUCH, fontSize, makeStyles, spacing } from '@/theme';
 
 type Props = {
   readonly label: string;
@@ -21,6 +21,7 @@ type Props = {
  * Times are always shown in 24 h format, as on French prescriptions.
  */
 export function PickerField({ label, mode, value, display, onChange, minimumDate, error }: Props) {
+  const styles = useStyles();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const isIos = Platform.OS === 'ios';
@@ -79,7 +80,7 @@ export function PickerField({ label, mode, value, display, onChange, minimumDate
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: { gap: spacing.xs },
   label: { fontSize: fontSize.body, fontWeight: '600', color: colors.text },
   button: {
@@ -94,4 +95,4 @@ const styles = StyleSheet.create({
   value: { fontSize: fontSize.body, color: colors.text },
   error: { fontSize: fontSize.body, color: colors.danger },
   iosPanel: { backgroundColor: colors.surface, borderRadius: 12, padding: spacing.sm },
-});
+}));
