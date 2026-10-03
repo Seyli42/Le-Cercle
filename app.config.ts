@@ -1,10 +1,16 @@
+import { existsSync } from 'node:fs';
+
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // One codebase, two variants installable side by side on the same phone:
 // "development" for testing, "production" for the stores.
 const IS_DEV = process.env.APP_VARIANT === 'development';
 
-const BUNDLE_ID = IS_DEV ? 'com.lecercle.app.dev' : 'com.lecercle.app';
+const BUNDLE_ID = IS_DEV ? 'com.dosecircle.app.dev' : 'com.dosecircle.app';
+
+// Firebase file of the Android app (circle alerts by notification), public identifiers
+// only: see docs/CERCLE.md. Without it the app builds, but Android receives no alert.
+const GOOGLE_SERVICES = './google-services.json';
 
 // AdMob APPLICATION ids (ca-app-pub-…~…). Defaults: Google's sample apps (test ads only).
 const ADMOB_IOS_APP_ID = process.env.ADMOB_IOS_APP_ID || 'ca-app-pub-3940256099942544~1458002511';
@@ -36,7 +42,6 @@ const privacyManifests = {
     collected('Health', true), // medications, schedules, intake history
     collected('EmailAddress', true), // sign-in
     collected('UserID', true), // account id (also on crash reports)
-    collected('Contacts', true), // the circle: first names + phone numbers of relatives
     collected('CrashData', true),
     collected('PerformanceData', true),
     // Free version (non-personalised ads, docs/MONETISATION.md): what the ad SDK sends.
@@ -61,9 +66,9 @@ const privacyManifests = {
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: IS_DEV ? 'Le Cercle (Dev)' : 'Le Cercle',
-  slug: 'le-cercle',
-  scheme: IS_DEV ? 'lecercle-dev' : 'lecercle',
+  name: IS_DEV ? 'DoseCircle (Dev)' : 'DoseCircle',
+  slug: 'dosecircle',
+  scheme: IS_DEV ? 'dosecircle-dev' : 'dosecircle',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -95,6 +100,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: BUNDLE_ID,
+    ...(existsSync(GOOGLE_SERVICES) ? { googleServicesFile: GOOGLE_SERVICES } : {}),
     // Health data must not leave the phone through Google's automatic backups.
     allowBackup: false,
     // Exact alarms: reminders on time even in battery-saving mode (user-granted).

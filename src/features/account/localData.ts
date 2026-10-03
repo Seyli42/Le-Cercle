@@ -13,7 +13,7 @@ type Row = Record<string, string | number | null>;
 
 export type DataExport = {
   readonly exportedAt: string;
-  readonly app: 'Le Cercle';
+  readonly app: 'DoseCircle';
   readonly account: { readonly id: string; readonly email: string | null };
   readonly medications: Row[];
   readonly schedules: Row[];
@@ -49,7 +49,7 @@ export async function buildExport(
   ]);
   return {
     exportedAt: now.toISOString(),
-    app: 'Le Cercle',
+    app: 'DoseCircle',
     account,
     medications,
     schedules,

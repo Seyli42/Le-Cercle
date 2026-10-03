@@ -155,7 +155,7 @@ export function syncReminders(
   });
 }
 
-/** Removes every reminder of Le Cercle (sign-out: nobody should be reminded anymore). */
+/** Removes every reminder of DoseCircle (sign-out: nobody should be reminded anymore). */
 export function cancelAllReminders(): Promise<void> {
   return serialized(async () => {
     const scheduled = await ownScheduled();

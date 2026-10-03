@@ -3,7 +3,7 @@
 ## En clair
 
 Le téléphone est le **carnet principal** : tout s'y écrit immédiatement, même sans réseau.
-Dès qu'il y a du réseau, Le Cercle **recopie** les changements sur le serveur (Supabase),
+Dès qu'il y a du réseau, DoseCircle **recopie** les changements sur le serveur (Supabase),
 et récupère ceux faits sur un autre téléphone du même compte.
 
 L'utilisateur voit toujours où en sont ses données :

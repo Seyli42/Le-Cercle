@@ -62,3 +62,6 @@ modules/*/ios/build/
 
 # Generated website (npm run website:build)
 /website/dist/
+
+# Firebase service account (secret, uploaded to EAS only). google-services.json is public.
+*firebase-adminsdk*.json

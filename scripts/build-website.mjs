@@ -26,7 +26,7 @@ const fill = (text) =>
   });
 
 const PAGES = [
-  { file: 'index.html', source: 'website/pages/index.md', title: 'Le Cercle' },
+  { file: 'index.html', source: 'website/pages/index.md', title: 'DoseCircle' },
   {
     file: 'confidentialite.html',
     source: 'docs/PRIVACY.md',
@@ -71,7 +71,7 @@ for (const page of PAGES) {
   }
   const html = `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${page.title} — Le Cercle</title><link rel="icon" href="favicon.png"><style>${css}</style></head>
+<title>${page.title} — DoseCircle</title><link rel="icon" href="favicon.png"><style>${css}</style></head>
 <body><nav aria-label="Pages">${nav}</nav><main>${marked.parse(markdown)}</main>
 <footer>© ${new Date().getFullYear()} ${site.companyName} · <a href="mailto:${site.contactEmail}">${site.contactEmail}</a></footer></body></html>
 `;

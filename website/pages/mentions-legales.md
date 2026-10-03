@@ -10,7 +10,7 @@ Larnaca, Chypre — www.hostinger.fr.
 **Hébergement des données de l'application :** Supabase Inc. (serveurs dans l'Union
 européenne, région [à préciser]).
 
-**Propriété intellectuelle :** la marque, le logo et l'application Le Cercle sont la
+**Propriété intellectuelle :** la marque, le logo et l'application DoseCircle sont la
 propriété de {{companyName}}. Toute reproduction sans autorisation est interdite.
 
 **Données personnelles :** voir la [politique de confidentialité](confidentialite.html).

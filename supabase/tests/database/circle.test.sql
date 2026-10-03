@@ -1,12 +1,17 @@
--- The circle: consent by SMS, missed-intake alerts, and every safeguard around them.
+-- The circle by notification: invitation code (= consent of the relative), the phones
+-- to alert, missed-intake detection, and every safeguard around them.
 begin;
-select plan(30);
+select plan(37);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'alice@example.com'),
-  ('00000000-0000-0000-0000-00000000000b', 'bob@example.com');
+  ('00000000-0000-0000-0000-00000000000b', 'bob@example.com'),
+  ('00000000-0000-0000-0000-00000000000c', 'carol@example.com'),
+  ('00000000-0000-0000-0000-00000000000d', 'dave@example.com');
 update public.profiles set first_name = 'Marie', missed_dose_delay_minutes = 30
   where id = '00000000-0000-0000-0000-00000000000a';
+update public.profiles set first_name = 'Robert' where id = '00000000-0000-0000-0000-00000000000b';
+update public.profiles set first_name = 'Claire' where id = '00000000-0000-0000-0000-00000000000c';
 
 -- Alice: one medication, every day at 08:00 (Paris), created well before.
 insert into public.medications (id, user_id, name, dose_label, starts_on) values
@@ -15,197 +20,216 @@ insert into public.medications (id, user_id, name, dose_label, starts_on) values
 insert into public.schedules (id, user_id, medication_id, time_of_day, created_at) values
   ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a',
    '10000000-0000-0000-0000-000000000001', '08:00', '2026-09-01');
--- Léa has accepted, Paul has not answered yet.
-insert into public.circle_members (id, user_id, first_name, phone_e164) values
-  ('40000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 'Léa', '+33611111111'),
-  ('40000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', 'Paul', '+33622222222');
-update public.circle_members set consent_status = 'confirmed'
-  where id = '40000000-0000-0000-0000-000000000001';
+
+create function pg_temp.as_user(p_id text) returns void language sql as $$
+  select set_config('request.jwt.claims', json_build_object('sub', p_id)::text, true)
+$$;
+create temporary table codes (name text primary key, code text);
+grant all on codes to authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
 -- Access rules
 -- ---------------------------------------------------------------------------
 set local role authenticated;
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000a"}';
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select throws_ok($$select * from public.claim_missed_doses()$$, '42501', null,
+  'a user cannot trigger alerts');
+select throws_ok($$select public.forget_push_tokens(array['x'])$$, '42501', null,
+  'a user cannot delete phones');
+select throws_ok($$select * from public.circle_invites$$, '42501', null,
+  'invitation codes are not readable from the app');
 select throws_ok(
-  $$select * from public.claim_missed_doses()$$, '42501', null,
-  'a user cannot trigger alerts'
-);
-select throws_ok(
-  $$select public.confirm_circle_invite('+33622222222', null)$$, '42501', null,
-  'a user cannot confirm a relative''s consent'
-);
-select throws_ok(
-  $$select invite_code from public.circle_members$$, '42501', null,
-  'invitation codes are not readable from the app'
-);
-select lives_ok(
-  $$select id, first_name, consent_status, invite_sent_at from public.circle_members$$,
-  'the rest of the circle is readable'
-);
+  $$insert into public.circle_links (patient_id, watcher_id) values
+    ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000a')$$,
+  '42501', null, 'nobody can join a circle without a code');
 
 -- Heartbeat: time zone kept in step with the phone, invalid ones ignored.
 select public.sync_heartbeat('Europe/Paris');
 select public.sync_heartbeat('Mars/Olympus');
 reset role;
-select is(
-  (select timezone from public.profiles where id = '00000000-0000-0000-0000-00000000000a'),
-  'Europe/Paris', 'an invalid time zone is ignored'
-);
-select ok(
-  (select last_seen_at is not null from public.profiles where id = '00000000-0000-0000-0000-00000000000a'),
-  'the last contact of the phone is recorded'
-);
+select is((select timezone from public.profiles where id = '00000000-0000-0000-0000-00000000000a'),
+  'Europe/Paris', 'an invalid time zone is ignored');
+select ok((select last_seen_at is not null from public.profiles
+  where id = '00000000-0000-0000-0000-00000000000a'), 'the last contact of the phone is recorded');
 
 -- ---------------------------------------------------------------------------
 -- Invitations
 -- ---------------------------------------------------------------------------
 set local role authenticated;
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000a"}';
-select matches(
-  (select invite_code from public.prepare_circle_invite('40000000-0000-0000-0000-000000000002')),
-  '^[0-9]{4}$', 'an invitation gets a 4-digit code'
-);
-select throws_ok(
-  $$select * from public.prepare_circle_invite('40000000-0000-0000-0000-000000000002')$$,
-  'P0001', 'invite_too_soon', 'invitations cannot be sent in a burst'
-);
-select throws_ok(
-  $$select * from public.prepare_circle_invite('40000000-0000-0000-0000-000000000001')$$,
-  'P0001', 'already_confirmed', 'no invitation to someone who already accepted'
-);
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b"}';
-select throws_ok(
-  $$select * from public.prepare_circle_invite('40000000-0000-0000-0000-000000000002')$$,
-  'P0002', 'member_not_found', 'nobody can send an invitation from another account'
-);
-insert into public.circle_members (id, first_name, phone_e164) values
-  ('40000000-0000-0000-0000-000000000003', 'Paul', '+33622222222');
-select throws_ok(
-  $$select * from public.prepare_circle_invite('40000000-0000-0000-0000-000000000003')$$,
-  'P0001', 'first_name_required', 'the SMS needs the first name of the person'
-);
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000d');
+select throws_ok($$select * from public.create_circle_invite()$$, 'P0001', 'first_name_required',
+  'the relatives must see a first name');
 
--- ---------------------------------------------------------------------------
--- Answers by SMS
--- ---------------------------------------------------------------------------
-reset role;
--- Bob also invites Paul's number: a bare "OUI" is now ambiguous.
-update public.profiles set first_name = 'Robert' where id = '00000000-0000-0000-0000-00000000000b';
-update public.circle_members set invite_code = '9999', invite_sent_at = now()
-  where id = '40000000-0000-0000-0000-000000000003';
-select is(public.confirm_circle_invite('+33622222222', null), 'code_required',
-  'a bare OUI never confirms the wrong circle');
-select is(public.confirm_circle_invite('+33622222222', '0000'), 'wrong_code',
-  'a wrong code confirms nothing');
-select is(public.confirm_circle_invite('+33622222222', '9999'), 'confirmed',
-  'the right code confirms only that circle');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+insert into codes select 'old', code from public.create_circle_invite();
+insert into codes select 'new', code from public.create_circle_invite();
+select matches((select code from codes where name = 'new'), '^[A-HJ-NP-Z2-9]{8}$',
+  '8 characters, none of them ambiguous (0/O, 1/I)');
+select is((select code from public.my_circle_invite()), (select code from codes where name = 'new'),
+  'the valid code can be shown again');
+select throws_ok(
+  format('select * from public.accept_circle_invite(%L)', (select code from codes where name = 'new')),
+  'P0001', 'own_invite', 'nobody watches over themselves');
+
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select throws_ok(
+  format('select * from public.accept_circle_invite(%L)', (select code from codes where name = 'old')),
+  'P0001', 'invalid_code', 'a new code cancels the previous one');
+-- Typed in lower case with a dash, as people do.
 select is(
-  (select consent_status from public.circle_members where id = '40000000-0000-0000-0000-000000000002'),
-  'pending', 'the other circle is untouched'
-);
-select is(public.confirm_circle_invite('+33622222222', null), 'confirmed',
-  'with a single pending invitation, OUI alone is enough');
-select is(public.confirm_circle_invite('+33699999999', null), 'no_pending_invite',
-  'unknown numbers are ignored');
+  (select patient_first_name from public.accept_circle_invite(
+     lower(substr((select code from codes where name = 'new'), 1, 4) || '-' ||
+           substr((select code from codes where name = 'new'), 5)))),
+  'Marie', 'the relative joins and sees the first name');
+
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+select throws_ok(
+  format('select * from public.accept_circle_invite(%L)', (select code from codes where name = 'new')),
+  'P0001', 'invalid_code', 'a code works only once');
+select is((select count(*)::int from public.circle_links), 0, 'outsiders see no link');
+
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select results_eq($$select role, first_name from public.my_circle()$$,
+  $$values ('watcher', 'Robert')$$, 'the person sees who watches over them');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select results_eq($$select role, first_name from public.my_circle()$$,
+  $$values ('patient', 'Marie')$$, 'the relative sees whom they watch over');
+
+-- Guessing codes: blocked after 10 wrong tries in an hour.
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+reset role;
+insert into public.circle_invite_attempts (user_id)
+select '00000000-0000-0000-0000-00000000000c' from generate_series(1, 10);
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+select throws_ok($$select * from public.accept_circle_invite('ABCDEFGH')$$, 'P0001',
+  'too_many_attempts', 'guessing codes is blocked');
+
+-- At most 5 relatives.
+reset role;
+insert into auth.users (id, email)
+select ('00000000-0000-0000-0000-0000000001' || lpad(n::text, 2, '0'))::uuid, 'w' || n || '@example.com'
+from generate_series(1, 4) n;
+insert into public.circle_links (patient_id, watcher_id)
+select '00000000-0000-0000-0000-00000000000a',
+       ('00000000-0000-0000-0000-0000000001' || lpad(n::text, 2, '0'))::uuid
+from generate_series(1, 4) n;
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select throws_ok($$select * from public.create_circle_invite()$$, 'P0001', 'circle_full',
+  'a circle has at most 5 relatives');
+reset role;
+delete from public.circle_links where watcher_id::text like '00000000-0000-0000-0000-0000000001%';
 
 -- ---------------------------------------------------------------------------
--- Missed intakes (Alice: Léa and Paul now consent)
+-- Phones of the relatives
+-- ---------------------------------------------------------------------------
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select public.register_push_token('ExponentPushToken[bob-phone-123456]', 'ios');
+select throws_ok($$select public.register_push_token('not-a-token', 'ios')$$, '23514', null,
+  'only Expo push tokens are accepted');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+select public.register_push_token('ExponentPushToken[shared-tablet-12]', 'android');
+-- The family tablet: Bob signs in on it, the token now belongs to him.
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select public.register_push_token('ExponentPushToken[shared-tablet-12]', 'android');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+select public.unregister_push_token('ExponentPushToken[shared-tablet-12]');
+reset role;
+select is((select user_id::text from public.push_tokens where token = 'ExponentPushToken[shared-tablet-12]'),
+  '00000000-0000-0000-0000-00000000000b',
+  'a token follows the last account signed in, and nobody else can remove it');
+
+-- ---------------------------------------------------------------------------
+-- Missed intakes (Alice, watched by Bob on 2 phones)
 -- ---------------------------------------------------------------------------
 set local role service_role;
-select is(
-  (select count(*)::int from public.claim_missed_doses('2026-10-03 06:20:00+00')),
-  0, 'no alert before the delay (08:00 + 30 min)'
-);
+select is((select count(*)::int from public.claim_missed_doses('2026-10-03 06:20:00+00')), 0,
+  'no alert before the delay (08:00 + 30 min)');
 select results_eq(
-  $$select member_first_name, patient_first_name, planned_local_time
-    from public.claim_missed_doses('2026-10-03 06:45:00+00') order by member_first_name$$,
-  $$values ('Léa', 'Marie', '08:00'), ('Paul', 'Marie', '08:00')$$,
-  'after the delay, every consenting relative is alerted, without the medication name'
-);
-select is(
-  (select count(*)::int from public.claim_missed_doses('2026-10-03 06:50:00+00')),
-  0, 'never twice for the same intake'
-);
-select is(
-  (select status from public.dose_events where scheduled_at = '2026-10-03 06:00:00+00'),
-  'missed', 'the intake is marked missed'
-);
-select lives_ok(
-  $$select public.record_alert_result(id, true, 'SM123') from public.alerts_sent$$,
-  'the sending result is recorded'
-);
-select is((select count(*)::int from public.alerts_sent where status = 'sent'), 2,
-  'both alerts are marked sent');
+  $$select patient_first_name, planned_local_time, cardinality(tokens)
+    from public.claim_missed_doses('2026-10-03 06:45:00+00')$$,
+  $$values ('Marie', '08:00', 2)$$,
+  'after the delay, the relative''s phones are alerted, without the medication name');
+select is((select count(*)::int from public.claim_missed_doses('2026-10-03 06:50:00+00')), 0,
+  'never twice for the same intake');
+reset role;
+select is((select status from public.dose_events where scheduled_at = '2026-10-03 06:00:00+00'),
+  'missed', 'the intake is marked missed');
+set local role service_role;
+select lives_ok($$select public.record_alert_result(id, true) from public.circle_alerts$$,
+  'the sending result is recorded');
+reset role;
+select is((select count(*)::int from public.circle_alerts where status = 'sent'), 1, 'marked sent');
+
+-- Both sides see the alert, nobody else.
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select is((select count(*)::int from public.circle_alerts), 1, 'the relative sees the alert');
+select ok((select last_alert_at is not null from public.my_circle()), 'with its time');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+select is((select count(*)::int from public.circle_alerts), 0, 'outsiders see nothing');
 
 -- The phone was offline: "taken" at 08:10 arrives at 10:00. It must win over "missed".
-reset role;
-set local role authenticated;
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000a"}';
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
 select public.sync_push(p_dose_events => '[{"id":"30000000-0000-0000-0000-000000000001",
   "medication_id":"10000000-0000-0000-0000-000000000001",
   "schedule_id":"20000000-0000-0000-0000-000000000001",
   "scheduled_at":"2026-10-03T06:00:00Z","status":"taken",
   "responded_at":"2026-10-03T06:10:00Z","client_updated_at":"2026-10-03T06:10:00Z"}]'::jsonb);
 reset role;
-select is(
-  (select status from public.dose_events where scheduled_at = '2026-10-03 06:00:00+00'),
-  'taken', 'an answer given offline replaces the server''s "missed"'
-);
+select is((select status from public.dose_events where scheduled_at = '2026-10-03 06:00:00+00'),
+  'taken', 'an answer given offline replaces the server''s "missed"');
 
 -- Daily cap.
 set local role service_role;
-select is(
-  (select count(*)::int from public.claim_missed_doses('2026-10-04 06:40:00+00', p_daily_cap => 3)),
-  1, 'the daily cap limits the number of SMS'
-);
+select is((select count(*)::int from public.claim_missed_doses('2026-10-04 06:40:00+00', p_daily_cap => 1)),
+  0, 'the daily cap limits the alerts');
+select is((select count(*)::int from public.claim_missed_doses('2026-10-04 06:41:00+00')), 1,
+  'within the cap, the alert goes');
 
--- STOP: the relative leaves, a pending alert is cancelled.
-select public.revoke_circle_phone('+33611111111');
+-- The relative leaves: the pending alert is cancelled, nothing more is sent.
 reset role;
-insert into public.alerts_sent (user_id, dose_event_id, circle_member_id, created_at)
-select '00000000-0000-0000-0000-00000000000a', e.id, '40000000-0000-0000-0000-000000000001',
-       '2026-10-04 06:46:00+00'
-from public.dose_events e where e.scheduled_at = '2026-10-04 06:00:00+00'
-on conflict do nothing;
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select public.revoke_circle_link((select link_id from public.my_circle()));
+reset role;
+select is(
+  (select a.status from public.circle_alerts a join public.dose_events e on e.id = a.dose_event_id
+   where e.scheduled_at = '2026-10-04 06:00:00+00'),
+  'cancelled', 'leaving cancels the pending alert');
 set local role service_role;
-select is(
-  (select count(*)::int from public.claim_missed_doses('2026-10-04 06:50:00+00')
-   where member_first_name = 'Léa'),
-  0, 'a relative who answered STOP receives nothing more'
-);
-select is(
-  (select a.status from public.alerts_sent a join public.dose_events e on e.id = a.dose_event_id
-   where e.scheduled_at = '2026-10-04 06:00:00+00' and a.circle_member_id = '40000000-0000-0000-0000-000000000001'),
-  'cancelled', 'and their pending alert is cancelled'
-);
+select is((select count(*)::int from public.claim_missed_doses('2026-10-05 06:45:00+00')), 0,
+  'a relative who left receives nothing more');
 
--- Clock change: 25 October 2026, 08:00 in Paris is 07:00 UTC.
+-- Bob comes back (new code). Clock change: 25 October 2026, 08:00 in Paris = 07:00 UTC.
+reset role;
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+insert into codes select 'again', code from public.create_circle_invite();
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select * from public.accept_circle_invite((select code from codes where name = 'again'));
+reset role;
+set local role service_role;
 select results_eq(
   $$select planned_local_time from public.claim_missed_doses('2026-10-25 07:45:00+00')$$,
-  $$values ('08:00')$$,
-  'intakes follow the local time across the clock change'
-);
+  $$values ('08:00')$$, 'intakes follow the local time across the clock change');
 
 -- A schedule created after the planned time: nothing was expected.
 reset role;
 update public.schedules set created_at = '2026-10-26 07:30:00+00'
   where id = '20000000-0000-0000-0000-000000000001';
 set local role service_role;
-select is(
-  (select count(*)::int from public.claim_missed_doses('2026-10-26 07:45:00+00')),
-  0, 'no alert for an intake planned before the schedule existed'
-);
+select is((select count(*)::int from public.claim_missed_doses('2026-10-26 07:45:00+00')), 0,
+  'no alert for an intake planned before the schedule existed');
 
--- Changing a relative's number resets consent and invitation.
+-- Deleting the relative's account removes the link and their phones.
 reset role;
-update public.circle_members set phone_e164 = '+33633333333'
-  where id = '40000000-0000-0000-0000-000000000002';
-select is(
-  (select consent_status || '/' || invites_sent from public.circle_members
-   where id = '40000000-0000-0000-0000-000000000002'),
-  'pending/0', 'a new number must accept again'
-);
+delete from auth.users where id = '00000000-0000-0000-0000-00000000000b';
+select is((select count(*)::int from public.circle_links where revoked_at is null
+  and patient_id = '00000000-0000-0000-0000-00000000000a'), 0,
+  'a deleted relative leaves the circle');
 
 select * from finish();
 rollback;

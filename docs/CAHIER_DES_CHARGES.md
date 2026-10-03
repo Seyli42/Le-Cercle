@@ -1,11 +1,11 @@
-# Le Cercle — cahier des charges
+# DoseCircle — cahier des charges
 
 > Sections 1 à 9 rédigées à partir des règles de la section 0 (fournie par Ilyes).
 > Toute modification de périmètre se fait ici d'abord.
 
 ## 1. Vision
 
-**Le Cercle** rappelle à une personne de prendre les médicaments qu'elle a saisis, et
+**DoseCircle** rappelle à une personne de prendre les médicaments qu'elle a saisis, et
 prévient son « cercle » (proches aidants) si une prise reste sans réponse.
 
 - **Cible utilisateur** : personnes sous traitement régulier (souvent seniors) et leurs aidants.
@@ -19,7 +19,7 @@ prévient son « cercle » (proches aidants) si une prise reste sans réponse.
    jours, date de début/fin, note libre.
 3. Rappels locaux fiables : notification à l'heure, actions **Pris / Reporter 10 min / Ignorer**.
 4. Historique et taux de prises confirmées (aucune interprétation médicale).
-5. Le Cercle : jusqu'à 5 proches ; SMS envoyé si une prise n'est pas confirmée après un délai
+5. Mon Cercle : jusqu'à 5 proches ; notification sur leur app si une prise n'est pas confirmée après un délai
    choisi (30 min par défaut).
 6. ~~Scan IA d'une ordonnance / boîte~~ : **retiré** avant publication (coût par lecture
    incompatible avec une app gratuite). Le code reste dans l'historique git (étape 7) si
@@ -31,8 +31,8 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 ## 3. Règles de sécurité médicale
 
 - L'app ne suggère **jamais** de dose, d'interaction, de substitution ou de diagnostic.
-- Mention permanente : « Le Cercle ne donne aucun conseil médical ».
-- Le SMS au proche ne contient pas le nom du médicament (secret médical), seulement :
+- Mention permanente : « DoseCircle ne donne aucun conseil médical ».
+- L'alerte au proche ne contient pas le nom du médicament (secret médical), seulement :
   « [Prénom] n'a pas confirmé sa prise de 08:00 ».
 
 ## 4. Fiabilité des rappels (exigence n°1)
@@ -47,21 +47,21 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 
 ## 5. Architecture technique
 
-| Couche          | Choix                                                     |
-| --------------- | --------------------------------------------------------- |
-| App             | Expo SDK 57, React Native, TypeScript strict, Expo Router |
-| Données locales | expo-sqlite (source de vérité hors ligne)                 |
-| Rappels         | expo-notifications + expo-task-manager / background-task  |
-| Backend         | Supabase (Postgres + RLS, Auth OTP, Edge Functions Deno)  |
-| SMS             | Twilio via Edge Function + cron `missed-dose-check`       |
-| Monitoring      | Sentry (données de santé filtrées avant envoi)            |
-| Build / stores  | EAS Build, EAS Submit, EAS Update                         |
+| Couche          | Choix                                                                       |
+| --------------- | --------------------------------------------------------------------------- |
+| App             | Expo SDK 57, React Native, TypeScript strict, Expo Router                   |
+| Données locales | expo-sqlite (source de vérité hors ligne)                                   |
+| Rappels         | expo-notifications + expo-task-manager / background-task                    |
+| Backend         | Supabase (Postgres + RLS, Auth OTP, Edge Functions Deno)                    |
+| Alertes proches | Notifications Expo (gratuites) via Edge Function + cron `missed-dose-check` |
+| Monitoring      | Sentry (données de santé filtrées avant envoi)                              |
+| Build / stores  | EAS Build, EAS Submit, EAS Update                                           |
 
 ## 6. Données (Supabase)
 
 `profiles`, `medications`, `schedules`, `dose_events` (prévue / prise / reportée / manquée),
 `circle_members`, `alerts_sent`. RLS : chaque utilisateur ne voit que ses lignes. Clés
-`service_role` et Twilio uniquement dans les Edge Functions.
+`service_role` uniquement dans les Edge Functions.
 
 ## 7. Sécurité & conformité
 
@@ -79,14 +79,14 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 
 ## 9. Étapes
 
-| #    | Étape                     | Livrable principal                                                                         |
-| ---- | ------------------------- | ------------------------------------------------------------------------------------------ |
-| 1 ✅ | Fondations                | Projet Expo, TS strict, navigation, Sentry, erreurs, tests                                 |
-| 2 ✅ | Supabase & connexion      | Schéma + RLS, connexion par code e-mail, session persistée                                 |
-| 3 ✅ | Médicaments (hors ligne)  | SQLite local, formulaires, liste, validation                                               |
-| 4 ✅ | Moteur de rappels         | Notifications locales fiables, actions, redémarrage, tests                                 |
-| 5 ✅ | Historique & synchro      | Journal des prises, synchronisation SQLite ↔ Supabase                                      |
-| 6 ✅ | Le Cercle (aidants + SMS) | Invitations, Edge Function Twilio, détection des oublis                                    |
-| 7 ✅ | Scan IA (retiré ensuite)  | Caméra, Edge Function Claude, écran de vérification — retiré à l'étape 9 (coût)            |
-| 8 ✅ | Finitions                 | Onboarding, accessibilité, suppression de compte, tests E2E                                |
-| 9 ✅ | Publication               | EAS Build/Submit, fiches stores, confidentialité, TestFlight, monétisation (pub + Premium) |
+| #    | Étape                    | Livrable principal                                                                         |
+| ---- | ------------------------ | ------------------------------------------------------------------------------------------ |
+| 1 ✅ | Fondations               | Projet Expo, TS strict, navigation, Sentry, erreurs, tests                                 |
+| 2 ✅ | Supabase & connexion     | Schéma + RLS, connexion par code e-mail, session persistée                                 |
+| 3 ✅ | Médicaments (hors ligne) | SQLite local, formulaires, liste, validation                                               |
+| 4 ✅ | Moteur de rappels        | Notifications locales fiables, actions, redémarrage, tests                                 |
+| 5 ✅ | Historique & synchro     | Journal des prises, synchronisation SQLite ↔ Supabase                                      |
+| 6 ✅ | Mon Cercle (aidants)     | Invitations, détection des oublis ; SMS remplacés par des notifications (étape 9)          |
+| 7 ✅ | Scan IA (retiré ensuite) | Caméra, Edge Function Claude, écran de vérification — retiré à l'étape 9 (coût)            |
+| 8 ✅ | Finitions                | Onboarding, accessibilité, suppression de compte, tests E2E                                |
+| 9 ✅ | Publication              | EAS Build/Submit, fiches stores, confidentialité, TestFlight, monétisation (pub + Premium) |

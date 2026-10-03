@@ -52,7 +52,7 @@ export default function SignInScreen() {
 
   return (
     <Screen>
-      <Text style={styles.title}>Bienvenue sur Le Cercle</Text>
+      <Text style={styles.title}>Bienvenue sur DoseCircle</Text>
       <Text style={styles.body}>
         Saisissez votre adresse e-mail : nous vous envoyons un code à 6 chiffres. Pas de mot de
         passe à retenir.
@@ -95,7 +95,7 @@ export default function SignInScreen() {
           setConsent(value);
           setError(null);
         }}
-        label="J’accepte que Le Cercle conserve mes traitements et horaires de prise pour m’envoyer des rappels."
+        label="J’accepte que DoseCircle conserve mes traitements et horaires de prise pour m’envoyer des rappels."
       />
       <PrimaryButton
         label={demo ? 'Se connecter' : 'Recevoir mon code'}

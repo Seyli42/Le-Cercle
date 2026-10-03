@@ -74,8 +74,8 @@ describe('parseEnv', () => {
   });
 
   it('reads the reviewers demo address, lower-cased', () => {
-    expect(parseEnv({ EXPO_PUBLIC_REVIEW_EMAIL: ' Demo@LeCercle.fr ' }).reviewEmail).toBe(
-      'demo@lecercle.fr',
+    expect(parseEnv({ EXPO_PUBLIC_REVIEW_EMAIL: ' Demo@DoseCircle.fr ' }).reviewEmail).toBe(
+      'demo@dosecircle.fr',
     );
     expect(() => parseEnv({ EXPO_PUBLIC_REVIEW_EMAIL: 'demo' })).toThrow(/REVIEW_EMAIL/);
   });

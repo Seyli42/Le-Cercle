@@ -2,7 +2,7 @@
 
 **Expo Go** suffit pour regarder les écrans, mais pas pour tester les rappels pour de vrai
 (chiffrement, alarmes exactes, boutons en arrière-plan). Il faut une **version de
-développement** : votre propre app « Le Cercle (Dev) », construite dans le cloud par Expo
+développement** : votre propre app « DoseCircle (Dev) », construite dans le cloud par Expo
 (EAS). Pas besoin de Mac ni d'Android Studio.
 
 ## Une seule fois
@@ -25,7 +25,7 @@ projet → **Environment variables**) : `EXPO_PUBLIC_SUPABASE_URL`,
 | `npx eas-cli@latest build --profile development --platform android` | Construit l'app dans le cloud (~15 min). |
 
 À la fin, un QR code s'affiche : scannez-le avec le téléphone Android, installez l'app
-(autorisez « sources inconnues » si demandé). Ensuite `npm start` et ouvrez « Le Cercle (Dev) ».
+(autorisez « sources inconnues » si demandé). Ensuite `npm start` et ouvrez « DoseCircle (Dev) ».
 
 ## iPhone
 

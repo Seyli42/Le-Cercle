@@ -13,6 +13,7 @@ import {
   exportAccountData,
 } from '@/features/account/accountActions';
 import { useAuth } from '@/features/auth/useAuth';
+import { unregisterPushToken } from '@/features/circle/push';
 import { useAds } from '@/features/monetization/AdsProvider';
 import { usePremium } from '@/features/monetization/PremiumProvider';
 import { cancelAllReminders } from '@/features/reminders/engine';
@@ -113,6 +114,9 @@ export default function AccountScreen() {
                   setSigningOut(true);
                   // Last chance to send unsaved changes (fails silently when offline).
                   syncNow('sign-out')
+                    // This phone must stop receiving the circle alerts of this account.
+                    .then(() => unregisterPushToken(requireSupabase()))
+                    .catch((error: unknown) => reportError(error, 'auth.signOut.unregisterPush'))
                     .then(() => cancelAllReminders())
                     .catch((error: unknown) => reportError(error, 'auth.signOut.cancelReminders'))
                     .then(() => signOut())
@@ -126,7 +130,9 @@ export default function AccountScreen() {
       <PrimaryButton label="Vérifier mes rappels" onPress={() => router.push('/reminders')} />
       <PrimaryButton
         label={
-          premium.state === 'premium' ? '✓ Le Cercle Premium' : 'Le Cercle Premium : sans publicité'
+          premium.state === 'premium'
+            ? '✓ DoseCircle Premium'
+            : 'DoseCircle Premium : sans publicité'
         }
         variant="secondary"
         onPress={() => router.push('/premium')}

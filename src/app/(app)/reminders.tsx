@@ -59,7 +59,7 @@ export default function RemindersCheckScreen() {
       await Notifications.scheduleNotificationAsync({
         identifier: `test_${Date.now()}`,
         content: {
-          title: '🔔 Test Le Cercle',
+          title: '🔔 Test DoseCircle',
           body: 'Vos rappels fonctionnent. Vous pouvez fermer cette notification.',
           sound: 'default',
           interruptionLevel: 'timeSensitive',

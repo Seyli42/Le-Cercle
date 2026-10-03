@@ -54,13 +54,14 @@ export async function exportAccountData(
   const circle = await loadCircle(client, account.id)
     .then((data) => ({
       settings: { firstName: data.firstName, delayMinutes: data.delayMinutes },
-      members: data.members,
-      alerts: data.alerts,
+      watchedBy: data.watchers.map((w) => ({ firstName: w.firstName, since: w.since })),
+      watching: data.watching.map((w) => ({ firstName: w.firstName, since: w.since })),
+      alertsSentToMyRelatives: data.alerts,
     }))
     .catch(() => 'Non inclus : pas de connexion au moment de l’export.');
   const data = await buildExport(db, account, circle);
 
-  const file = new File(Paths.cache, `le-cercle-mes-donnees-${data.exportedAt.slice(0, 10)}.json`);
+  const file = new File(Paths.cache, `dosecircle-mes-donnees-${data.exportedAt.slice(0, 10)}.json`);
   if (file.exists) file.delete();
   file.create();
   file.write(JSON.stringify(data, null, 2));
@@ -71,7 +72,7 @@ export async function exportAccountData(
   await Sharing.shareAsync(file.uri, {
     mimeType: 'application/json',
     UTI: 'public.json',
-    dialogTitle: 'Mes données Le Cercle',
+    dialogTitle: 'Mes données DoseCircle',
   });
 }
 

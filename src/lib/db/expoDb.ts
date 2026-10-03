@@ -6,7 +6,7 @@ import { migrate } from '@/lib/db/migrations';
 import type { LocalDb, SqlValue } from '@/lib/db/types';
 import { reportError } from '@/lib/monitoring';
 
-const DATABASE_NAME = 'lecercle.db';
+const DATABASE_NAME = 'dosecircle.db';
 const KEY_STORAGE_NAME = 'local_db_key_v1';
 
 type ExpoExecutor = Pick<

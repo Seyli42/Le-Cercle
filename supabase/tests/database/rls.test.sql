@@ -1,7 +1,7 @@
 -- Security tests: every user is isolated from every other user.
 -- Run with `npx supabase test db` (Docker) or `npm run test:db` (plain Postgres).
 begin;
-select plan(31);
+select plan(25);
 
 -- Two accounts: Alice and Bob.
 insert into auth.users (id, email) values
@@ -15,7 +15,8 @@ select ok(
   (select bool_and(relrowsecurity) from pg_class
    where oid in ('public.profiles'::regclass, 'public.medications'::regclass,
                  'public.schedules'::regclass, 'public.dose_events'::regclass,
-                 'public.circle_members'::regclass, 'public.alerts_sent'::regclass)),
+                 'public.circle_links'::regclass, 'public.circle_alerts'::regclass,
+                 'public.circle_invites'::regclass, 'public.push_tokens'::regclass)),
   'RLS is enabled on every table'
 );
 select is(
@@ -85,60 +86,11 @@ select throws_ok(
   'an invalid weekday is rejected'
 );
 select throws_ok(
-  $$insert into public.circle_members (first_name, phone_e164) values ('Léa', '0612345678')$$,
-  '23514', null,
-  'a phone number must be in international format'
-);
-
--- ---------------------------------------------------------------------------
--- Circle rules
--- ---------------------------------------------------------------------------
-select throws_ok(
-  $$insert into public.circle_members (first_name, phone_e164, consent_status)
-    values ('Léa', '+33612345670', 'confirmed')$$,
+  $$insert into public.circle_alerts (patient_id, watcher_id, dose_event_id)
+    values ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000b',
+            '30000000-0000-0000-0000-000000000001')$$,
   '42501', null,
-  'a relative cannot be created as already consenting'
-);
-select lives_ok(
-  $$insert into public.circle_members (id, first_name, phone_e164) values
-    ('40000000-0000-0000-0000-000000000001', 'P1', '+33612345671'),
-    ('40000000-0000-0000-0000-000000000002', 'P2', '+33612345672'),
-    ('40000000-0000-0000-0000-000000000003', 'P3', '+33612345673'),
-    ('40000000-0000-0000-0000-000000000004', 'P4', '+33612345674'),
-    ('40000000-0000-0000-0000-000000000005', 'P5', '+33612345675')$$,
-  'Alice can add up to 5 relatives'
-);
-select throws_ok(
-  $$insert into public.circle_members (first_name, phone_e164) values ('P6', '+33612345676')$$,
-  'P0001', 'circle_limit_reached',
-  'a 6th relative is refused'
-);
-select throws_ok(
-  $$update public.circle_members set consent_status = 'confirmed'
-    where id = '40000000-0000-0000-0000-000000000001'$$,
-  '42501', null,
-  'Alice cannot mark a relative as consenting herself'
-);
-select throws_ok(
-  $$insert into public.alerts_sent (user_id, dose_event_id, circle_member_id)
-    values ('00000000-0000-0000-0000-00000000000a', '30000000-0000-0000-0000-000000000001',
-            '40000000-0000-0000-0000-000000000001')$$,
-  '42501', null,
-  'only the server can write alert logs'
-);
-
--- Server confirms a relative, then Alice changes the number: consent must reset.
-reset role;
-update public.circle_members set consent_status = 'confirmed'
-  where id = '40000000-0000-0000-0000-000000000001';
-set local role authenticated;
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000a"}';
-update public.circle_members set phone_e164 = '+33699999999'
-  where id = '40000000-0000-0000-0000-000000000001';
-select is(
-  (select consent_status from public.circle_members where id = '40000000-0000-0000-0000-000000000001'),
-  'pending',
-  'changing a relative''s number resets their consent'
+  'only the server can write alerts'
 );
 
 -- ---------------------------------------------------------------------------
@@ -149,7 +101,7 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b"}';
 select is((select count(*)::int from public.medications), 0, 'Bob sees no medication of Alice');
 select is((select count(*)::int from public.schedules), 0, 'Bob sees no schedule of Alice');
 select is((select count(*)::int from public.dose_events), 0, 'Bob sees no dose event of Alice');
-select is((select count(*)::int from public.circle_members), 0, 'Bob sees no relative of Alice');
+select is((select count(*)::int from public.circle_links), 0, 'Bob sees no circle of Alice');
 select is((select count(*)::int from public.profiles), 1, 'Bob only sees his own profile');
 
 update public.medications set name = 'piraté' where id = '10000000-0000-0000-0000-000000000001';
@@ -182,7 +134,7 @@ set local role anon;
 set local request.jwt.claims = '{}';
 select throws_ok('select * from public.medications', '42501', null, 'anon cannot read medications');
 select throws_ok('select * from public.profiles', '42501', null, 'anon cannot read profiles');
-select throws_ok('select * from public.circle_members', '42501', null, 'anon cannot read relatives');
+select throws_ok('select * from public.circle_links', '42501', null, 'anon cannot read circles');
 
 -- ---------------------------------------------------------------------------
 -- Alice's data survived Bob's attempts

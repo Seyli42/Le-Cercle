@@ -36,7 +36,7 @@ export function computeIssues(health: ReminderHealth): Issue[] {
       id: 'permission',
       level: 'critical',
       title: 'Les notifications sont désactivées',
-      description: 'Sans elles, Le Cercle ne peut pas vous rappeler vos prises.',
+      description: 'Sans elles, DoseCircle ne peut pas vous rappeler vos prises.',
       action: canAsk
         ? { kind: 'request-permission', label: 'Autoriser les notifications' }
         : { kind: 'open-app-settings', label: 'Ouvrir les réglages' },
@@ -48,7 +48,7 @@ export function computeIssues(health: ReminderHealth): Issue[] {
       level: 'critical',
       title: 'Les rappels peuvent arriver en retard',
       description:
-        'Android doit autoriser Le Cercle à sonner à l’heure exacte. Activez « Alarmes et rappels ».',
+        'Android doit autoriser DoseCircle à sonner à l’heure exacte. Activez « Alarmes et rappels ».',
       action: { kind: 'open-exact-alarm-settings', label: 'Activer les alarmes exactes' },
     });
   }
@@ -58,7 +58,7 @@ export function computeIssues(health: ReminderHealth): Issue[] {
       level: 'warning',
       title: 'L’économie de batterie peut bloquer les rappels',
       description:
-        'Sur certains téléphones, l’économie de batterie retarde les rappels. Choisissez « Ne pas optimiser » (ou « Sans restriction ») pour Le Cercle.',
+        'Sur certains téléphones, l’économie de batterie retarde les rappels. Choisissez « Ne pas optimiser » (ou « Sans restriction ») pour DoseCircle.',
       action: { kind: 'open-battery-settings', label: 'Ouvrir les réglages de batterie' },
     });
   }

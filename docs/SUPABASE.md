@@ -44,7 +44,7 @@ Vérification : **Table Editor** doit montrer `profiles`, `medications`, `schedu
 
 **Authentication → Emails → Templates** : dans **Magic Link** _et_ **Confirm signup**,
 remplacez le sujet et le contenu par ceux de `supabase/templates/code.html`
-(sujet : « Votre code de connexion Le Cercle »). Le contenu doit contenir `{{ .Token }}` :
+(sujet : « Votre code de connexion DoseCircle »). Le contenu doit contenir `{{ .Token }}` :
 c'est le code à 6 chiffres. Sans cela, l'utilisateur reçoit un lien au lieu d'un code.
 
 **Authentication → Rate Limits** : laissez les valeurs par défaut.
@@ -69,7 +69,7 @@ Seul le compte de démonstration des stores pourra utiliser un mot de passe
 Le serveur d'e-mail fourni par Supabase est limité à quelques envois par heure : suffisant
 pour tester, pas pour de vrais utilisateurs. Avant le lancement :
 **Authentication → Emails → SMTP Settings** → branchez un service d'envoi (Brevo, Resend,
-Postmark…) avec une adresse de votre domaine (ex. `no-reply@lecercle.app`).
+Postmark…) avec une adresse de votre domaine (ex. `no-reply@dosecircle.app`).
 
 ## 6. Tester
 

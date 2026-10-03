@@ -16,12 +16,13 @@ insert into public.schedules (id, user_id, medication_id, time_of_day) values
 insert into public.dose_events (id, user_id, medication_id, schedule_id, scheduled_at, status) values
   ('30000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a', '10000000-0000-0000-0000-00000000000a', '20000000-0000-0000-0000-00000000000a', now(), 'missed'),
   ('30000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000b', '10000000-0000-0000-0000-00000000000b', '20000000-0000-0000-0000-00000000000b', now(), 'missed');
-insert into public.circle_members (id, user_id, first_name, phone_e164) values
-  ('40000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a', 'L', '+33611111111'),
-  ('40000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000b', 'L', '+33611111111');
-insert into public.alerts_sent (user_id, dose_event_id, circle_member_id) values
-  ('00000000-0000-0000-0000-00000000000a', '30000000-0000-0000-0000-00000000000a', '40000000-0000-0000-0000-00000000000a'),
-  ('00000000-0000-0000-0000-00000000000b', '30000000-0000-0000-0000-00000000000b', '40000000-0000-0000-0000-00000000000b');
+insert into public.circle_links (patient_id, watcher_id) values
+  ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000b');
+insert into public.circle_alerts (patient_id, watcher_id, dose_event_id) values
+  ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000b', '30000000-0000-0000-0000-00000000000a');
+insert into public.push_tokens (token, user_id, platform) values
+  ('ExponentPushToken[alice-phone-1234]', '00000000-0000-0000-0000-00000000000a', 'ios'),
+  ('ExponentPushToken[bob-phone-12345]', '00000000-0000-0000-0000-00000000000b', 'ios');
 
 -- What the delete-account function does (auth.admin.deleteUser).
 delete from auth.users where id = '00000000-0000-0000-0000-00000000000a';
@@ -30,13 +31,13 @@ select is((select count(*)::int from public.profiles where id = '00000000-0000-0
 select is((select count(*)::int from public.medications where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'medications deleted');
 select is((select count(*)::int from public.schedules where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'schedules deleted');
 select is((select count(*)::int from public.dose_events where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'intake history deleted');
-select is((select count(*)::int from public.circle_members where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'relatives (and their phone numbers) deleted');
-select is((select count(*)::int from public.alerts_sent where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'alert log deleted');
+select is((select count(*)::int from public.circle_links), 0, 'circle links deleted');
+select is((select count(*)::int from public.circle_alerts), 0, 'alert log deleted');
 
 -- Bob is untouched.
 select is((select count(*)::int from public.medications where user_id = '00000000-0000-0000-0000-00000000000b'), 1, 'other accounts keep their medications');
-select is((select count(*)::int from public.circle_members where user_id = '00000000-0000-0000-0000-00000000000b'), 1, 'and their circle');
-select is((select count(*)::int from public.alerts_sent), 1, 'and their alerts');
+select is((select count(*)::int from public.push_tokens where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'phones forgotten');
+select is((select count(*)::int from public.push_tokens), 1, 'other accounts keep their phones');
 
 select * from finish();
 rollback;

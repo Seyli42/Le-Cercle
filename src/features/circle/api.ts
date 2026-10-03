@@ -1,108 +1,101 @@
-import { FunctionsHttpError, type PostgrestError } from '@supabase/supabase-js';
+import type { PostgrestError } from '@supabase/supabase-js';
 
-import type { ConsentStatus } from '@/lib/database.types';
-import { AppError, DEFAULT_MESSAGES, toAppError } from '@/lib/errors';
+import { APP_NAME } from '@/config/brand';
+import { AppError, toAppError } from '@/lib/errors';
 import type { AppSupabaseClient } from '@/lib/supabase';
 
 /**
  * The circle lives on the server only: inviting and alerting relatives needs the
- * network anyway (SMS). All calls run with the user's rights (RLS).
+ * network anyway. Relatives are alerted by a notification on their own app (free): the
+ * person shares a code, the relative types it in their app. All calls run with the
+ * user's rights (RLS + checked functions).
  */
 
-export const MAX_MEMBERS = 5;
+export const MAX_WATCHERS = 5;
 export const DELAY_CHOICES = [15, 30, 60, 120] as const;
 
-export type CircleMember = {
-  readonly id: string;
+export type CircleLink = {
+  readonly linkId: string;
   readonly firstName: string;
-  readonly phone: string;
-  readonly consent: ConsentStatus;
-  readonly inviteSentAt: string | null;
-  readonly invitesSent: number;
-  readonly confirmedAt: string | null;
+  readonly since: string;
+  /** Watching side: last alert received about this person. */
+  readonly lastAlertAt: string | null;
 };
+
+export type CircleInvite = { readonly code: string; readonly expiresAt: string };
 
 export type SentAlert = {
   readonly id: string;
-  readonly memberFirstName: string;
   readonly plannedAt: string | null;
   readonly sentAt: string | null;
-  readonly status: string;
 };
 
 export type CircleData = {
   readonly firstName: string | null;
   readonly delayMinutes: number;
-  readonly members: readonly CircleMember[];
+  /** Relatives alerted when I do not confirm an intake. */
+  readonly watchers: readonly CircleLink[];
+  /** People I watch over. */
+  readonly watching: readonly CircleLink[];
+  readonly invite: CircleInvite | null;
+  /** Alerts sent about me (most recent first). */
   readonly alerts: readonly SentAlert[];
 };
 
 const MESSAGES: Readonly<Record<string, string>> = {
-  circle_limit_reached: `Un Cercle compte au maximum ${MAX_MEMBERS} proches.`,
-  member_not_found: 'Ce proche n’est plus dans votre Cercle.',
-  already_confirmed: 'Ce proche a déjà accepté votre invitation.',
-  invite_too_soon:
-    'Une invitation vient d’être envoyée. Patientez deux minutes avant de recommencer.',
-  invite_limit_reached:
-    'Trop d’invitations envoyées à ce numéro. Demandez à votre proche de répondre OUI au dernier SMS.',
-  first_name_required:
-    'Indiquez d’abord votre prénom : il apparaît dans le SMS envoyé à vos proches.',
-  sms_failed:
-    'Le SMS n’a pas pu être envoyé. Vérifiez le numéro (portable) et réessayez dans quelques minutes.',
-  duplicate_phone: 'Ce numéro est déjà dans votre Cercle.',
+  first_name_required: 'Indiquez d’abord votre prénom : c’est ce que voient vos proches.',
+  circle_full: `Un Cercle compte au maximum ${MAX_WATCHERS} proches.`,
+  invite_limit_reached: 'Trop d’invitations créées aujourd’hui. Réessayez demain.',
+  invalid_code:
+    'Ce code n’est pas valable. Vérifiez-le, ou demandez un nouveau code (valable 48 h).',
+  own_invite:
+    'C’est votre propre code : envoyez-le à un proche, qui le saisira dans son application.',
+  too_many_attempts: 'Trop de codes incorrects. Réessayez dans une heure.',
+  link_not_found: 'Ce lien n’existe plus.',
 };
 
 function fromPostgrest(error: PostgrestError): AppError {
-  if (error.code === '23505') {
-    return new AppError(
-      'validation',
-      MESSAGES.duplicate_phone ?? DEFAULT_MESSAGES.validation,
-      error,
-    );
-  }
   const known = MESSAGES[error.message];
   if (known) return new AppError('validation', known, error);
   return toAppError(new Error(error.message));
 }
 
-async function fromFunction(error: unknown): Promise<AppError> {
-  if (error instanceof FunctionsHttpError) {
-    const body: unknown = await error.context.json().catch(() => null);
-    const code =
-      body && typeof body === 'object' && 'error' in body ? String(body.error) : 'unknown';
-    const known = MESSAGES[code];
-    if (known) return new AppError('validation', known, error);
-    return new AppError('unknown', DEFAULT_MESSAGES.unknown, error);
-  }
-  return toAppError(error);
+/** "ABCDEFGH" → "ABCD-EFGH" (easier to read aloud or copy). */
+export function formatCode(code: string): string {
+  return code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : code;
+}
+
+/** Text shared by WhatsApp, SMS from the person's own phone, e-mail… */
+export function inviteMessage(patientFirstName: string, code: string): string {
+  return (
+    `${patientFirstName} vous invite à veiller sur ses prises de médicaments avec ${APP_NAME}. ` +
+    `Installez l’application ${APP_NAME} (gratuite), puis ouvrez « Mon Cercle » → ` +
+    `« Je veille sur un proche » et saisissez ce code : ${formatCode(code)} (valable 48 h). ` +
+    `Vous serez prévenu(e) par notification si une prise n’est pas confirmée.`
+  );
 }
 
 export async function loadCircle(client: AppSupabaseClient, userId: string): Promise<CircleData> {
-  const [profile, members, alerts] = await Promise.all([
+  const [profile, links, invite, alerts] = await Promise.all([
     client
       .from('profiles')
       .select('first_name, missed_dose_delay_minutes')
       .eq('id', userId)
       .single(),
+    client.rpc('my_circle'),
+    client.rpc('my_circle_invite'),
     client
-      .from('circle_members')
-      .select(
-        'id, first_name, phone_e164, consent_status, invite_sent_at, invites_sent, confirmed_at',
-      )
-      .is('deleted_at', null)
-      .order('created_at'),
-    client
-      .from('alerts_sent')
-      .select('id, circle_member_id, dose_event_id, status, sent_at, created_at')
-      .in('status', ['sent', 'delivered', 'failed'])
+      .from('circle_alerts')
+      .select('id, dose_event_id, sent_at')
+      .eq('patient_id', userId)
+      .eq('status', 'sent')
       .order('created_at', { ascending: false })
       .limit(10),
   ]);
-  for (const result of [profile, members, alerts]) {
+  for (const result of [profile, links, invite, alerts]) {
     if (result.error) throw fromPostgrest(result.error);
   }
 
-  const memberRows = members.data ?? [];
   const alertRows = alerts.data ?? [];
   const eventIds = [...new Set(alertRows.map((a) => a.dose_event_id))];
   const events = eventIds.length
@@ -110,26 +103,25 @@ export async function loadCircle(client: AppSupabaseClient, userId: string): Pro
     : { data: [], error: null };
   if (events.error) throw fromPostgrest(events.error);
   const plannedAt = new Map((events.data ?? []).map((e) => [e.id, e.scheduled_at]));
-  const names = new Map(memberRows.map((m) => [m.id, m.first_name]));
 
+  const toLink = (row: NonNullable<typeof links.data>[number]): CircleLink => ({
+    linkId: row.link_id,
+    firstName: row.first_name,
+    since: row.since,
+    lastAlertAt: row.last_alert_at,
+  });
+  const rows = links.data ?? [];
+  const current = invite.data?.[0];
   return {
     firstName: profile.data?.first_name ?? null,
     delayMinutes: profile.data?.missed_dose_delay_minutes ?? 30,
-    members: memberRows.map((m) => ({
-      id: m.id,
-      firstName: m.first_name,
-      phone: m.phone_e164,
-      consent: m.consent_status,
-      inviteSentAt: m.invite_sent_at,
-      invitesSent: m.invites_sent,
-      confirmedAt: m.confirmed_at,
-    })),
+    watchers: rows.filter((r) => r.role === 'watcher').map(toLink),
+    watching: rows.filter((r) => r.role === 'patient').map(toLink),
+    invite: current ? { code: current.code, expiresAt: current.expires_at } : null,
     alerts: alertRows.map((a) => ({
       id: a.id,
-      memberFirstName: names.get(a.circle_member_id) ?? 'Un proche retiré',
       plannedAt: plannedAt.get(a.dose_event_id) ?? null,
       sentAt: a.sent_at,
-      status: a.status,
     })),
   };
 }
@@ -150,29 +142,28 @@ export async function saveSettings(
   if (error) throw fromPostgrest(error);
 }
 
-export async function sendInvite(client: AppSupabaseClient, memberId: string): Promise<void> {
-  const { error } = await client.functions.invoke('circle-invite', { body: { memberId } });
-  if (error) throw await fromFunction(error);
-}
-
-/** Adds a relative and sends the invitation SMS. */
-export async function addMember(
-  client: AppSupabaseClient,
-  member: { readonly firstName: string; readonly phone: string },
-): Promise<void> {
-  const { data, error } = await client
-    .from('circle_members')
-    .insert({ first_name: member.firstName.trim(), phone_e164: member.phone })
-    .select('id')
-    .single();
+/** A new code (the previous unused one stops working). */
+export async function createInvite(client: AppSupabaseClient): Promise<CircleInvite> {
+  const { data, error } = await client.rpc('create_circle_invite');
   if (error) throw fromPostgrest(error);
-  await sendInvite(client, data.id);
+  const row = data[0];
+  if (!row) throw new AppError('unknown', 'Le code n’a pas pu être créé. Réessayez.');
+  return { code: row.code, expiresAt: row.expires_at };
 }
 
-export async function removeMember(client: AppSupabaseClient, memberId: string): Promise<void> {
-  const { error } = await client
-    .from('circle_members')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', memberId);
+/** The relative types the code received: returns the first name of the person. */
+export async function acceptInvite(client: AppSupabaseClient, code: string): Promise<string> {
+  const cleaned = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (cleaned.length !== 8) {
+    throw new AppError('validation', 'Le code compte 8 caractères, par exemple ABCD-EFGH.');
+  }
+  const { data, error } = await client.rpc('accept_circle_invite', { p_code: cleaned });
+  if (error) throw fromPostgrest(error);
+  return data[0]?.patient_first_name ?? 'votre proche';
+}
+
+/** Either side ends the link (a relative leaves, or the person removes them). */
+export async function leaveLink(client: AppSupabaseClient, linkId: string): Promise<void> {
+  const { error } = await client.rpc('revoke_circle_link', { p_link_id: linkId });
   if (error) throw fromPostgrest(error);
 }

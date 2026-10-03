@@ -1,8 +1,8 @@
-# Supprimer votre compte Le Cercle
+# Supprimer votre compte DoseCircle
 
 ## Depuis l'application (immédiat)
 
-1. Ouvrez Le Cercle et touchez **Compte** (en haut à droite de l'accueil).
+1. Ouvrez DoseCircle et touchez **Compte** (en haut à droite de l'accueil).
 2. Touchez **Supprimer mon compte**.
 3. Tapez **SUPPRIMER** pour confirmer, puis **Supprimer définitivement**.
 
@@ -17,7 +17,8 @@ Nous supprimons le compte et vous confirmons la suppression sous 7 jours au plus
 ## Ce qui est supprimé
 
 - Immédiatement et définitivement : votre compte, vos médicaments, horaires, historique
-  des prises, votre Cercle (prénoms et numéros de vos proches), le journal des SMS, votre
+  des prises, votre Cercle (liens avec vos proches, téléphones enregistrés pour les alertes), le journal des
+  alertes, votre
   historique d'achat chez notre prestataire d'abonnement.
 - Les copies de sauvegarde techniques de notre hébergeur disparaissent sous 7 jours.
 - Seules les factures conservées par Apple ou Google, selon leurs obligations légales,

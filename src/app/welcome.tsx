@@ -17,7 +17,7 @@ const POINTS: readonly { readonly icon: string; readonly title: string; readonly
     {
       icon: '👪',
       title: 'Vos proches veillent, si vous le souhaitez',
-      body: 'Si une prise n’est pas confirmée, les proches que vous choisissez reçoivent un SMS. Sans jamais le nom de vos médicaments.',
+      body: 'Si une prise n’est pas confirmée, les proches que vous choisissez sont prévenus par une notification sur leur téléphone. Sans jamais le nom de vos médicaments.',
     },
     {
       icon: '🔒',
@@ -33,7 +33,7 @@ export default function WelcomeScreen() {
     <Screen>
       <Stack.Screen options={{ headerShown: false }} />
       <Text style={styles.brand} accessibilityRole="header">
-        Le Cercle
+        DoseCircle
       </Text>
       <Text style={styles.lead}>Vos médicaments, à l’heure. Vos proches, rassurés.</Text>
       {POINTS.map((point) => (

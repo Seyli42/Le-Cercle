@@ -8,13 +8,19 @@ pour corriger.
 
 ## Premium
 
-- **Restaurer un achat** (nouveau téléphone) : Compte → Le Cercle Premium → Restaurer mes
+- **Restaurer un achat** (nouveau téléphone) : Compte → DoseCircle Premium → Restaurer mes
   achats, avec le même compte App Store / Google Play.
 - **Résilier** : réglages de votre compte App Store ou Google Play → Abonnements.
 
-## Mon proche ne veut plus recevoir de SMS
+## Mon proche ne veut plus être prévenu
 
-Il lui suffit de répondre **STOP** à un SMS de Le Cercle.
+Dans son application : **Mon Cercle → Ne plus veiller**. Vous pouvez aussi le retirer
+vous-même : **Mon Cercle → Retirer**.
+
+## Mon proche ne reçoit pas les alertes
+
+Sur son téléphone, les notifications de DoseCircle doivent être autorisées, et il doit
+être connecté à son compte (une déconnexion arrête les alertes sur ce téléphone).
 
 ## Mes données
 
@@ -25,4 +31,4 @@ Voir la [politique de confidentialité](confidentialite.html) et la page
 
 [{{contactEmail}}](mailto:{{contactEmail}}) — réponse sous 2 jours ouvrés.
 
-> Le Cercle ne donne aucun conseil médical. En cas d'urgence, appelez le 15 ou le 112.
+> DoseCircle ne donne aucun conseil médical. En cas d'urgence, appelez le 15 ou le 112.

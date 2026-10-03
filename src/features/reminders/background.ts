@@ -21,8 +21,8 @@ import { supabase } from '@/lib/supabase';
 // Also installs the foreground notification handler (module side effect).
 import '@/features/reminders/notifications';
 
-export const NOTIFICATION_RESPONSE_TASK = 'lecercle-notification-response';
-export const REFRESH_TASK = 'lecercle-reminders-refresh';
+export const NOTIFICATION_RESPONSE_TASK = 'dosecircle-notification-response';
+export const REFRESH_TASK = 'dosecircle-reminders-refresh';
 
 /** Signed-in user, read from the session stored on the phone (works offline). */
 export async function getStoredUserId(): Promise<string | null> {

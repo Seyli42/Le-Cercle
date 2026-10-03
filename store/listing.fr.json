@@ -1,16 +1,16 @@
 {
   "appStore": {
-    "name": "Le Cercle – Rappel médicament",
+    "name": "DoseCircle – Rappel médicament",
     "subtitle": "Vos prises, à l'heure",
     "keywords": "pilulier,traitement,ordonnance,prise,alarme,senior,aidant,famille,pilule,comprimé,oubli,santé",
-    "promotionalText": "Des rappels fiables, même sans réseau et téléphone verrouillé. Si une prise n'est pas confirmée, vos proches choisis sont prévenus par SMS.",
-    "description": "Le Cercle vous rappelle de prendre vos médicaments, à l'heure, tous les jours. Et si une prise n'est pas confirmée, les proches que vous avez choisis sont prévenus par SMS.\n\nDES RAPPELS QUI NE RATENT PAS\n• Fonctionne sans réseau, téléphone verrouillé, et après un redémarrage.\n• « Pris », « Dans 10 min » ou « Passer » directement depuis la notification.\n• Un écran vérifie que les rappels sont bien autorisés sur votre téléphone.\n\nVOTRE CERCLE DE CONFIANCE\n• Ajoutez un enfant, un voisin, une aide à domicile.\n• Il est prévenu par SMS uniquement si une prise n'est pas confirmée à temps.\n• Il donne son accord (réponse « OUI ») et peut se retirer à tout moment (« STOP »).\n\nSIMPLE À UTILISER\n• Grands boutons, grands textes, mode sombre.\n• Ajout d'un médicament en quelques secondes : nom, quantité, horaires, durée.\n• Historique des prises sur 30 jours.\n\nVOS DONNÉES PROTÉGÉES\n• Données chiffrées sur le téléphone, serveurs en Europe.\n• Aucune revente, aucun profilage. Export et suppression du compte en un geste.\n\nGRATUIT, OU PREMIUM SANS PUBLICITÉ\nToutes les fonctions sont gratuites. La version gratuite affiche quelques publicités non personnalisées, jamais pendant un rappel. L'abonnement Premium les supprime toutes.\n\nIMPORTANT\nLe Cercle n'est pas un dispositif médical. L'application vous rappelle ce que vous avez saisi : elle ne donne aucun conseil, ne vérifie ni les doses ni les interactions. En cas de doute, demandez à votre médecin ou à votre pharmacien.",
-    "whatsNew": "Première version de Le Cercle.",
+    "promotionalText": "Des rappels fiables, même sans réseau et téléphone verrouillé. Si une prise n'est pas confirmée, vos proches choisis sont prévenus sur leur téléphone.",
+    "description": "DoseCircle vous rappelle de prendre vos médicaments, à l'heure, tous les jours. Et si une prise n'est pas confirmée, les proches que vous avez choisis sont prévenus par une notification sur leur téléphone.\n\nDES RAPPELS QUI NE RATENT PAS\n• Fonctionne sans réseau, téléphone verrouillé, et après un redémarrage.\n• « Pris », « Dans 10 min » ou « Passer » directement depuis la notification.\n• Un écran vérifie que les rappels sont bien autorisés sur votre téléphone.\n\nVOTRE CERCLE DE CONFIANCE\n• Ajoutez un enfant, un voisin, une aide à domicile.\n• Il installe DoseCircle gratuitement et saisit le code que vous lui partagez : c'est son accord.\n• Il reçoit une notification uniquement si une prise n'est pas confirmée à temps.\n• Chacun peut arrêter à tout moment.\n\nSIMPLE À UTILISER\n• Grands boutons, grands textes, mode sombre.\n• Ajout d'un médicament en quelques secondes : nom, quantité, horaires, durée.\n• Historique des prises sur 30 jours.\n\nVOS DONNÉES PROTÉGÉES\n• Données chiffrées sur le téléphone, serveurs en Europe.\n• Aucune revente, aucun profilage. Export et suppression du compte en un geste.\n\nGRATUIT, OU PREMIUM SANS PUBLICITÉ\nToutes les fonctions sont gratuites. La version gratuite affiche quelques publicités non personnalisées, jamais pendant un rappel. L'abonnement Premium les supprime toutes.\n\nIMPORTANT\nDoseCircle n'est pas un dispositif médical. L'application vous rappelle ce que vous avez saisi : elle ne donne aucun conseil, ne vérifie ni les doses ni les interactions. En cas de doute, demandez à votre médecin ou à votre pharmacien.",
+    "whatsNew": "Première version de DoseCircle.",
     "primaryCategory": "Medical",
     "secondaryCategory": "Health & Fitness"
   },
   "googlePlay": {
-    "title": "Le Cercle – Rappel médicament",
+    "title": "DoseCircle – Rappel médicament",
     "shortDescription": "Rappels de médicaments fiables, hors ligne. Vos proches prévenus en cas d'oubli.",
     "fullDescription": "@appStore.description",
     "category": "Medical"

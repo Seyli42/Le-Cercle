@@ -51,7 +51,7 @@ export type PlannedNotification = {
 export const DOSE_PREFIX = 'dose_';
 export const SNOOZE_PREFIX = 'snooze_';
 export const SAFETY_PREFIX = 'safety_';
-/** Notifications scheduled by Le Cercle (others, e.g. from tests, are left alone). */
+/** Notifications scheduled by DoseCircle (others, e.g. from tests, are left alone). */
 export const OWN_PREFIXES = [DOSE_PREFIX, SNOOZE_PREFIX, SAFETY_PREFIX] as const;
 
 export const MAX_HORIZON_DAYS = 30;
@@ -186,7 +186,7 @@ export function planReminders(input: PlanInput): Plan {
     notifications.push({
       identifier: `${SAFETY_PREFIX}${compactInstant(at)}`,
       at,
-      title: 'Ouvrez Le Cercle',
+      title: 'Ouvrez DoseCircle',
       body: 'Ouvrez l’application pour programmer vos prochains rappels de médicaments.',
       data: { kind: 'safety', userId: input.userId },
     });

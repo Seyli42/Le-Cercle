@@ -2,7 +2,7 @@
  * Public configuration embedded in the app at build time.
  *
  * Only EXPO_PUBLIC_* variables end up in the app, and they are readable by anyone
- * who downloads it. NEVER put a secret here (Twilio, RevenueCat secret key, Supabase service_role
+ * who downloads it. NEVER put a secret here (RevenueCat secret key, Supabase service_role
  * or secret key): those live only in Supabase Edge Functions.
  */
 

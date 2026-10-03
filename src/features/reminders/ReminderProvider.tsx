@@ -101,8 +101,14 @@ export function ReminderProvider({ children }: { readonly children: ReactNode })
     });
 
     const onResponse = (response: Notifications.NotificationResponse) => {
-      // Came to confirm an intake: no full-screen ad in this session.
+      // Came to confirm an intake or to check on a relative: no full-screen ad now.
       noteOpenedFromReminder();
+      const content = response.notification.request.content.data as { type?: unknown } | null;
+      if (content?.type === 'circle_alert') {
+        router.navigate('/circle');
+        Notifications.clearLastNotificationResponse();
+        return;
+      }
       handleNotificationResponse(db, userId, response)
         .then((dose) => {
           if (dose) router.navigate('/');

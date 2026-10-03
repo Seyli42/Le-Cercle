@@ -6,18 +6,17 @@ export function requireEnv(name: string): string {
   return value;
 }
 
-export function twilioConfig() {
-  return {
-    accountSid: requireEnv('TWILIO_ACCOUNT_SID'),
-    authToken: requireEnv('TWILIO_AUTH_TOKEN'),
-    fromNumber: Deno.env.get('TWILIO_FROM_NUMBER'),
-    messagingServiceSid: Deno.env.get('TWILIO_MESSAGING_SERVICE_SID'),
-  };
-}
-
 export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+/** Constant-time comparison of two secrets (no timing leak). */
+export function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }

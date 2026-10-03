@@ -42,7 +42,6 @@ Suivi (« tracking ») : **Non** (pas d'IDFA, pas de fenêtre ATT, pubs non pers
 | Santé                        | Fonctionnalités de l'app | Oui               | Médicaments, horaires, prises    |
 | Adresse e-mail               | Fonctionnalités de l'app | Oui               | Connexion                        |
 | Identifiant utilisateur      | Fonctionnalités de l'app | Oui               | Compte (aussi sur les plantages) |
-| Contacts                     | Fonctionnalités de l'app | Oui               | Prénoms et numéros du Cercle     |
 | Historique d'achat           | Fonctionnalités de l'app | Oui               | Abonnement Premium               |
 | Données de plantage          | Fonctionnalités de l'app | Oui               | Sentry                           |
 | Données de performance       | Fonctionnalités de l'app | Oui               | Sentry                           |
@@ -56,9 +55,9 @@ Ce tableau correspond exactement au `privacyManifests` de `app.config.ts`.
 ### Abonnements (à créer avant la première soumission)
 
 - Groupe « Premium », produits `premium_monthly` et `premium_yearly` (prix : voir
-  `docs/MONETISATION.md` §6), nom affiché « Le Cercle Premium », description « Aucune
+  `docs/MONETISATION.md` §6), nom affiché « DoseCircle Premium », description « Aucune
   publicité ».
-- Pour chaque produit : **capture d'écran de l'écran Premium** (Mon compte → Le Cercle
+- Pour chaque produit : **capture d'écran de l'écran Premium** (Mon compte → DoseCircle
   Premium) et texte de revue : « Supprime les publicités. Toutes les fonctions restent
   gratuites. »
 - Le premier abonnement doit être **soumis avec une version de l'app**.
@@ -71,15 +70,16 @@ E-mail : <EXPO_PUBLIC_REVIEW_EMAIL>
 Mot de passe : <mot de passe du compte de démo>
 (Les autres utilisateurs se connectent avec un code reçu par e-mail.)
 
-Le Cercle rappelle à l'utilisateur les médicaments qu'il a lui-même saisis. Ce n'est pas
+DoseCircle rappelle à l'utilisateur les médicaments qu'il a lui-même saisis. Ce n'est pas
 un dispositif médical : aucun conseil, aucune dose suggérée, aucune vérification
 d'interaction.
 
 Notifications « Time Sensitive » : un rappel de médicament doit traverser le mode
 Concentration (prise d'un traitement à heure fixe).
 
-« Mon Cercle » : les proches ajoutés reçoivent un SMS de demande d'accord ; aucun SMS
-d'alerte n'est envoyé sans leur réponse « OUI ».
+« Mon Cercle » : la personne partage un code ; le proche, qui a aussi l'app et un compte,
+le saisit (c'est son accord). Il reçoit alors une notification si une prise n'est pas
+confirmée à temps. Pour tester : connectez-vous sur un 2e appareil avec un autre compte.
 
 Version gratuite : quelques publicités non personnalisées (Google AdMob), jamais pendant
 un rappel, aucune donnée de santé transmise ; pas de suivi publicitaire, donc pas de
@@ -113,22 +113,21 @@ affiché à ce moment, et gardez une trace de la réponse ici.
 ### Sécurité des données (« Data safety »)
 
 - Données **chiffrées en transit** : Oui. Suppression **sur demande** : Oui.
-- Les prestataires (Supabase, Twilio, Sentry, RevenueCat) agissent pour notre
+- Les prestataires (Supabase, Expo, Sentry, RevenueCat) agissent pour notre
   compte : ce n'est pas du « partage » au sens de Google. **AdMob**, lui, est déclaré comme
   partage pour la publicité.
 
-| Catégorie Google               | Type                    | Collecté | Partagé | Finalités                          | Facultatif    |
-| ------------------------------ | ----------------------- | -------- | ------- | ---------------------------------- | ------------- |
-| Santé et remise en forme       | Informations de santé   | Oui      | Non     | Fonctionnalités de l'app           | Non           |
-| Informations personnelles      | Adresse e-mail          | Oui      | Non     | Gestion du compte                  | Non           |
-| Informations personnelles      | ID utilisateur          | Oui      | Non     | Gestion du compte, fonctionnalités | Non           |
-| Contacts                       | Contacts (le Cercle)    | Oui      | Non     | Fonctionnalités de l'app           | Oui           |
-| Informations financières       | Historique des achats   | Oui      | Non     | Fonctionnalités de l'app           | Oui           |
-| Activité dans l'application    | Interactions avec l'app | Oui      | Oui     | Publicité ou marketing             | Oui (Premium) |
-| Position                       | Position approximative  | Oui      | Oui     | Publicité ou marketing             | Oui (Premium) |
-| Appareil ou autres ID          | Appareil ou autres ID   | Oui      | Oui     | Publicité, prévention des fraudes  | Oui (Premium) |
-| Infos et performances de l'app | Journaux de plantage    | Oui      | Non     | Analyse (fiabilité)                | Non           |
-| Infos et performances de l'app | Diagnostics             | Oui      | Non     | Analyse (fiabilité)                | Non           |
+| Catégorie Google               | Type                    | Collecté | Partagé | Finalités                                                              | Facultatif    |
+| ------------------------------ | ----------------------- | -------- | ------- | ---------------------------------------------------------------------- | ------------- |
+| Santé et remise en forme       | Informations de santé   | Oui      | Non     | Fonctionnalités de l'app                                               | Non           |
+| Informations personnelles      | Adresse e-mail          | Oui      | Non     | Gestion du compte                                                      | Non           |
+| Informations personnelles      | ID utilisateur          | Oui      | Non     | Gestion du compte, fonctionnalités                                     | Non           |
+| Informations financières       | Historique des achats   | Oui      | Non     | Fonctionnalités de l'app                                               | Oui           |
+| Activité dans l'application    | Interactions avec l'app | Oui      | Oui     | Publicité ou marketing                                                 | Oui (Premium) |
+| Position                       | Position approximative  | Oui      | Oui     | Publicité ou marketing                                                 | Oui (Premium) |
+| Appareil ou autres ID          | Appareil ou autres ID   | Oui      | Oui     | Publicité, prévention des fraudes, fonctionnalités (alertes du Cercle) | Non           |
+| Infos et performances de l'app | Journaux de plantage    | Oui      | Non     | Analyse (fiabilité)                                                    | Non           |
+| Infos et performances de l'app | Diagnostics             | Oui      | Non     | Analyse (fiabilité)                                                    | Non           |
 
 ## Captures d'écran
 
@@ -142,7 +141,7 @@ visible**, dans cet ordre :
 
 1. Accueil « Aujourd'hui » avec 2 ou 3 prises (une « ✓ Pris »).
 2. La notification de rappel avec ses boutons (écran verrouillé).
-3. Mon Cercle avec un proche « ✓ A accepté ».
+3. Mon Cercle avec un proche qui veille et un code d'invitation affiché.
 4. Le formulaire « Nouveau médicament » rempli.
 5. L'historique des 7 derniers jours.
 6. « Vérifier mes rappels » tout au vert.

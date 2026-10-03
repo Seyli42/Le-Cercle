@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 
+import { PushRegistration } from '@/features/circle/PushRegistration';
 import { AdsProvider } from '@/features/monetization/AdsProvider';
 import { PremiumProvider } from '@/features/monetization/PremiumProvider';
 import { ReminderProvider } from '@/features/reminders/ReminderProvider';
@@ -11,6 +12,7 @@ export default function SignedInLayout() {
     <DatabaseProvider>
       <ReminderProvider>
         <SyncProvider>
+          <PushRegistration />
           <PremiumProvider>
             <AdsProvider>
               <Stack
@@ -23,7 +25,7 @@ export default function SignedInLayout() {
                 <Stack.Screen name="reminders" options={{ title: 'Vérifier mes rappels' }} />
                 <Stack.Screen name="history" options={{ title: 'Historique des prises' }} />
                 <Stack.Screen name="circle" options={{ title: 'Mon Cercle' }} />
-                <Stack.Screen name="premium" options={{ title: 'Le Cercle Premium' }} />
+                <Stack.Screen name="premium" options={{ title: 'DoseCircle Premium' }} />
               </Stack>
             </AdsProvider>
           </PremiumProvider>

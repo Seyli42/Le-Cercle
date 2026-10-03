@@ -1,4 +1,4 @@
-# Publier Le Cercle sur l'App Store et Google Play (étape 9)
+# Publier DoseCircle sur l'App Store et Google Play (étape 9)
 
 Comptez **2 à 4 semaines** la première fois : vérification des comptes développeur, revue
 Apple (souvent 1 à 3 jours, parfois plusieurs allers-retours pour une app de santé) et,
@@ -14,17 +14,17 @@ Chaque commande est expliquée. Faites les étapes **dans l'ordre**.
 | Google Play Console          | 25 $ une fois           | Compte **Organisation** aussi. Un compte **personnel** récent doit faire tester l'app par **12 testeurs pendant 14 jours** avant de pouvoir publier.        |
 | expo.dev                     | Gratuit au départ       | Construit l'app dans le cloud (pas besoin de Mac).                                                                                                          |
 | Supabase (projet production) | Gratuit puis ~25 $/mois | Région **Europe**. Voir `docs/SUPABASE.md`.                                                                                                                 |
-| Sentry, Twilio               | À l'usage               | Déjà vus aux étapes 1 et 6.                                                                                                                                 |
+| Sentry, Firebase             | Gratuits au départ      | Plantages ; notifications Android du Cercle (`docs/CERCLE.md`).                                                                                             |
 | AdMob, RevenueCat            | Gratuits                | Voir `docs/MONETISATION.md`.                                                                                                                                |
 
 ## 1. Le serveur de production (Supabase)
 
-| Commande                                               | À quoi ça sert                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------------- |
-| `npm run db:link -- --project-ref <REF>`               | Relie ce dossier au projet **de production**.                  |
-| `npm run db:push`                                      | Crée toutes les tables, règles de sécurité et fonctions.       |
-| `npm run functions:deploy`                             | Met en ligne les fonctions serveur (SMS, suppression…).        |
-| `npx supabase secrets set NOM=valeur` (une par secret) | Range les clés secrètes (liste dans `.env.example`, partie 3). |
+| Commande                                               | À quoi ça sert                                                        |
+| ------------------------------------------------------ | --------------------------------------------------------------------- |
+| `npm run db:link -- --project-ref <REF>`               | Relie ce dossier au projet **de production**.                         |
+| `npm run db:push`                                      | Crée toutes les tables, règles de sécurité et fonctions.              |
+| `npm run functions:deploy`                             | Met en ligne les fonctions serveur (alertes du Cercle, suppression…). |
+| `npx supabase secrets set NOM=valeur` (une par secret) | Range les clés secrètes (liste dans `.env.example`, partie 3).        |
 
 Puis dans le tableau de bord Supabase :
 
@@ -50,8 +50,8 @@ donne un compte à mot de passe, **le seul autorisé**.
 3. Déclarez `EXPO_PUBLIC_REVIEW_EMAIL=demo@votredomaine.fr` dans les variables EAS
    (production). L'**adresse** est publique, le **mot de passe** ne va que dans les notes
    de revue des stores.
-4. Connectez-vous une fois avec ce compte et ajoutez 2 ou 3 médicaments fictifs, un proche
-   (votre propre numéro) : les vérificateurs verront une app « vivante », et vous vous en
+4. Connectez-vous une fois avec ce compte et ajoutez 2 ou 3 médicaments fictifs, et invitez
+   un proche (un 2e compte à vous, sur un autre téléphone) : les vérificateurs verront une app « vivante », et vous vous en
    servirez pour les captures d'écran.
 
 ## 3. EAS : relier le projet
@@ -95,8 +95,8 @@ cherchez l'adresse → **Delete user**. Tout est effacé en cascade. Répondez �
 
 ## 5. iPhone : TestFlight puis App Store
 
-1. **App Store Connect → Apps → +** : plateforme iOS, nom « Le Cercle – Rappel
-   médicament », langue Français, identifiant `com.lecercle.app`, SKU `lecercle-ios`.
+1. **App Store Connect → Apps → +** : plateforme iOS, nom « DoseCircle – Rappel
+   médicament », langue Français, identifiant `com.dosecircle.app`, SKU `dosecircle-ios`.
 2. Remplissez la fiche avec `store/listing.fr.json` et les déclarations de
    `docs/STORES.md` (confidentialité, âge, abonnements, notes de revue).
 

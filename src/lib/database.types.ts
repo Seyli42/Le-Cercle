@@ -9,8 +9,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type MedicationForm =
   'tablet' | 'capsule' | 'liquid' | 'drops' | 'injection' | 'inhaler' | 'patch' | 'cream' | 'other';
 export type DoseStatus = 'pending' | 'taken' | 'snoozed' | 'skipped' | 'missed';
-export type ConsentStatus = 'pending' | 'confirmed' | 'revoked';
-export type AlertStatus = 'queued' | 'sending' | 'sent' | 'delivered' | 'failed' | 'cancelled';
+export type AlertStatus = 'queued' | 'sending' | 'sent' | 'failed' | 'cancelled';
 
 export type Database = {
   __InternalSupabase: {
@@ -159,48 +158,30 @@ export type Database = {
           },
         ];
       };
-      circle_members: {
+      circle_links: {
         Row: {
           id: string;
-          user_id: string;
-          first_name: string;
-          phone_e164: string;
-          consent_status: ConsentStatus;
+          patient_id: string;
+          watcher_id: string;
           created_at: string;
-          updated_at: string;
-          deleted_at: string | null;
-          /** invite_code is deliberately absent: not readable from the app. */
-          invite_sent_at: string | null;
-          invites_sent: number;
-          confirmed_at: string | null;
           revoked_at: string | null;
         };
-        Insert: {
-          id?: string;
-          user_id?: string;
-          first_name: string;
-          phone_e164: string;
-        };
-        Update: {
-          first_name?: string;
-          phone_e164?: string;
-          deleted_at?: string | null;
-        };
+        // Created and ended through the functions below only.
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
-      alerts_sent: {
+      circle_alerts: {
         Row: {
           id: string;
-          user_id: string;
+          patient_id: string;
+          watcher_id: string;
           dose_event_id: string;
-          circle_member_id: string;
-          channel: 'sms';
-          provider_message_id: string | null;
           status: AlertStatus;
-          error_code: string | null;
           attempts: number;
           claimed_at: string | null;
           sent_at: string | null;
+          error_code: string | null;
           created_at: string;
         };
         Insert: never;
@@ -234,6 +215,40 @@ export type Database = {
       };
       sync_heartbeat: {
         Args: { p_timezone: string };
+        Returns: undefined;
+      };
+      my_circle: {
+        Args: Record<string, never>;
+        Returns: {
+          link_id: string;
+          role: 'watcher' | 'patient';
+          first_name: string;
+          since: string;
+          last_alert_at: string | null;
+        }[];
+      };
+      my_circle_invite: {
+        Args: Record<string, never>;
+        Returns: { code: string; expires_at: string }[];
+      };
+      create_circle_invite: {
+        Args: Record<string, never>;
+        Returns: { code: string; expires_at: string }[];
+      };
+      accept_circle_invite: {
+        Args: { p_code: string };
+        Returns: { link_id: string; patient_first_name: string }[];
+      };
+      revoke_circle_link: {
+        Args: { p_link_id: string };
+        Returns: undefined;
+      };
+      register_push_token: {
+        Args: { p_token: string; p_platform: string };
+        Returns: undefined;
+      };
+      unregister_push_token: {
+        Args: { p_token: string };
         Returns: undefined;
       };
       my_premium_grant: {

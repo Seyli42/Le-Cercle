@@ -4,6 +4,8 @@ import { Platform } from 'react-native';
 import type { NotificationData, PlannedNotification } from '@/features/reminders/planner';
 
 export const CHANNEL_ID = 'reminders';
+/** Alerts received when a relative did not confirm an intake (sent by the server). */
+export const CIRCLE_CHANNEL_ID = 'circle-alerts';
 export const DOSE_CATEGORY = 'dose';
 
 export const ACTIONS = {
@@ -43,6 +45,14 @@ export function configureNotifications(): Promise<void> {
         importance: Notifications.AndroidImportance.MAX,
         sound: 'default',
         vibrationPattern: [0, 400, 250, 400],
+        enableVibrate: true,
+        showBadge: false,
+      });
+      await Notifications.setNotificationChannelAsync(CIRCLE_CHANNEL_ID, {
+        name: 'Alertes de mes proches',
+        description: 'Quand un proche sur qui vous veillez n’a pas confirmé une prise.',
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: 'default',
         enableVibrate: true,
         showBadge: false,
       });

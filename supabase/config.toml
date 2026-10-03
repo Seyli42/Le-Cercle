@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "le-cercle"
+project_id = "dosecircle"
 
 [api]
 enabled = true
@@ -251,15 +251,15 @@ otp_expiry = 600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Le Cercle signs users in with a 6-digit code (no link, no password).
+# DoseCircle signs users in with a 6-digit code (no link, no password).
 # Both templates must contain {{ .Token }}. On the hosted project, paste them in
 # Authentication > Emails (see docs/SUPABASE.md).
 [auth.email.template.magic_link]
-subject = "Votre code de connexion Le Cercle"
+subject = "Votre code de connexion DoseCircle"
 content_path = "./supabase/templates/code.html"
 
 [auth.email.template.confirmation]
-subject = "Votre code de connexion Le Cercle"
+subject = "Votre code de connexion DoseCircle"
 content_path = "./supabase/templates/code.html"
 
 # Uncomment to customize email template
@@ -432,18 +432,9 @@ enabled = true
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
-# --- Le Cercle Edge Functions -------------------------------------------------
-# Called by Twilio (no Supabase session): protected by the Twilio signature instead.
-[functions.twilio-inbound]
-verify_jwt = false
-
 # Called by pg_cron: protected by the CRON_SECRET header instead.
 [functions.missed-dose-check]
 verify_jwt = false
-
-# Called by the app with the user's session.
-[functions.circle-invite]
-verify_jwt = true
 
 # Called by the app with the user's session: deletes the account and all its data.
 [functions.delete-account]

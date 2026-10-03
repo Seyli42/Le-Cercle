@@ -72,12 +72,12 @@ export default function PremiumScreen() {
     }
   };
 
-  const packageName = Application.applicationId ?? 'com.lecercle.app';
+  const packageName = Application.applicationId ?? 'com.dosecircle.app';
 
   return (
     <Screen>
       <Text style={styles.title} accessibilityRole="header">
-        Le Cercle Premium
+        DoseCircle Premium
       </Text>
       <View style={styles.card}>
         <Text style={styles.body}>✓ Aucune publicité, nulle part dans l’application</Text>
@@ -149,7 +149,7 @@ export default function PremiumScreen() {
         Abonnement renouvelé automatiquement à la fin de chaque période, au même prix, sauf
         résiliation au moins 24 heures avant son terme. Le paiement est débité sur votre compte App
         Store ou Google Play, où vous pouvez gérer ou résilier l’abonnement à tout moment. Supprimer
-        l’application ou votre compte Le Cercle ne résilie pas l’abonnement.
+        l’application ou votre compte DoseCircle ne résilie pas l’abonnement.
       </Text>
       <View style={styles.links}>
         {Platform.OS === 'ios' ? (

@@ -17,12 +17,16 @@ const mockAuthListeners: Listener[] = [];
 const mockSession = { user: { id: 'user-1', email: 'marie@exemple.fr' } };
 let mockStoredSession: unknown = null;
 const mockInvoke = jest.fn();
+const mockRpc = jest.fn(async (_name: string, _args?: unknown) => ({
+  data: [] as unknown[],
+  error: null as unknown,
+}));
 const mockSignInWithPassword = jest.fn();
 
 jest.mock('@/config/env', () => ({
   env: {
     ...jest.requireActual<typeof import('@/config/env')>('@/config/env').env,
-    reviewEmail: 'demo@lecercle.fr',
+    reviewEmail: 'demo@dosecircle.fr',
     monetization: {
       revenueCat: { ios: 'appl_test', android: 'goog_test' },
       bannerUnit: { ios: null, android: null },
@@ -33,8 +37,13 @@ jest.mock('@/config/env', () => ({
 
 jest.mock('@/lib/supabase', () => {
   const chain: Record<string, unknown> = {};
-  for (const m of ['update', 'eq', 'select']) chain[m] = () => chain;
+  for (const m of ['update', 'eq', 'select', 'in', 'order', 'limit']) chain[m] = () => chain;
   chain.is = async () => ({ error: null });
+  chain.single = async () => ({
+    data: { first_name: 'Marie', missed_dose_delay_minutes: 30 },
+    error: null,
+  });
+  chain.then = (resolve: (value: unknown) => unknown) => resolve({ data: [], error: null });
   const client = {
     functions: { invoke: (...args: unknown[]) => mockInvoke(...args) },
     auth: {
@@ -46,7 +55,7 @@ jest.mock('@/lib/supabase', () => {
       signInWithOtp: async () => ({ data: {}, error: null }),
       signInWithPassword: async (credentials: unknown) => {
         mockSignInWithPassword(credentials);
-        const session = { user: { id: 'demo', email: 'demo@lecercle.fr' } };
+        const session = { user: { id: 'demo', email: 'demo@dosecircle.fr' } };
         mockStoredSession = session;
         mockAuthListeners.forEach((l) => l('SIGNED_IN', session));
         return { data: { user: session.user, session }, error: null };
@@ -65,7 +74,7 @@ jest.mock('@/lib/supabase', () => {
       stopAutoRefresh: () => undefined,
     },
     from: () => chain,
-    rpc: async () => ({ data: [], error: null }),
+    rpc: (name: string, args?: unknown) => mockRpc(name, args),
   };
   return { supabase: client, requireSupabase: () => client };
 });
@@ -147,6 +156,7 @@ beforeEach(() => {
   mockScheduled.clear();
   mockStoredSession = null;
   mockInvoke.mockReset();
+  mockRpc.mockClear();
   mockSignInWithPassword.mockReset();
 });
 
@@ -161,7 +171,7 @@ it('first launch: welcome, sign-in by e-mail code, then the home screen', async 
   await fireEvent.changeText(await screen.findByLabelText('Adresse e-mail'), 'marie@exemple.fr');
   await fireEvent.press(
     screen.getByLabelText(
-      'J’accepte que Le Cercle conserve mes traitements et horaires de prise pour m’envoyer des rappels.',
+      'J’accepte que DoseCircle conserve mes traitements et horaires de prise pour m’envoyer des rappels.',
     ),
   );
   await fireEvent.press(screen.getByLabelText('Recevoir mon code'));
@@ -182,21 +192,21 @@ it('store reviewers: only the demo address gets a password field', async () => {
   await fireEvent.changeText(email, 'marie@exemple.fr');
   expect(screen.queryByLabelText('Mot de passe du compte de démonstration')).toBeNull();
 
-  await fireEvent.changeText(email, 'Demo@LeCercle.fr');
+  await fireEvent.changeText(email, 'Demo@DoseCircle.fr');
   await fireEvent.changeText(
     screen.getByLabelText('Mot de passe du compte de démonstration'),
     'Revue-2026!',
   );
   await fireEvent.press(
     screen.getByLabelText(
-      'J’accepte que Le Cercle conserve mes traitements et horaires de prise pour m’envoyer des rappels.',
+      'J’accepte que DoseCircle conserve mes traitements et horaires de prise pour m’envoyer des rappels.',
     ),
   );
   await fireEvent.press(screen.getByLabelText('Se connecter'));
 
   expect(await screen.findByText('Pour bien démarrer')).toBeTruthy();
   expect(mockSignInWithPassword).toHaveBeenCalledWith({
-    email: 'demo@lecercle.fr',
+    email: 'demo@dosecircle.fr',
     password: 'Revue-2026!',
   });
 });
@@ -389,6 +399,49 @@ describe('free version', () => {
 
     expect(await screen.findByText('Publicité')).toBeTruthy();
     await fireEvent.press(screen.getByLabelText('Retirer la publicité avec Premium'));
-    expect(await screen.findByText('Le Cercle Premium')).toBeTruthy();
+    expect(await screen.findByText('DoseCircle Premium')).toBeTruthy();
+  });
+});
+
+// --- The circle: relatives alerted on their own app ---------------------------
+describe('circle', () => {
+  beforeEach(() => {
+    mockStoredSession = mockSession;
+    mockSecure.set('onboarding_seen_v1', 'yes');
+  });
+
+  it('the person creates a code to share with a relative', async () => {
+    let invite: unknown[] = [];
+    mockRpc.mockImplementation(async (name: string) => {
+      if (name === 'create_circle_invite') {
+        invite = [{ code: 'ABCDEFGH', expires_at: '2026-10-12T10:00:00Z' }];
+        return { data: invite, error: null };
+      }
+      if (name === 'my_circle_invite') return { data: invite, error: null };
+      return { data: [], error: null };
+    });
+    await renderRouter('./src/app', { initialUrl: '/circle' });
+
+    await fireEvent.press(await screen.findByLabelText('Inviter un proche'));
+    expect(await screen.findByText('ABCD-EFGH')).toBeTruthy();
+    expect(screen.getByLabelText('Partager l’invitation')).toBeTruthy();
+    expect(mockRpc).toHaveBeenCalledWith('create_circle_invite', undefined);
+  });
+
+  it('the relative types the code and starts watching over the person', async () => {
+    mockRpc.mockImplementation(async (name: string) =>
+      name === 'accept_circle_invite'
+        ? { data: [{ link_id: 'l1', patient_first_name: 'Papa' }], error: null }
+        : { data: [], error: null },
+    );
+    await renderRouter('./src/app', { initialUrl: '/circle' });
+
+    await fireEvent.changeText(
+      await screen.findByLabelText('Code reçu de votre proche'),
+      'abcd-efgh',
+    );
+    await fireEvent.press(screen.getByLabelText('Valider le code'));
+    expect(await screen.findByText(/Vous veillez maintenant sur Papa/)).toBeTruthy();
+    expect(mockRpc).toHaveBeenCalledWith('accept_circle_invite', { p_code: 'ABCDEFGH' });
   });
 });

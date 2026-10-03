@@ -6,8 +6,8 @@ export function MedicalDisclaimer() {
   const styles = useStyles();
   return (
     <Text style={styles.text}>
-      Le Cercle ne donne aucun conseil médical. Pour toute question sur un traitement, adressez-vous
-      à votre médecin ou pharmacien.
+      DoseCircle ne donne aucun conseil médical. Pour toute question sur un traitement,
+      adressez-vous à votre médecin ou pharmacien.
     </Text>
   );
 }

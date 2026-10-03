@@ -66,7 +66,7 @@ export default function MedicationListScreen() {
         <>
           <Text style={styles.title}>Aucun médicament pour l’instant</Text>
           <Text style={styles.body}>
-            Ajoutez vos médicaments et leurs horaires : Le Cercle vous les rappellera.
+            Ajoutez vos médicaments et leurs horaires : DoseCircle vous les rappellera.
           </Text>
         </>
       ) : (

@@ -55,7 +55,7 @@ compromis pour une app de santé : moins de risque CNIL, d'avis négatifs et de 
 | Étape                                                                                                                                                             | Pourquoi                                                                                                                                 |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Créer un compte sur admob.google.com                                                                                                                              | La régie publicitaire de Google.                                                                                                         |
-| Ajouter **2 applications** (iOS et Android) « Le Cercle »                                                                                                         | Chacune reçoit un ID d'application `ca-app-pub-…~…`.                                                                                     |
+| Ajouter **2 applications** (iOS et Android) « DoseCircle »                                                                                                        | Chacune reçoit un ID d'application `ca-app-pub-…~…`.                                                                                     |
 | Dans chaque app, créer **2 blocs d'annonces** : Bannière, Interstitiel                                                                                            | Chacun a un ID `ca-app-pub-…/…` (avec une barre `/`).                                                                                    |
 | **Confidentialité et messages** → créer le message « Réglementations européennes »                                                                                | C'est le formulaire de consentement RGPD affiché par l'app.                                                                              |
 | **Commandes de blocage** → Catégories sensibles : bloquer _Médicaments et compléments_, _Santé_, _Rencontres_, _Jeux d'argent_, _Alcool_, _Politique_, _Religion_ | Pas de pub pour un médicament dans une app de rappels (et la loi française interdit la pub grand public des médicaments sur ordonnance). |
@@ -98,7 +98,7 @@ aussi sur la tablette Android du même compte.
 
 ## 5. Premium offert (B2B, partenaires)
 
-Pour vendre Le Cercle à une pharmacie, une mutuelle ou un EHPAD **sans pub pour leurs
+Pour vendre DoseCircle à une pharmacie, une mutuelle ou un EHPAD **sans pub pour leurs
 patients**, sans achat dans l'app :
 
 ```sql
@@ -123,7 +123,7 @@ Hypothèses prudentes pour **1 000 utilisateurs actifs** (non garanties : le mar
 | Bannière        | ~2 affichages/jour × 0,1 à 0,3 € les 1 000                          | 6 à 18 €   |
 | Premium         | 2 à 4 % d'abonnés × ~1,50 € net                                     | 30 à 60 €  |
 
-Conclusion honnête : la pub couvre les frais techniques (SMS, serveurs) quand l'app
+Conclusion honnête : la pub couvre les frais techniques (serveurs, e-mails) quand l'app
 grandit, mais **le vrai levier, c'est le B2B** (licence annuelle par établissement, §5).
 Suivez les chiffres réels dans AdMob et RevenueCat dès le premier mois.
 

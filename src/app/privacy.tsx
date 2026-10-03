@@ -11,7 +11,7 @@ import { fontSize, makeStyles, spacing } from '@/theme';
 const SECTIONS: readonly { readonly title: string; readonly body: string }[] = [
   {
     title: 'Ce que nous enregistrons',
-    body: 'Votre adresse e-mail, vos médicaments et horaires tels que vous les saisissez, vos réponses aux rappels, votre prénom et, si vous les ajoutez, le prénom et le numéro de vos proches.',
+    body: 'Votre adresse e-mail, vos médicaments et horaires tels que vous les saisissez, vos réponses aux rappels, votre prénom et, si vous en invitez, le lien avec les proches qui veillent sur vous (leur prénom uniquement).',
   },
   {
     title: 'Pourquoi',
@@ -23,7 +23,7 @@ const SECTIONS: readonly { readonly title: string; readonly body: string }[] = [
   },
   {
     title: 'Où sont vos données',
-    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les SMS passent par Twilio, les rapports de plantage par Sentry (sans aucune donnée de santé), les publicités par Google AdMob et l’abonnement par RevenueCat.',
+    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les alertes aux proches passent par le service de notifications d’Expo, d’Apple et de Google, les rapports de plantage par Sentry (sans aucune donnée de santé), les publicités par Google AdMob et l’abonnement par RevenueCat.',
   },
   {
     title: 'Combien de temps',
@@ -34,7 +34,7 @@ const SECTIONS: readonly { readonly title: string; readonly body: string }[] = [
     body: 'Depuis « Mon compte » : exporter toutes vos données, supprimer votre compte. Vous pouvez aussi nous écrire pour toute question, et saisir la CNIL (cnil.fr).',
   },
   {
-    title: 'Le Cercle n’est pas un dispositif médical',
+    title: 'DoseCircle n’est pas un dispositif médical',
     body: 'L’application vous rappelle ce que vous avez saisi. Elle ne donne aucun conseil médical, ne vérifie ni les doses ni les interactions. En cas de doute, demandez à votre médecin ou pharmacien.',
   },
 ];

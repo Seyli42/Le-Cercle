@@ -1,4 +1,4 @@
-# Le Cercle
+# DoseCircle
 
 Application iOS + Android de rappels de médicaments, avec alerte aux proches.
 Une seule base de code : Expo / React Native / TypeScript.
@@ -7,7 +7,7 @@ Une seule base de code : Expo / React Native / TypeScript.
 - Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
 - Synchronisation et historique : [`docs/SYNCHRO.md`](docs/SYNCHRO.md)
-- Le Cercle (alertes SMS aux proches, Twilio) : [`docs/CERCLE.md`](docs/CERCLE.md)
+- Mon Cercle (proches prévenus par notification, gratuit) : [`docs/CERCLE.md`](docs/CERCLE.md)
 - Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
@@ -47,7 +47,7 @@ src/
     reminders/    Rappels : planification, notifications, tâches de fond, diagnostic
     sync/         Synchronisation téléphone ↔ Supabase
     history/      Historique des prises
-    circle/       Le Cercle : proches prévenus par SMS
+    circle/       Mon Cercle : proches prévenus par notification
     account/      Export des données et suppression du compte (RGPD)
     onboarding/   Écran d'accueil du premier lancement, « Pour bien démarrer »
     monetization/ Publicité (AdMob, règles d'affichage) et Premium (RevenueCat)
@@ -58,7 +58,7 @@ __tests__/      Tests automatiques (dont appFlow : l'app entière, écran par é
 docs/           Documentation projet
 store/          Textes et visuels des fiches App Store / Google Play
 website/        Site public (confidentialité, suppression de compte, support) à héberger
-supabase/       Base de données : migrations, tests, fonctions serveur (Twilio), e-mails
+supabase/       Base de données : migrations, tests, fonctions serveur (alertes, suppression de compte), e-mails
 scripts/        Outils (test de la base, icônes, génération du site)
 modules/        Code natif maison (reminder-health : diagnostic Android des rappels)
 ```

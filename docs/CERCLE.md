@@ -1,100 +1,88 @@
-# Le Cercle : alerter les proches (étape 6)
+# Mon Cercle : les proches prévenus par notification
 
 ## En clair
 
-1. La personne ajoute jusqu'à **5 proches** (prénom + portable) dans « Mon Cercle ».
-2. Chaque proche reçoit un SMS d'invitation et doit répondre **OUI** (avec le code reçu).
-   Sans cette réponse, il ne reçoit **jamais** d'alerte (consentement RGPD et anti-spam).
-3. Toutes les 5 minutes, le serveur cherche les prises prévues mais **non confirmées** après
-   le délai choisi (15 min, 30 min, 1 h ou 2 h).
-4. Chaque proche ayant accepté reçoit **un seul** SMS par prise :
+1. Dans « Mon Cercle », la personne touche **Inviter un proche** : l'app crée un code de
+   8 caractères (ex. `ABCD-EFGH`), valable 48 h, utilisable une seule fois.
+2. Elle l'envoie avec **Partager l'invitation** (WhatsApp, SMS depuis son propre téléphone,
+   e-mail…).
+3. Le proche installe DoseCircle (gratuit), se connecte, ouvre « Mon Cercle » →
+   **Je veille sur un proche** et saisit le code. **Saisir le code = donner son accord.**
+4. Toutes les 5 minutes, le serveur cherche les prises prévues mais **non confirmées**
+   après le délai choisi (15 min à 2 h, 30 min par défaut).
+5. Chaque proche reçoit **une seule** notification par prise, sur tous ses téléphones :
+   « Marie n'a pas confirmé sa prise — Prise prévue à 08:00… ». Jamais le nom du médicament.
+6. Chacun peut arrêter à tout moment : la personne (**Retirer**) ou le proche
+   (**Ne plus veiller**).
 
-   > Le Cercle : Marie n'a pas confirmé sa prise de 08:00. Son téléphone s'est connecté pour la
-   > dernière fois à 07:45. Il peut s'agir d'un oubli ou d'un souci de téléphone : pensez à
-   > prendre de ses nouvelles.
-
-5. Le proche peut répondre **STOP** à tout moment : il sort de tous les Cercles.
-   Twilio bloque alors aussi tout envoi vers ce numéro : pour revenir, le proche doit
-   d'abord envoyer **START**, puis accepter une nouvelle invitation.
-
-**Jamais le nom d'un médicament dans un SMS** (secret médical).
+**Coût : zéro.** Les notifications passent par le service gratuit d'Expo, qui les relaie à
+Apple et Google (gratuits aussi). Plus de Twilio, plus de SMS facturés.
 
 ## Garde-fous
 
-| Risque                                              | Protection                                                                                                                                                            |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SMS envoyés à un inconnu                            | Alerte uniquement après « OUI » du proche lui-même.                                                                                                                   |
-| « OUI » qui valide le mauvais Cercle                | Code à 4 chiffres exigé si plusieurs invitations en attente.                                                                                                          |
-| Faux webhook (quelqu'un se fait passer pour Twilio) | Signature Twilio vérifiée, sinon refus (403).                                                                                                                         |
-| Deux SMS pour la même prise                         | Contrainte unique + verrouillage (`SKIP LOCKED`) côté SQL.                                                                                                            |
-| Avalanche de SMS (coût, harcèlement)                | 6 alertes max / 24 h par personne ; 5 invitations max / proche ; 2 min entre deux invitations.                                                                        |
-| Prise faite **hors ligne** mais alerte envoyée      | Inévitable si le téléphone n'a pas de réseau ; le SMS l'explique et donne l'heure de dernière connexion. Dès le retour du réseau, « Pris » remplace « non confirmé ». |
-| Proche qui a dit STOP / prise confirmée entre-temps | Alerte en attente annulée.                                                                                                                                            |
-| Échec Twilio passager                               | 3 essais maximum, résultat enregistré (`alerts_sent`).                                                                                                                |
-| Changement d'heure / fuseau                         | Calcul dans le fuseau du téléphone (envoyé à chaque synchro).                                                                                                         |
+| Risque                                               | Protection (testée dans `circle.test.sql`)                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Quelqu'un rejoint un Cercle sans y être invité       | Seul un code valable permet d'entrer ; aucune écriture directe possible.                       |
+| Deviner un code                                      | 32⁸ ≈ 1 000 milliards de codes ; 10 erreurs par heure maximum ; code 48 h.                     |
+| Ancien code qui traîne                               | Un nouveau code annule le précédent ; usage unique.                                            |
+| Trop d'alertes                                       | 1 par proche et par prise, 6 par jour maximum, 5 proches maximum.                              |
+| Alerte alors que la prise a été confirmée hors ligne | Annulée dès que la réponse arrive ; la réponse du téléphone l'emporte.                         |
+| Proche parti, téléphone désinstallé                  | Alertes en attente annulées ; téléphones inconnus d'Apple / Google oubliés.                    |
+| Téléphone prêté / tablette familiale                 | Le téléphone reçoit les alertes du **dernier** compte connecté ; déconnexion = plus d'alertes. |
+| Secret médical                                       | Seuls le prénom et l'heure prévue sont envoyés.                                                |
+| Changement d'heure                                   | Prises calculées dans le fuseau du téléphone de la personne.                                   |
 
 ## Mise en service (une fois)
 
-### 1. Twilio
+Les notifications « à distance » demandent des identifiants Apple et Google, gratuits.
 
-1. Créez un compte sur [twilio.com](https://www.twilio.com) et ajoutez du crédit.
-2. Achetez un **numéro capable d'envoyer ET de recevoir des SMS** (nécessaire pour les
-   réponses OUI / STOP). Pour un numéro mobile français, Twilio demande un dossier
-   réglementaire (pièce d'identité / Kbis) : comptez quelques jours de validation.
-   Un expéditeur alphanumérique (« LeCercle ») ne peut pas recevoir de réponse : il ne
-   convient donc pas ici.
-3. Dans la configuration du numéro → **Messaging** → _A message comes in_ : Webhook, POST,
-   `https://<PROJECT_REF>.supabase.co/functions/v1/twilio-inbound`.
+**Android (Firebase)**
 
-### 2. Secrets serveur
+1. [console.firebase.google.com](https://console.firebase.google.com) → **Ajouter un projet**
+   « DoseCircle » (Google Analytics : inutile).
+2. **Ajouter une application Android**, nom du package `com.dosecircle.app`.
+3. Téléchargez `google-services.json` et placez-le **à la racine du projet** (il ne contient
+   que des identifiants publics : il peut être versionné).
+4. Firebase → Paramètres du projet → **Comptes de service** → **Générer une nouvelle clé
+   privée** (fichier JSON **secret** : jamais dans git).
+5. `npx eas-cli@latest credentials` → Android → production → **Google Service Account** →
+   **Upload a new service account key** → choisissez ce fichier.
 
-| Commande                                               | À quoi ça sert                                      |
-| ------------------------------------------------------ | --------------------------------------------------- |
-| `openssl rand -hex 32`                                 | Génère un secret aléatoire pour la tâche planifiée. |
-| `npx supabase secrets set TWILIO_ACCOUNT_SID=AC…`      | Identifiant du compte Twilio.                       |
-| `npx supabase secrets set TWILIO_AUTH_TOKEN=…`         | Clé secrète Twilio (jamais dans l'app).             |
-| `npx supabase secrets set TWILIO_FROM_NUMBER=+33…`     | Le numéro Twilio acheté.                            |
-| `npx supabase secrets set CRON_SECRET=<secret généré>` | Protège la fonction de détection.                   |
+**iPhone (APNs)** : rien à faire à la main. Au premier
+`npx eas-cli@latest build --profile production --platform ios`, répondez **Yes** quand EAS
+propose de configurer les notifications push : il crée la clé Apple pour vous.
 
-### 3. Base et fonctions
+**Serveur**
 
-| Commande                   | À quoi ça sert                                                                                 |
-| -------------------------- | ---------------------------------------------------------------------------------------------- |
-| `npm run db:push`          | Crée les nouvelles colonnes et fonctions SQL du Cercle.                                        |
-| `npm run functions:deploy` | Met en ligne les 3 fonctions serveur (`circle-invite`, `twilio-inbound`, `missed-dose-check`). |
+| Commande                                  | À quoi ça sert                                                          |
+| ----------------------------------------- | ----------------------------------------------------------------------- |
+| `npm run db:push`                         | Crée les tables du Cercle (et supprime l'ancien Cercle par SMS).        |
+| `npm run functions:deploy`                | Met en ligne `missed-dose-check` (envoi des alertes).                   |
+| `openssl rand -hex 32`                    | Génère un secret pour la tâche planifiée.                               |
+| `npx supabase secrets set CRON_SECRET=…`  | Protège la fonction de détection.                                       |
+| `supabase/setup/cron.sql` dans SQL Editor | Lance la détection toutes les 5 minutes (extensions pg_cron et pg_net). |
 
-### 4. Détection toutes les 5 minutes
+Facultatif : `npx supabase secrets set EXPO_ACCESS_TOKEN=…` si vous activez « Enhanced
+push security » dans expo.dev (seul votre serveur peut alors envoyer à vos utilisateurs).
 
-Dans Supabase → **Database → Extensions**, activez `pg_cron` et `pg_net`. Puis ouvrez
-**SQL Editor**, collez `supabase/setup/cron.sql`, remplacez `<PROJECT_REF>` et
-`<CRON_SECRET>`, exécutez.
+## Tester (deux téléphones, deux comptes)
 
-Vérification : `select * from cron.job_run_details order by start_time desc limit 5;`
-
-## Tester
-
-1. Dans l'app : « Mon Cercle » → votre prénom → ajoutez votre propre second numéro.
-2. Répondez `OUI 1234` (le code reçu) → le statut passe à « ✓ A accepté ».
-3. Ajoutez un médicament avec une prise dans 2 minutes, délai 15 min, ne répondez pas au
-   rappel → environ 15 à 20 minutes après, le SMS d'alerte arrive.
-4. Répondez `STOP` → le statut passe à « A refusé ».
-
-## Coûts (ordre de grandeur, à vérifier sur twilio.com)
-
-- Numéro mobile français : environ 1 à 5 € / mois.
-- SMS vers un mobile français : environ 0,07 à 0,09 € l'unité (texte de 160 caractères,
-  sans accents rares : les textes de l'app sont optimisés pour tenir dans ce format).
-- Exemple : 1 000 patients, 2 alertes/mois chacun, 1,5 proche en moyenne → ~3 000 SMS ≈
-  250 € / mois. À intégrer dans le prix de l'abonnement B2B (licence par patient).
+1. Téléphone A (la personne) : « Mon Cercle » → prénom → **Inviter un proche** → partagez.
+2. Téléphone B (le proche) : autre compte → « Mon Cercle » → saisissez le code → « Vous
+   veillez maintenant sur … ». Autorisez les notifications.
+3. Téléphone A : ajoutez un médicament avec une prise dans 2 minutes, délai 15 min, et ne
+   répondez pas au rappel.
+4. Environ 17 à 20 minutes plus tard, le téléphone B reçoit l'alerte ; la toucher ouvre
+   « Mon Cercle ».
+5. Téléphone B : **Ne plus veiller** → plus aucune alerte.
 
 ## Code
 
 | Fichier                                   | Rôle                                                           |
 | ----------------------------------------- | -------------------------------------------------------------- |
-| `supabase/migrations/…_circle.sql`        | Consentement, détection des prises non confirmées.             |
-| `supabase/tests/database/circle.test.sql` | 30 tests (consentement, alertes, plafonds, STOP, heure d'été). |
-| `supabase/functions/circle-invite/`       | Envoie le SMS d'invitation (session de l'utilisateur).         |
-| `supabase/functions/twilio-inbound/`      | Reçoit OUI / STOP (signature Twilio vérifiée).                 |
+| `supabase/migrations/…_circle_push.sql`   | Invitations, liens, téléphones, détection des prises manquées. |
+| `supabase/tests/database/circle.test.sql` | 37 tests (codes, accord, plafonds, retrait, heure d'été…).     |
 | `supabase/functions/missed-dose-check/`   | Envoie les alertes (appelée par pg_cron).                      |
-| `supabase/functions/_shared/`             | Textes SMS, lecture des réponses, client Twilio (testés).      |
+| `supabase/functions/_shared/push.ts`      | Texte de l'alerte et envoi via Expo (testés).                  |
+| `src/features/circle/`                    | Appels serveur, inscription du téléphone aux alertes.          |
 | `src/app/(app)/circle.tsx`                | Écran « Mon Cercle ».                                          |
