@@ -50,5 +50,9 @@ export function createSupabaseRemote(client: AppSupabaseClient): SyncRemote {
       if (!isPullPage(data)) throw new AppError('unknown', DEFAULT_MESSAGES.unknown);
       return data;
     },
+    async heartbeat(timeZone: string) {
+      const { error } = await client.rpc('sync_heartbeat', { p_timezone: timeZone });
+      if (error) throw toSyncError(error);
+    },
   };
 }

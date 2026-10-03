@@ -16,6 +16,7 @@ export default function SignedInLayout() {
             <Stack.Screen name="account" options={{ title: 'Mon compte' }} />
             <Stack.Screen name="reminders" options={{ title: 'Vérifier mes rappels' }} />
             <Stack.Screen name="history" options={{ title: 'Historique des prises' }} />
+            <Stack.Screen name="circle" options={{ title: 'Mon Cercle' }} />
           </Stack>
         </SyncProvider>
       </ReminderProvider>

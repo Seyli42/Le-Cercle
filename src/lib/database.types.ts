@@ -10,7 +10,7 @@ export type MedicationForm =
   'tablet' | 'capsule' | 'liquid' | 'drops' | 'injection' | 'inhaler' | 'patch' | 'cream' | 'other';
 export type DoseStatus = 'pending' | 'taken' | 'snoozed' | 'skipped' | 'missed';
 export type ConsentStatus = 'pending' | 'confirmed' | 'revoked';
-export type AlertStatus = 'queued' | 'sent' | 'delivered' | 'failed';
+export type AlertStatus = 'queued' | 'sending' | 'sent' | 'delivered' | 'failed' | 'cancelled';
 
 export type Database = {
   __InternalSupabase: {
@@ -25,6 +25,7 @@ export type Database = {
           timezone: string;
           missed_dose_delay_minutes: number;
           health_data_consent_at: string | null;
+          last_seen_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -168,6 +169,11 @@ export type Database = {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+          /** invite_code is deliberately absent: not readable from the app. */
+          invite_sent_at: string | null;
+          invites_sent: number;
+          confirmed_at: string | null;
+          revoked_at: string | null;
         };
         Insert: {
           id?: string;
@@ -192,6 +198,9 @@ export type Database = {
           provider_message_id: string | null;
           status: AlertStatus;
           error_code: string | null;
+          attempts: number;
+          claimed_at: string | null;
+          sent_at: string | null;
           created_at: string;
         };
         Insert: never;
@@ -208,6 +217,10 @@ export type Database = {
       sync_pull: {
         Args: { p_cursors?: Json; p_limit?: number };
         Returns: Json;
+      };
+      sync_heartbeat: {
+        Args: { p_timezone: string };
+        Returns: undefined;
       };
     };
     Enums: { [_ in never]: never };

@@ -8,6 +8,12 @@ begin
   if not exists (select from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
 end $$;
 
+-- Same default privileges as a hosted Supabase project: every new table and function in
+-- `public` is granted to these roles, so the tests prove that our explicit revokes work.
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+
 create schema if not exists auth;
 grant usage on schema auth to anon, authenticated, service_role;
 grant usage on schema public to anon, authenticated, service_role;

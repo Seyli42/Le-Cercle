@@ -7,6 +7,7 @@ Une seule base de code : Expo / React Native / TypeScript.
 - Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
 - Synchronisation et historique : [`docs/SYNCHRO.md`](docs/SYNCHRO.md)
+- Le Cercle (alertes SMS aux proches, Twilio) : [`docs/CERCLE.md`](docs/CERCLE.md)
 - Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
@@ -22,14 +23,15 @@ Scannez le QR code avec l'app **Expo Go** (iPhone : appareil photo ; Android : a
 
 ## Vérifier la qualité
 
-| Commande            | À quoi ça sert                                                   |
-| ------------------- | ---------------------------------------------------------------- |
-| `npm run typecheck` | Vérifie que les types TypeScript sont cohérents (aucune erreur). |
-| `npm run lint`      | Repère le code risqué ou mal écrit.                              |
-| `npm test`          | Lance les tests automatiques.                                    |
-| `npm run check`     | Fait les trois ci-dessus + le formatage, en une fois.            |
-| `npm run doctor`    | Vérifie que la configuration Expo est saine.                     |
-| `npm run test:db`   | Teste les tables et la sécurité (nécessite un Postgres local).   |
+| Commande                 | À quoi ça sert                                                   |
+| ------------------------ | ---------------------------------------------------------------- |
+| `npm run typecheck`      | Vérifie que les types TypeScript sont cohérents (aucune erreur). |
+| `npm run lint`           | Repère le code risqué ou mal écrit.                              |
+| `npm test`               | Lance les tests automatiques.                                    |
+| `npm run check`          | Fait les trois ci-dessus + le formatage, en une fois.            |
+| `npm run doctor`         | Vérifie que la configuration Expo est saine.                     |
+| `npm run test:db`        | Teste les tables et la sécurité (nécessite un Postgres local).   |
+| `npm run test:functions` | Teste les fonctions serveur (nécessite Deno).                    |
 
 ## Structure
 
@@ -45,12 +47,13 @@ src/
     reminders/    Rappels : planification, notifications, tâches de fond, diagnostic
     sync/         Synchronisation téléphone ↔ Supabase
     history/      Historique des prises
+    circle/       Le Cercle : proches prévenus par SMS
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
     db/           Base locale chiffrée et ses migrations
   theme/        Couleurs, tailles, espacements
 __tests__/      Tests automatiques
 docs/           Documentation projet
-supabase/       Base de données : migrations, tests de sécurité, modèles d'e-mail
+supabase/       Base de données : migrations, tests, fonctions serveur (Twilio), e-mails
 scripts/        Outils (test de la base)
 modules/        Code natif maison (reminder-health : diagnostic Android des rappels)
 ```

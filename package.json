@@ -55,7 +55,10 @@
     "doctor": "npx expo-doctor@latest",
     "test:db": "./scripts/test-db.sh",
     "db:link": "supabase link",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push",
+    "test:functions": "deno test --allow-env supabase/functions",
+    "check:functions": "deno check supabase/functions/*/index.ts",
+    "functions:deploy": "supabase functions deploy"
   },
   "private": true,
   "jest": {
@@ -66,7 +69,8 @@
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/__tests__/helpers/"
+      "/__tests__/helpers/",
+      "/supabase/"
     ],
     "globalSetup": "<rootDir>/jest.global-setup.js"
   }

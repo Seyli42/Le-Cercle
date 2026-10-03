@@ -70,6 +70,8 @@ export type PullPage = {
 export interface SyncRemote {
   push(batch: PushBatch): Promise<void>;
   pull(cursors: Cursors, limit: number): Promise<PullPage>;
+  /** "This phone is alive, in this time zone": used by the missed-intake alerts. */
+  heartbeat(timeZone: string): Promise<void>;
 }
 
 export type SyncReport = {
@@ -85,6 +87,8 @@ export type SyncOptions = {
   readonly batchSize?: number;
   readonly pullLimit?: number;
   readonly onRejected?: ((table: TableName, id: string, error: unknown) => void) | undefined;
+  /** IANA time zone of the phone, e.g. "Europe/Paris". */
+  readonly timeZone?: string | undefined;
 };
 
 /** Re-downloads the last 2 minutes on every sync: a server transaction can commit
@@ -447,6 +451,8 @@ export async function runSync(
   }
 
   const applied = await pullAll(db, userId, remote, options.pullLimit ?? 500, options.now());
+  // Last: proves the phone was reachable and up to date at this time.
+  await remote.heartbeat(options.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
   return { pushed, rejected, applied };
 }
 

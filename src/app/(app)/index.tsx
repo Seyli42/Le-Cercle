@@ -46,6 +46,11 @@ export default function MedicationListScreen() {
         variant="secondary"
         onPress={() => router.push('/history')}
       />
+      <PrimaryButton
+        label="Mon Cercle : proches prévenus"
+        variant="secondary"
+        onPress={() => router.push('/circle')}
+      />
       {state.status !== 'loading' && state.data.length > 0 && (
         <Text style={styles.heading} accessibilityRole="header">
           Mes traitements

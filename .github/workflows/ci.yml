@@ -39,3 +39,14 @@ jobs:
       - run: ./scripts/test-db.sh
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+  functions:
+    name: Fonctions serveur (Deno)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/*/index.ts
+      - run: deno test --allow-env supabase/functions

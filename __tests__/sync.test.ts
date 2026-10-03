@@ -37,6 +37,7 @@ class FakeServer {
   /** Ids the server refuses (simulates a constraint violation). */
   readonly poison = new Set<string>();
   offline = false;
+  readonly heartbeats: string[] = [];
   beforePush: (() => Promise<void>) | null = null;
 
   private tick() {
@@ -84,6 +85,10 @@ class FakeServer {
         batch.dose_events?.forEach((r) =>
           upsert('dose_events', r, `${r.schedule_id}@${new Date(r.scheduled_at).toISOString()}`),
         );
+      },
+      heartbeat: async (timeZone: string) => {
+        if (this.offline) throw new AppError('network', 'offline');
+        this.heartbeats.push(timeZone);
       },
       pull: async (cursors: Cursors, limit: number) => {
         if (this.offline) throw new AppError('network', 'offline');
@@ -155,6 +160,8 @@ it('sends what was created offline and brings it to the second phone', async () 
     daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
   });
   expect(await countPending(phoneB, ALICE)).toBe(0);
+  // Every successful sync tells the server the phone's time zone (alerts).
+  expect(server.heartbeats).toEqual(['Europe/Paris', 'Europe/Paris']);
 });
 
 it('resolves a conflict by keeping the most recent change, on both phones', async () => {
