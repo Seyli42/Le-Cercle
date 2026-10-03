@@ -43,7 +43,6 @@ Suivi (« tracking ») : **Non** (pas d'IDFA, pas de fenêtre ATT, pubs non pers
 | Adresse e-mail               | Fonctionnalités de l'app | Oui               | Connexion                        |
 | Identifiant utilisateur      | Fonctionnalités de l'app | Oui               | Compte (aussi sur les plantages) |
 | Contacts                     | Fonctionnalités de l'app | Oui               | Prénoms et numéros du Cercle     |
-| Photos                       | Fonctionnalités de l'app | Non               | Ordonnance lue puis oubliée      |
 | Historique d'achat           | Fonctionnalités de l'app | Oui               | Abonnement Premium               |
 | Données de plantage          | Fonctionnalités de l'app | Oui               | Sentry                           |
 | Données de performance       | Fonctionnalités de l'app | Oui               | Sentry                           |
@@ -74,8 +73,7 @@ Mot de passe : <mot de passe du compte de démo>
 
 Le Cercle rappelle à l'utilisateur les médicaments qu'il a lui-même saisis. Ce n'est pas
 un dispositif médical : aucun conseil, aucune dose suggérée, aucune vérification
-d'interaction. Le scan d'ordonnance pré-remplit un formulaire que l'utilisateur vérifie et
-valide.
+d'interaction.
 
 Notifications « Time Sensitive » : un rappel de médicament doit traverser le mode
 Concentration (prise d'un traitement à heure fixe).
@@ -115,7 +113,7 @@ affiché à ce moment, et gardez une trace de la réponse ici.
 ### Sécurité des données (« Data safety »)
 
 - Données **chiffrées en transit** : Oui. Suppression **sur demande** : Oui.
-- Les prestataires (Supabase, Twilio, Anthropic, Sentry, RevenueCat) agissent pour notre
+- Les prestataires (Supabase, Twilio, Sentry, RevenueCat) agissent pour notre
   compte : ce n'est pas du « partage » au sens de Google. **AdMob**, lui, est déclaré comme
   partage pour la publicité.
 
@@ -125,7 +123,6 @@ affiché à ce moment, et gardez une trace de la réponse ici.
 | Informations personnelles      | Adresse e-mail          | Oui      | Non     | Gestion du compte                  | Non           |
 | Informations personnelles      | ID utilisateur          | Oui      | Non     | Gestion du compte, fonctionnalités | Non           |
 | Contacts                       | Contacts (le Cercle)    | Oui      | Non     | Fonctionnalités de l'app           | Oui           |
-| Photos et vidéos               | Photos                  | Oui      | Non     | Fonctionnalités de l'app           | Oui           |
 | Informations financières       | Historique des achats   | Oui      | Non     | Fonctionnalités de l'app           | Oui           |
 | Activité dans l'application    | Interactions avec l'app | Oui      | Oui     | Publicité ou marketing             | Oui (Premium) |
 | Position                       | Position approximative  | Oui      | Oui     | Publicité ou marketing             | Oui (Premium) |
@@ -146,7 +143,7 @@ visible**, dans cet ordre :
 1. Accueil « Aujourd'hui » avec 2 ou 3 prises (une « ✓ Pris »).
 2. La notification de rappel avec ses boutons (écran verrouillé).
 3. Mon Cercle avec un proche « ✓ A accepté ».
-4. Le scan : écran de vérification pré-rempli.
+4. Le formulaire « Nouveau médicament » rempli.
 5. L'historique des 7 derniers jours.
 6. « Vérifier mes rappels » tout au vert.
 

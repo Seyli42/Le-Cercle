@@ -1,6 +1,6 @@
 -- Deleting an account deletes ALL of its data (GDPR right to erasure), and only it.
 begin;
-select plan(10);
+select plan(9);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'alice@example.com'),
@@ -22,8 +22,6 @@ insert into public.circle_members (id, user_id, first_name, phone_e164) values
 insert into public.alerts_sent (user_id, dose_event_id, circle_member_id) values
   ('00000000-0000-0000-0000-00000000000a', '30000000-0000-0000-0000-00000000000a', '40000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-00000000000b', '30000000-0000-0000-0000-00000000000b', '40000000-0000-0000-0000-00000000000b');
-insert into public.ai_extractions (user_id) values
-  ('00000000-0000-0000-0000-00000000000a'), ('00000000-0000-0000-0000-00000000000b');
 
 -- What the delete-account function does (auth.admin.deleteUser).
 delete from auth.users where id = '00000000-0000-0000-0000-00000000000a';
@@ -34,7 +32,6 @@ select is((select count(*)::int from public.schedules where user_id = '00000000-
 select is((select count(*)::int from public.dose_events where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'intake history deleted');
 select is((select count(*)::int from public.circle_members where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'relatives (and their phone numbers) deleted');
 select is((select count(*)::int from public.alerts_sent where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'alert log deleted');
-select is((select count(*)::int from public.ai_extractions where user_id = '00000000-0000-0000-0000-00000000000a'), 0, 'AI usage log deleted');
 
 -- Bob is untouched.
 select is((select count(*)::int from public.medications where user_id = '00000000-0000-0000-0000-00000000000b'), 1, 'other accounts keep their medications');

@@ -19,7 +19,6 @@ export default function SignedInLayout() {
                 <Stack.Screen name="index" options={{ title: 'Mes médicaments' }} />
                 <Stack.Screen name="medications/new" options={{ title: 'Nouveau médicament' }} />
                 <Stack.Screen name="medications/[id]" options={{ title: 'Modifier' }} />
-                <Stack.Screen name="medications/scan" options={{ title: 'Scanner un document' }} />
                 <Stack.Screen name="account" options={{ title: 'Mon compte' }} />
                 <Stack.Screen name="reminders" options={{ title: 'Vérifier mes rappels' }} />
                 <Stack.Screen name="history" options={{ title: 'Historique des prises' }} />

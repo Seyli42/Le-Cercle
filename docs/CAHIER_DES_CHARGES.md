@@ -21,8 +21,9 @@ prévient son « cercle » (proches aidants) si une prise reste sans réponse.
 4. Historique et taux de prises confirmées (aucune interprétation médicale).
 5. Le Cercle : jusqu'à 5 proches ; SMS envoyé si une prise n'est pas confirmée après un délai
    choisi (30 min par défaut).
-6. Scan IA d'une ordonnance / boîte : pré-remplit les champs **tels qu'écrits**, l'utilisateur
-   valide obligatoirement.
+6. ~~Scan IA d'une ordonnance / boîte~~ : **retiré** avant publication (coût par lecture
+   incompatible avec une app gratuite). Le code reste dans l'historique git (étape 7) si
+   la fonction revient, par exemple réservée au Premium.
 7. Fonctionnement complet hors ligne, synchronisation au retour du réseau.
 
 Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets connectés.
@@ -30,8 +31,6 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 ## 3. Règles de sécurité médicale
 
 - L'app ne suggère **jamais** de dose, d'interaction, de substitution ou de diagnostic.
-- L'IA ne fait que **recopier** ; le prompt serveur lui interdit tout conseil et le résultat est
-  toujours relu par l'utilisateur.
 - Mention permanente : « Le Cercle ne donne aucun conseil médical ».
 - Le SMS au proche ne contient pas le nom du médicament (secret médical), seulement :
   « [Prénom] n'a pas confirmé sa prise de 08:00 ».
@@ -54,7 +53,6 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 | Données locales | expo-sqlite (source de vérité hors ligne)                 |
 | Rappels         | expo-notifications + expo-task-manager / background-task  |
 | Backend         | Supabase (Postgres + RLS, Auth OTP, Edge Functions Deno)  |
-| IA              | Anthropic Claude via Edge Function `extract-prescription` |
 | SMS             | Twilio via Edge Function + cron `missed-dose-check`       |
 | Monitoring      | Sentry (données de santé filtrées avant envoi)            |
 | Build / stores  | EAS Build, EAS Submit, EAS Update                         |
@@ -63,7 +61,7 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 
 `profiles`, `medications`, `schedules`, `dose_events` (prévue / prise / reportée / manquée),
 `circle_members`, `alerts_sent`. RLS : chaque utilisateur ne voit que ses lignes. Clés
-`service_role`, Anthropic et Twilio uniquement dans les Edge Functions.
+`service_role` et Twilio uniquement dans les Edge Functions.
 
 ## 7. Sécurité & conformité
 
@@ -89,6 +87,6 @@ Hors MVP : multi-profils par appareil, export PDF pour le médecin, objets conne
 | 4 ✅ | Moteur de rappels         | Notifications locales fiables, actions, redémarrage, tests                                 |
 | 5 ✅ | Historique & synchro      | Journal des prises, synchronisation SQLite ↔ Supabase                                      |
 | 6 ✅ | Le Cercle (aidants + SMS) | Invitations, Edge Function Twilio, détection des oublis                                    |
-| 7 ✅ | Scan IA                   | Caméra, Edge Function Claude, écran de vérification                                        |
+| 7 ✅ | Scan IA (retiré ensuite)  | Caméra, Edge Function Claude, écran de vérification — retiré à l'étape 9 (coût)            |
 | 8 ✅ | Finitions                 | Onboarding, accessibilité, suppression de compte, tests E2E                                |
 | 9 ✅ | Publication               | EAS Build/Submit, fiches stores, confidentialité, TestFlight, monétisation (pub + Premium) |

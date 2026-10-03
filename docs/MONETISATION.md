@@ -2,10 +2,10 @@
 
 ## En clair
 
-| Version  | Ce qu'on a                                                    | Prix                          |
-| -------- | ------------------------------------------------------------- | ----------------------------- |
-| Gratuite | **Tout** (rappels, historique, Cercle, scan) + un peu de pub. | 0 €                           |
-| Premium  | La même chose, **sans aucune publicité**.                     | Abonnement (prix à fixer, §6) |
+| Version  | Ce qu'on a                                              | Prix                          |
+| -------- | ------------------------------------------------------- | ----------------------------- |
+| Gratuite | **Tout** (rappels, historique, Cercle) + un peu de pub. | 0 €                           |
+| Premium  | La même chose, **sans aucune publicité**.               | Abonnement (prix à fixer, §6) |
 
 Règle d'or : on ne fait **jamais** payer la fiabilité. Un rappel de médicament n'est
 jamais réservé au Premium, et une pub ne se place jamais entre la personne et son
@@ -24,7 +24,7 @@ Les règles sont dans `src/features/monetization/adPolicy.ts`, testées dans
 **Jamais de pub :**
 
 - pendant les **3 premiers jours** après l'installation (le temps de faire confiance) ;
-- sur l'accueil (prises du jour, boutons « Pris »), les formulaires, le scan, le Cercle,
+- sur l'accueil (prises du jour, boutons « Pris »), les formulaires, le Cercle,
   le compte, la connexion, l'accueil du premier lancement ;
 - si l'app a été ouverte **depuis un rappel** (la personne vient confirmer une prise) ;
 - si une prise est **à faire maintenant**, reportée, en retard de moins de 2 h, ou prévue
@@ -123,7 +123,7 @@ Hypothèses prudentes pour **1 000 utilisateurs actifs** (non garanties : le mar
 | Bannière        | ~2 affichages/jour × 0,1 à 0,3 € les 1 000                          | 6 à 18 €   |
 | Premium         | 2 à 4 % d'abonnés × ~1,50 € net                                     | 30 à 60 €  |
 
-Conclusion honnête : la pub couvre les frais techniques (SMS, IA, serveurs) quand l'app
+Conclusion honnête : la pub couvre les frais techniques (SMS, serveurs) quand l'app
 grandit, mais **le vrai levier, c'est le B2B** (licence annuelle par établissement, §5).
 Suivez les chiffres réels dans AdMob et RevenueCat dès le premier mois.
 

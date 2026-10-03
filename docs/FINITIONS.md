@@ -15,7 +15,7 @@
 ## Suppression du compte : l'ordre compte
 
 1. **Le serveur d'abord** (fonction `delete-account`) : supprime l'utilisateur ; toutes ses
-   tables sont effacées en cascade (médicaments, prises, Cercle, journal IA). Testé :
+   tables sont effacées en cascade (médicaments, prises, Cercle). Testé :
    `supabase/tests/database/account_deletion.test.sql`.
 2. **Puis le téléphone** : rappels annulés, base locale vidée, consentements effacés,
    déconnexion.

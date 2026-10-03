@@ -1,6 +1,5 @@
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { File, Paths } from 'expo-file-system';
-import * as SecureStore from 'expo-secure-store';
 import * as Sharing from 'expo-sharing';
 
 import { loadCircle } from '@/features/circle/api';
@@ -42,7 +41,6 @@ export async function deleteAccount(
   setSyncContext(null);
   await cancelAllReminders().catch(() => undefined);
   await wipeLocalData(db, userId);
-  await SecureStore.deleteItemAsync('ai_scan_consent_v1').catch(() => undefined);
   await client.auth.signOut({ scope: 'local' });
 }
 

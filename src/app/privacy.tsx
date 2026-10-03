@@ -23,7 +23,7 @@ const SECTIONS: readonly { readonly title: string; readonly body: string }[] = [
   },
   {
     title: 'Où sont vos données',
-    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les SMS passent par Twilio, la lecture d’ordonnance par Anthropic (la photo n’est pas conservée), les rapports de plantage par Sentry (sans aucune donnée de santé), les publicités par Google AdMob et l’abonnement par RevenueCat.',
+    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les SMS passent par Twilio, les rapports de plantage par Sentry (sans aucune donnée de santé), les publicités par Google AdMob et l’abonnement par RevenueCat.',
   },
   {
     title: 'Combien de temps',

@@ -83,7 +83,7 @@ export default function PremiumScreen() {
         <Text style={styles.body}>✓ Aucune publicité, nulle part dans l’application</Text>
         <Text style={styles.body}>✓ Vous soutenez une application indépendante</Text>
         <Text style={styles.muted}>
-          Les rappels, l’historique, le Cercle et le scan restent gratuits pour tout le monde.
+          Les rappels, l’historique et le Cercle restent gratuits pour tout le monde.
         </Text>
       </View>
 

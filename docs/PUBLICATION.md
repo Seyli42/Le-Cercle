@@ -14,7 +14,7 @@ Chaque commande est expliquée. Faites les étapes **dans l'ordre**.
 | Google Play Console          | 25 $ une fois           | Compte **Organisation** aussi. Un compte **personnel** récent doit faire tester l'app par **12 testeurs pendant 14 jours** avant de pouvoir publier.        |
 | expo.dev                     | Gratuit au départ       | Construit l'app dans le cloud (pas besoin de Mac).                                                                                                          |
 | Supabase (projet production) | Gratuit puis ~25 $/mois | Région **Europe**. Voir `docs/SUPABASE.md`.                                                                                                                 |
-| Sentry, Twilio, Anthropic    | À l'usage               | Déjà vus aux étapes 1, 6 et 7.                                                                                                                              |
+| Sentry, Twilio               | À l'usage               | Déjà vus aux étapes 1 et 6.                                                                                                                                 |
 | AdMob, RevenueCat            | Gratuits                | Voir `docs/MONETISATION.md`.                                                                                                                                |
 
 ## 1. Le serveur de production (Supabase)
@@ -23,7 +23,7 @@ Chaque commande est expliquée. Faites les étapes **dans l'ordre**.
 | ------------------------------------------------------ | -------------------------------------------------------------- |
 | `npm run db:link -- --project-ref <REF>`               | Relie ce dossier au projet **de production**.                  |
 | `npm run db:push`                                      | Crée toutes les tables, règles de sécurité et fonctions.       |
-| `npm run functions:deploy`                             | Met en ligne les fonctions serveur (SMS, scan, suppression…).  |
+| `npm run functions:deploy`                             | Met en ligne les fonctions serveur (SMS, suppression…).        |
 | `npx supabase secrets set NOM=valeur` (une par secret) | Range les clés secrètes (liste dans `.env.example`, partie 3). |
 
 Puis dans le tableau de bord Supabase :

@@ -5,7 +5,7 @@
  * and their medication. So:
  * - never on the reminder path (home with today's doses, a reminder just tapped, an
  *   intake due or late), never during sign-in, onboarding, the medication form or the
- *   scan check;
+ *   circle;
  * - a full-screen ad only after a finished task (medication saved, history closed), at
  *   most once a day, never during the first days;
  * - a single small banner, at the bottom of the history only;

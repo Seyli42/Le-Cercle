@@ -37,7 +37,6 @@ const privacyManifests = {
     collected('EmailAddress', true), // sign-in
     collected('UserID', true), // account id (also on crash reports)
     collected('Contacts', true), // the circle: first names + phone numbers of relatives
-    collected('PhotosorVideos', false), // prescription photo, read then forgotten
     collected('CrashData', true),
     collected('PerformanceData', true),
     // Free version (non-personalised ads, docs/MONETISATION.md): what the ad SDK sends.
@@ -106,6 +105,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.READ_EXTERNAL_STORAGE',
       'android.permission.WRITE_EXTERNAL_STORAGE',
       'android.permission.SYSTEM_ALERT_WINDOW',
+      // No camera, no microphone: nothing in the app uses them.
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
       // Biometrics (secure storage without fingerprint lock) and launcher badges: unused.
       'android.permission.USE_BIOMETRIC',
       'android.permission.USE_FINGERPRINT',
@@ -150,16 +152,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     // Periodic refresh of the reminders while the app is closed.
     'expo-background-task',
-    [
-      'expo-image-picker',
-      {
-        cameraPermission:
-          'Le Cercle utilise l’appareil photo pour lire votre ordonnance ou la boîte de votre médicament, si vous le demandez.',
-        photosPermission:
-          'Le Cercle accède à la photo de votre ordonnance que vous choisissez, pour la lire.',
-        microphonePermission: false,
-      },
-    ],
     [
       'expo-splash-screen',
       {

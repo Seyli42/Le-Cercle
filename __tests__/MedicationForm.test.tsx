@@ -61,7 +61,7 @@ it('shows the error message when saving fails', async () => {
   expect(screen.getByText('Stockage plein.')).toBeTruthy();
 });
 
-it('refuses to save a scanned medication until a schedule is added', async () => {
+it('refuses to save a medication without any schedule', async () => {
   const onSubmit = jest.fn(async () => undefined);
   await render(
     <MedicationForm

@@ -13,7 +13,6 @@ choisis sont prévenus par SMS.
 - Rappels fiables, avec « Pris », « Dans 10 min » ou « Passer » depuis la notification.
 - Le Cercle : un enfant, un voisin, une aide à domicile prévenus en cas d'oubli, avec leur
   accord.
-- Photo de l'ordonnance ou de la boîte pour pré-remplir le formulaire (vous vérifiez tout).
 - Historique des prises, grands boutons, mode sombre.
 - Gratuite avec quelques publicités non personnalisées, ou Premium sans publicité.
 

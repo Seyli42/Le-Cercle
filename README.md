@@ -8,7 +8,6 @@ Une seule base de code : Expo / React Native / TypeScript.
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)
 - Synchronisation et historique : [`docs/SYNCHRO.md`](docs/SYNCHRO.md)
 - Le Cercle (alertes SMS aux proches, Twilio) : [`docs/CERCLE.md`](docs/CERCLE.md)
-- Scan d'ordonnance par IA (Claude) : [`docs/SCAN.md`](docs/SCAN.md)
 - Installer une vraie version sur son téléphone : [`docs/BUILD.md`](docs/BUILD.md)
 - Règles pour les agents IA : [`AGENTS.md`](AGENTS.md)
 
@@ -49,7 +48,6 @@ src/
     sync/         Synchronisation téléphone ↔ Supabase
     history/      Historique des prises
     circle/       Le Cercle : proches prévenus par SMS
-    scan/         Scan d'ordonnance : photo, lecture IA, pré-remplissage
     account/      Export des données et suppression du compte (RGPD)
     onboarding/   Écran d'accueil du premier lancement, « Pour bien démarrer »
     monetization/ Publicité (AdMob, règles d'affichage) et Premium (RevenueCat)

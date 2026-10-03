@@ -17,8 +17,8 @@ Nous supprimons le compte et vous confirmons la suppression sous 7 jours au plus
 ## Ce qui est supprimé
 
 - Immédiatement et définitivement : votre compte, vos médicaments, horaires, historique
-  des prises, votre Cercle (prénoms et numéros de vos proches), le journal des SMS et des
-  lectures d'ordonnance, votre historique d'achat chez notre prestataire d'abonnement.
+  des prises, votre Cercle (prénoms et numéros de vos proches), le journal des SMS, votre
+  historique d'achat chez notre prestataire d'abonnement.
 - Les copies de sauvegarde techniques de notre hébergeur disparaissent sous 7 jours.
 - Seules les factures conservées par Apple ou Google, selon leurs obligations légales,
   restent chez eux.
