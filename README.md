@@ -3,6 +3,7 @@
 Application iOS + Android de rappels de médicaments, avec alerte aux proches.
 Une seule base de code : Expo / React Native / TypeScript.
 
+- **Par où commencer (tout configurer de zéro, dans l'ordre)** : [`docs/DEMARRAGE.md`](docs/DEMARRAGE.md)
 - Cahier des charges et étapes : [`docs/CAHIER_DES_CHARGES.md`](docs/CAHIER_DES_CHARGES.md)
 - Mise en place de Supabase : [`docs/SUPABASE.md`](docs/SUPABASE.md)
 - Moteur de rappels et protocole de test : [`docs/RAPPELS.md`](docs/RAPPELS.md)

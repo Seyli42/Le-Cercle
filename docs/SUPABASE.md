@@ -32,7 +32,8 @@ Dans Supabase : **Project Settings → API Keys**.
 | `npm run db:push`                        | Envoie les tables et les règles de sécurité (`supabase/migrations`) en ligne. |
 
 Vérification : **Table Editor** doit montrer `profiles`, `medications`, `schedules`,
-`dose_events`, `circle_members`, `alerts_sent`, chacune avec le badge **RLS enabled**.
+`dose_events`, `circle_links`, `circle_invites`, `circle_invite_attempts`, `circle_alerts`,
+`push_tokens`, `premium_grants`, chacune avec le badge **RLS enabled**.
 
 ## 4. Connexion par code e-mail
 
