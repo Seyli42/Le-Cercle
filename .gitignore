@@ -53,5 +53,5 @@ modules/*/android/build/
 modules/*/android/.gradle/
 modules/*/ios/build/
 
-# Deno lockfile created when running the function tests from the root
+# Deno lockfile created if Deno is ever run from the root (use npm run *:functions)
 /deno.lock

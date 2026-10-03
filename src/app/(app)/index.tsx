@@ -86,6 +86,11 @@ export default function MedicationListScreen() {
         label="+ Ajouter un médicament"
         onPress={() => router.push('/medications/new')}
       />
+      <PrimaryButton
+        label="📷 Scanner une ordonnance ou une boîte"
+        variant="secondary"
+        onPress={() => router.push('/medications/scan')}
+      />
       <MedicalDisclaimer />
     </Screen>
   );

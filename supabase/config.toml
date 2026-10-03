@@ -437,3 +437,7 @@ verify_jwt = false
 # Called by the app with the user's session.
 [functions.circle-invite]
 verify_jwt = true
+
+# Called by the app with the user's session (photos of prescriptions, never stored).
+[functions.extract-prescription]
+verify_jwt = true

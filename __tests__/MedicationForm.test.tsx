@@ -60,3 +60,25 @@ it('shows the error message when saving fails', async () => {
   await fireEvent.press(screen.getByLabelText('Enregistrer'));
   expect(screen.getByText('Stockage plein.')).toBeTruthy();
 });
+
+it('refuses to save a scanned medication until a schedule is added', async () => {
+  const onSubmit = jest.fn(async () => undefined);
+  await render(
+    <MedicationForm
+      submitLabel="Enregistrer"
+      onSubmit={onSubmit}
+      initial={{
+        name: 'Amoxicilline',
+        form: 'capsule',
+        doseLabel: '1 gélule',
+        startsOn: '2026-10-03',
+        endsOn: null,
+        notes: null,
+        schedules: [],
+      }}
+    />,
+  );
+  await fireEvent.press(screen.getByLabelText('Enregistrer'));
+  expect(onSubmit).not.toHaveBeenCalled();
+  expect(screen.getByText('Ajoutez au moins un horaire de prise.')).toBeTruthy();
+});

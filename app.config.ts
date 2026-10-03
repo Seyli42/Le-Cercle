@@ -82,6 +82,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Periodic refresh of the reminders while the app is closed.
     'expo-background-task',
     [
+      'expo-image-picker',
+      {
+        cameraPermission:
+          'Le Cercle utilise l’appareil photo pour lire votre ordonnance ou la boîte de votre médicament, si vous le demandez.',
+        photosPermission:
+          'Le Cercle accède à la photo de votre ordonnance que vous choisissez, pour la lire.',
+        microphonePermission: false,
+      },
+    ],
+    [
       'expo-splash-screen',
       {
         image: './assets/splash-icon.png',
