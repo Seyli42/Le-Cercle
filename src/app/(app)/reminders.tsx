@@ -11,14 +11,16 @@ import { useReminders } from '@/features/reminders/ReminderProvider';
 import { openSystemSettings } from '@/features/reminders/settingsLinks';
 import { reportError } from '@/lib/monitoring';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { formatDate, t } from '@/i18n';
 
-const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const formatLong = (date: Date) =>
+  formatDate(date, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 function Check({ ok, label }: { readonly ok: boolean | null; readonly label: string }) {
   const styles = useStyles();
@@ -26,7 +28,7 @@ function Check({ ok, label }: { readonly ok: boolean | null; readonly label: str
   return (
     <Text style={styles.check}>
       {icon} {label}
-      {ok === null ? ' (vérifiable dans la vraie application)' : ''}
+      {ok === null ? t('remindersCheck.unverifiable') : ''}
     </Text>
   );
 }
@@ -59,8 +61,8 @@ export default function RemindersCheckScreen() {
       await Notifications.scheduleNotificationAsync({
         identifier: `test_${Date.now()}`,
         content: {
-          title: '🔔 Test DoseCircle',
-          body: 'Vos rappels fonctionnent. Vous pouvez fermer cette notification.',
+          title: t('remindersCheck.testTitle'),
+          body: t('remindersCheck.testBody'),
           sound: 'default',
           interruptionLevel: 'timeSensitive',
         },
@@ -70,7 +72,7 @@ export default function RemindersCheckScreen() {
           channelId: CHANNEL_ID,
         },
       });
-      setTestSent('Rappel test dans 10 secondes : verrouillez votre téléphone pour vérifier.');
+      setTestSent(t('remindersCheck.testSent'));
     } catch (error) {
       setTestSent(reportError(error, 'reminders.test').userMessage);
     }
@@ -78,11 +80,10 @@ export default function RemindersCheckScreen() {
 
   return (
     <Screen>
-      <Text style={styles.title}>{issues.length === 0 ? '✅ Tout est prêt' : '⚠️ À corriger'}</Text>
-      <Text style={styles.body}>
-        Les rappels sont programmés sur ce téléphone : ils sonnent sans connexion internet,
-        téléphone verrouillé, et après un redémarrage.
+      <Text style={styles.title}>
+        {issues.length === 0 ? t('remindersCheck.allGood') : t('remindersCheck.toFix')}
       </Text>
+      <Text style={styles.body}>{t('remindersCheck.intro')}</Text>
 
       {issues.map((issue) => (
         <View
@@ -101,11 +102,11 @@ export default function RemindersCheckScreen() {
 
       {health && (
         <View style={styles.card}>
-          <Check ok={health.permission === 'granted'} label="Notifications autorisées" />
+          <Check ok={health.permission === 'granted'} label={t('remindersCheck.notifications')} />
           {Platform.OS === 'android' && (
             <>
-              <Check ok={health.exactAlarms} label="Alarmes à l’heure exacte" />
-              <Check ok={health.ignoringBatteryOptimizations} label="Batterie sans restriction" />
+              <Check ok={health.exactAlarms} label={t('remindersCheck.exact')} />
+              <Check ok={health.ignoringBatteryOptimizations} label={t('remindersCheck.battery')} />
             </>
           )}
         </View>
@@ -113,24 +114,25 @@ export default function RemindersCheckScreen() {
 
       <View style={styles.card}>
         <Text style={styles.body}>
-          Rappels programmés : <Text style={styles.strong}>{sync?.pending ?? '…'}</Text>
+          {t('remindersCheck.scheduled')}
+          <Text style={styles.strong}>{sync?.pending ?? '…'}</Text>
         </Text>
         <Text style={styles.body}>
-          Prochain rappel :{' '}
+          {t('remindersCheck.next')}
           <Text style={styles.strong}>
-            {sync?.nextAt ? DATE_TIME.format(sync.nextAt) : 'aucun'}
+            {sync?.nextAt ? formatLong(sync.nextAt) : t('remindersCheck.none')}
           </Text>
         </Text>
         {sync?.coveredUntil && (
           <Text style={styles.body}>
-            Programmés jusqu’au : {DATE_TIME.format(sync.coveredUntil)}
-            {sync.truncated ? ' (la suite sera programmée automatiquement)' : ''}
+            {t('remindersCheck.coveredUntil', { date: formatLong(sync.coveredUntil) })}
+            {sync.truncated ? t('remindersCheck.truncated') : ''}
           </Text>
         )}
       </View>
 
       <PrimaryButton
-        label="Envoyer un rappel test"
+        label={t('remindersCheck.sendTest')}
         variant="secondary"
         onPress={() => void sendTest()}
       />
@@ -142,7 +144,7 @@ export default function RemindersCheckScreen() {
 
       {Platform.OS === 'android' && (
         <PrimaryButton
-          label="Conseils pour mon modèle de téléphone"
+          label={t('remindersCheck.phoneTips')}
           variant="secondary"
           onPress={() => void Linking.openURL('https://dontkillmyapp.com/')}
         />

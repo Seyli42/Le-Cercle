@@ -1,3 +1,4 @@
+import { formatDate } from '@/i18n';
 /** Local calendar date "YYYY-MM-DD" (not UTC: 23:30 in Paris is still "today"). */
 export function toLocalDateString(date: Date): string {
   const y = date.getFullYear();
@@ -33,14 +34,8 @@ export function timeOfDayToDate(value: string, base: Date = new Date()): Date {
   return date;
 }
 
-const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-
-/** "2 octobre 2026" */
+/** "2 octobre 2026", "October 2, 2026"… in the person's language. */
 export function formatLocalDate(value: string): string {
   const date = parseLocalDate(value);
-  return date ? DATE_FORMAT.format(date) : value;
+  return date ? formatDate(date, { day: 'numeric', month: 'long', year: 'numeric' }) : value;
 }

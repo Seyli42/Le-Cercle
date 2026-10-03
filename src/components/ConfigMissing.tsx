@@ -2,18 +2,16 @@ import { Text } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { fontSize, makeStyles } from '@/theme';
+import { t } from '@/i18n';
 
 /** Development only: production builds refuse to start without this configuration. */
 export function ConfigMissing() {
   const styles = useStyles();
   return (
     <Screen>
-      <Text style={styles.title}>Configuration Supabase manquante</Text>
-      <Text style={styles.body}>
-        Renseignez EXPO_PUBLIC_SUPABASE_URL et EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY dans le fichier
-        .env, puis relancez « npm start -- --clear ».
-      </Text>
-      <Text style={styles.body}>Le guide pas à pas est dans docs/SUPABASE.md.</Text>
+      <Text style={styles.title}>{t('configMissing.title')}</Text>
+      <Text style={styles.body}>{t('configMissing.body')}</Text>
+      <Text style={styles.body}>{t('configMissing.guide')}</Text>
     </Screen>
   );
 }

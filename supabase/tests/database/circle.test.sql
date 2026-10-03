@@ -1,7 +1,7 @@
 -- The circle by notification: invitation code (= consent of the relative), the phones
 -- to alert, missed-intake detection, and every safeguard around them.
 begin;
-select plan(37);
+select plan(40);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'alice@example.com'),
@@ -140,6 +140,27 @@ reset role;
 select is((select user_id::text from public.push_tokens where token = 'ExponentPushToken[shared-tablet-12]'),
   '00000000-0000-0000-0000-00000000000b',
   'a token follows the last account signed in, and nobody else can remove it');
+
+-- Each phone keeps its language (a relative is alerted in their own language).
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select public.register_push_token('ExponentPushToken[bob-phone-123456]', 'ios', 'es');
+select public.register_push_token('ExponentPushToken[shared-tablet-12]', 'android', 'xx');
+reset role;
+set local role service_role;
+select results_eq(
+  $$select token, locale from public.push_token_locales(
+      array['ExponentPushToken[bob-phone-123456]', 'ExponentPushToken[shared-tablet-12]']) order by 1$$,
+  $$values ('ExponentPushToken[bob-phone-123456]', 'es'), ('ExponentPushToken[shared-tablet-12]', 'en')$$,
+  'each phone has its language, unknown ones fall back to English');
+reset role;
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select throws_ok($$select * from public.push_token_locales(array['x'])$$, '42501', null,
+  'the app cannot list phones');
+reset role;
+select is((select count(*)::int from public.push_tokens where user_id = '00000000-0000-0000-0000-00000000000b'), 2,
+  'registering again updates the phone, never duplicates it');
 
 -- ---------------------------------------------------------------------------
 -- Missed intakes (Alice, watched by Bob on 2 phones)

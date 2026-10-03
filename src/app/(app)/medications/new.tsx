@@ -6,6 +6,7 @@ import { useMedicationActions } from '@/features/medications/useMedications';
 import { useAds } from '@/features/monetization/AdsProvider';
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
+import { t } from '@/i18n';
 
 export default function NewMedicationScreen() {
   const { create } = useMedicationActions();
@@ -13,7 +14,7 @@ export default function NewMedicationScreen() {
   return (
     <Screen>
       <MedicationForm
-        submitLabel="Enregistrer"
+        submitLabel={t('medicationForm.save')}
         onSubmit={async (input) => {
           try {
             await create(input);

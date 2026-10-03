@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import type { NotificationData, PlannedNotification } from '@/features/reminders/planner';
+import { t } from '@/i18n';
 
 export const CHANNEL_ID = 'reminders';
 /** Alerts received when a relative did not confirm an intake (sent by the server). */
@@ -40,8 +41,8 @@ export function configureNotifications(): Promise<void> {
   configured ??= (async () => {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-        name: 'Rappels de médicaments',
-        description: 'Les rappels de prise. Désactiver ce canal arrête tous les rappels.',
+        name: t('notifications.channelReminders'),
+        description: t('notifications.channelRemindersDescription'),
         importance: Notifications.AndroidImportance.MAX,
         sound: 'default',
         vibrationPattern: [0, 400, 250, 400],
@@ -49,8 +50,8 @@ export function configureNotifications(): Promise<void> {
         showBadge: false,
       });
       await Notifications.setNotificationChannelAsync(CIRCLE_CHANNEL_ID, {
-        name: 'Alertes de mes proches',
-        description: 'Quand un proche sur qui vous veillez n’a pas confirmé une prise.',
+        name: t('notifications.channelCircle'),
+        description: t('notifications.channelCircleDescription'),
         importance: Notifications.AndroidImportance.HIGH,
         sound: 'default',
         enableVibrate: true,
@@ -63,17 +64,17 @@ export function configureNotifications(): Promise<void> {
     await Notifications.setNotificationCategoryAsync(DOSE_CATEGORY, [
       {
         identifier: ACTIONS.taken,
-        buttonTitle: '✓ Pris',
+        buttonTitle: t('notifications.actionTaken'),
         options: { opensAppToForeground: opensApp },
       },
       {
         identifier: ACTIONS.snooze,
-        buttonTitle: `Dans ${SNOOZE_MINUTES} min`,
+        buttonTitle: t('notifications.actionSnooze', { minutes: SNOOZE_MINUTES }),
         options: { opensAppToForeground: opensApp },
       },
       {
         identifier: ACTIONS.skip,
-        buttonTitle: 'Passer',
+        buttonTitle: t('notifications.actionSkip'),
         options: { opensAppToForeground: opensApp, isDestructive: true },
       },
     ]);

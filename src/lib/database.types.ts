@@ -244,7 +244,7 @@ export type Database = {
         Returns: undefined;
       };
       register_push_token: {
-        Args: { p_token: string; p_platform: string };
+        Args: { p_token: string; p_platform: string; p_locale?: string };
         Returns: undefined;
       };
       unregister_push_token: {

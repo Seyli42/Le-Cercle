@@ -3,31 +3,22 @@ import { Text } from 'react-native';
 import type { SyncState } from '@/features/sync/scheduler';
 import { useSyncState } from '@/features/sync/SyncProvider';
 import { makeStyles } from '@/theme';
-
-const TIME = new Intl.DateTimeFormat('fr-FR', {
-  day: 'numeric',
-  month: 'long',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+import { formatDateTime, t } from '@/i18n';
 
 export function describeSync(state: SyncState): string {
-  const waiting =
-    state.pending > 0
-      ? `${state.pending} modification${state.pending > 1 ? 's' : ''} en attente d’envoi. `
-      : '';
+  const waiting = state.pending > 0 ? t('sync.pending', { count: state.pending }) : '';
   switch (state.status) {
     case 'syncing':
-      return 'Sauvegarde en ligne en cours…';
+      return t('sync.syncing');
     case 'offline':
-      return `Hors ligne. ${waiting}Tout reste enregistré sur ce téléphone et sera envoyé dès le retour du réseau.`;
+      return t('sync.offline', { pending: waiting });
     case 'error':
-      return `Sauvegarde en ligne momentanément impossible. ${waiting}Nouvel essai automatique.`;
+      return t('sync.error', { pending: waiting });
     case 'idle':
-      if (state.pending > 0) return `${waiting}Envoi dans quelques secondes.`;
+      if (state.pending > 0) return t('sync.soon', { pending: waiting });
       return state.lastSuccessAt
-        ? `✓ Sauvegardé en ligne le ${TIME.format(new Date(state.lastSuccessAt))}.`
-        : 'Pas encore sauvegardé en ligne.';
+        ? t('sync.saved', { date: formatDateTime(new Date(state.lastSuccessAt)) })
+        : t('sync.never');
   }
 }
 

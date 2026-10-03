@@ -34,6 +34,7 @@ import {
 } from '@/features/medications/validation';
 import { toAppError } from '@/lib/errors';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { formatTimeOfDay, t } from '@/i18n';
 
 type DraftSchedule = { readonly key: string; timeOfDay: string; daysOfWeek: Weekday[] };
 
@@ -102,7 +103,7 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
     const result = validateMedicationInput(input);
     if (!result.ok) {
       setErrors(result.errors);
-      setFormError('Certaines informations sont à corriger (voir en rouge).');
+      setFormError(t('medicationForm.toFix'));
       return;
     }
     setErrors({});
@@ -119,25 +120,23 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
 
   return (
     <View style={styles.form}>
-      <Text style={styles.hint}>
-        Recopiez les informations exactement comme elles figurent sur votre ordonnance ou la boîte.
-      </Text>
+      <Text style={styles.hint}>{t('medicationForm.hint')}</Text>
 
       <TextField
-        label="Nom du médicament"
+        label={t('medicationForm.name')}
         value={name}
         onChangeText={(v) => {
           setName(v);
           clearError('name');
         }}
-        placeholder="ex. Doliprane 1000 mg"
+        placeholder={t('medicationForm.namePlaceholder')}
         maxLength={LIMITS.name}
         autoCapitalize="sentences"
         error={errors.name}
       />
 
       <View style={styles.group}>
-        <Text style={styles.label}>Forme</Text>
+        <Text style={styles.label}>{t('medicationForm.form')}</Text>
         <View style={styles.chips} accessibilityRole="radiogroup">
           {MEDICATION_FORMS.map((f) => (
             <Chip key={f} label={FORM_LABELS[f]} selected={form === f} onPress={() => setForm(f)} />
@@ -146,26 +145,26 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
       </View>
 
       <TextField
-        label="Quantité par prise"
+        label={t('medicationForm.dose')}
         value={doseLabel}
         onChangeText={(v) => {
           setDoseLabel(v);
           clearError('doseLabel');
         }}
-        placeholder="ex. 1 comprimé, 5 ml, 2 bouffées"
+        placeholder={t('medicationForm.dosePlaceholder')}
         maxLength={LIMITS.doseLabel}
         error={errors.doseLabel}
       />
 
       <View style={styles.group}>
-        <Text style={styles.label}>Horaires de prise</Text>
+        <Text style={styles.label}>{t('medicationForm.schedules')}</Text>
         {schedules.map((schedule, index) => (
           <View key={schedule.key} style={styles.scheduleCard}>
             <PickerField
-              label={`Prise n° ${index + 1}`}
+              label={t('medicationForm.intake', { number: index + 1 })}
               mode="time"
               value={timeOfDayToDate(schedule.timeOfDay)}
-              display={schedule.timeOfDay}
+              display={formatTimeOfDay(schedule.timeOfDay)}
               onChange={(date) => updateSchedule(schedule.key, { timeOfDay: toTimeOfDay(date) })}
             />
             <View style={styles.chips}>
@@ -181,16 +180,20 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
               ))}
             </View>
             <Text style={styles.hint}>
-              {schedule.daysOfWeek.length > 0 ? describeDays(schedule.daysOfWeek) : 'Aucun jour'}
+              {schedule.daysOfWeek.length > 0
+                ? describeDays(schedule.daysOfWeek)
+                : t('medicationForm.noDay')}
             </Text>
             {schedules.length > 1 && (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Supprimer la prise de ${schedule.timeOfDay}`}
+                accessibilityLabel={t('medicationForm.removeIntakeA11y', {
+                  time: formatTimeOfDay(schedule.timeOfDay),
+                })}
                 onPress={() => setSchedules((list) => list.filter((s) => s.key !== schedule.key))}
                 style={styles.link}
               >
-                <Text style={styles.linkDanger}>Supprimer cet horaire</Text>
+                <Text style={styles.linkDanger}>{t('medicationForm.removeIntake')}</Text>
               </Pressable>
             )}
           </View>
@@ -202,7 +205,7 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
         ) : null}
         {schedules.length < LIMITS.schedulesPerMedication && (
           <PrimaryButton
-            label="+ Ajouter un horaire"
+            label={t('medicationForm.addTime')}
             variant="secondary"
             onPress={() =>
               setSchedules((list) => [
@@ -215,7 +218,7 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
       </View>
 
       <PickerField
-        label="Début du traitement"
+        label={t('medicationForm.start')}
         mode="date"
         value={parseLocalDate(startsOn) ?? new Date()}
         display={formatLocalDate(startsOn)}
@@ -230,11 +233,11 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
       <Checkbox
         checked={endsOn !== null}
         onChange={(checked) => setEndsOn(checked ? startsOn : null)}
-        label="Le traitement a une date de fin"
+        label={t('medicationForm.hasEnd')}
       />
       {endsOn !== null && (
         <PickerField
-          label="Fin du traitement (dernier jour inclus)"
+          label={t('medicationForm.end')}
           mode="date"
           value={parseLocalDate(endsOn) ?? new Date()}
           minimumDate={parseLocalDate(startsOn) ?? undefined}
@@ -245,10 +248,10 @@ export function MedicationForm({ initial, submitLabel, onSubmit }: Props) {
       )}
 
       <TextField
-        label="Note (facultatif)"
+        label={t('medicationForm.notes')}
         value={notes}
         onChangeText={setNotes}
-        placeholder="ex. à prendre pendant le repas"
+        placeholder={t('medicationForm.notesPlaceholder')}
         maxLength={LIMITS.notes}
         multiline
         style={styles.notes}

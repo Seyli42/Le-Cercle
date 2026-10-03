@@ -7,7 +7,6 @@ import { Chip } from '@/components/Chip';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
-import { APP_NAME } from '@/config/brand';
 import { useUserId } from '@/features/auth/useUserId';
 import {
   acceptInvite,
@@ -27,14 +26,7 @@ import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { requireSupabase } from '@/lib/supabase';
 import { fontSize, makeStyles, spacing, useColors } from '@/theme';
-
-const DATE_TIME = new Intl.DateTimeFormat('fr-FR', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+import { formatDateTime, formatTime, formatTimeOfDay, t } from '@/i18n';
 
 function errorMessage(error: unknown, context: string): string {
   return reportError(error, context, {
@@ -103,25 +95,26 @@ export default function CircleScreen() {
         {loadError ? (
           <>
             <Text style={styles.body}>{loadError}</Text>
-            <Text style={styles.muted}>
-              DoseCircle a besoin d’internet pour prévenir vos proches. Vos rappels, eux, continuent
-              de fonctionner sans connexion.
-            </Text>
-            <PrimaryButton label="Réessayer" onPress={load} />
+            <Text style={styles.muted}>{t('circle.needsInternet')}</Text>
+            <PrimaryButton label={t('common.retry')} onPress={load} />
           </>
         ) : (
-          <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
+          <ActivityIndicator
+            size="large"
+            color={colors.primary}
+            accessibilityLabel={t('common.loading')}
+          />
         )}
       </Screen>
     );
   }
 
-  const nameShown = firstName.trim() || 'Votre prénom';
+  const nameShown = firstName.trim() || t('circle.yourFirstName');
   const confirmLeave = (link: CircleLink, title: string, detail: string, done: string) =>
     Alert.alert(title, detail, [
-      { text: 'Annuler', style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Confirmer',
+        text: t('common.confirm'),
         style: 'destructive',
         onPress: () =>
           void run(`leave-${link.linkId}`, async () => {
@@ -133,79 +126,73 @@ export default function CircleScreen() {
 
   return (
     <Screen>
-      <Text style={styles.body}>
-        Si vous ne confirmez pas une prise après le délai choisi, vos proches reçoivent une
-        notification sur leur téléphone. Elle ne contient <Text style={styles.strong}>jamais</Text>{' '}
-        le nom de vos médicaments. C’est gratuit, pour vous comme pour eux.
-      </Text>
+      <Text style={styles.body}>{t('circle.intro')}</Text>
       <View style={styles.example}>
-        <Text style={styles.muted}>Exemple de notification reçue :</Text>
-        <Text style={styles.strong}>{nameShown} n’a pas confirmé sa prise</Text>
+        <Text style={styles.muted}>{t('circle.exampleLabel')}</Text>
+        <Text style={styles.strong}>{t('circle.exampleTitle', { name: nameShown })}</Text>
         <Text style={styles.body}>
-          Prise prévue à 08:00. Il peut s’agir d’un oubli ou d’un souci de téléphone : pensez à
-          prendre de ses nouvelles.
+          {t('circle.exampleBody', { time: formatTimeOfDay('08:00') })}
         </Text>
       </View>
 
       <Text style={styles.heading} accessibilityRole="header">
-        Mes réglages
+        {t('circle.settings')}
       </Text>
       <TextField
-        label="Mon prénom (vu par mes proches)"
+        label={t('circle.firstName')}
         value={firstName}
         onChangeText={setFirstName}
-        placeholder="ex. Marie"
+        placeholder={t('circle.firstNamePlaceholder')}
         maxLength={50}
         autoCapitalize="words"
       />
-      <Text style={styles.label}>Prévenir mes proches si je n’ai pas confirmé après</Text>
+      <Text style={styles.label}>{t('circle.delay')}</Text>
       <View style={styles.chips} accessibilityRole="radiogroup">
         {DELAY_CHOICES.map((minutes) => (
           <Chip
             key={minutes}
-            label={minutes < 60 ? `${minutes} min` : `${minutes / 60} h`}
+            label={
+              minutes < 60
+                ? t('circle.minutes', { count: minutes })
+                : t('circle.hours', { count: minutes / 60 })
+            }
             selected={delay === minutes}
             onPress={() => setDelay(minutes)}
           />
         ))}
       </View>
       <PrimaryButton
-        label="Enregistrer mes réglages"
+        label={t('circle.saveSettings')}
         variant="secondary"
         loading={busy === 'settings'}
         onPress={() =>
           void run('settings', async () => {
             await saveSettings(requireSupabase(), userId, { firstName, delayMinutes: delay });
-            return 'Réglages enregistrés.';
+            return t('circle.settingsSaved');
           })
         }
       />
 
       <Text style={styles.heading} accessibilityRole="header">
-        Les proches qui veillent sur moi ({data.watchers.length}/{MAX_WATCHERS})
+        {t('circle.watchersTitle', { count: data.watchers.length, max: MAX_WATCHERS })}
       </Text>
-      {data.watchers.length === 0 && (
-        <Text style={styles.muted}>
-          Personne pour l’instant. Invitez un enfant, un voisin, une aide à domicile : il installe{' '}
-          {APP_NAME} (gratuit) et saisit votre code.
-        </Text>
-      )}
+      {data.watchers.length === 0 && <Text style={styles.muted}>{t('circle.noWatchers')}</Text>}
       {data.watchers.map((link) => (
         <View key={link.linkId} style={styles.card}>
           <Text style={styles.name}>{link.firstName}</Text>
           <Text style={[styles.status, { color: colors.success }]}>
-            ✓ Sera prévenu(e) si je ne confirme pas une prise
+            {t('circle.willBeAlerted')}
           </Text>
           <PrimaryButton
-            label="Retirer"
+            label={t('circle.remove')}
             variant="danger"
             loading={busy === `leave-${link.linkId}`}
             onPress={() =>
               confirmLeave(
                 link,
-                `Retirer ${link.firstName} ?`,
-                'Cette personne ne sera plus prévenue.',
-                `${link.firstName} ne fait plus partie de votre Cercle.`,
+                t('circle.removeTitle', { name: link.firstName }),
+                t('circle.removeBody'),
+                t('circle.removed', { name: link.firstName }),
               )
             }
           />
@@ -215,20 +202,21 @@ export default function CircleScreen() {
         <View style={styles.card}>
           {data.invite ? (
             <>
-              <Text style={styles.muted}>Code à donner à votre proche :</Text>
+              <Text style={styles.muted}>{t('circle.codeLabel')}</Text>
               <Text
                 style={styles.code}
                 selectable
-                accessibilityLabel={`Code : ${data.invite.code.split('').join(' ')}`}
+                accessibilityLabel={t('circle.codeA11y', {
+                  code: data.invite.code.split('').join(' '),
+                })}
               >
                 {formatCode(data.invite.code)}
               </Text>
               <Text style={styles.muted}>
-                Valable jusqu’au {DATE_TIME.format(new Date(data.invite.expiresAt))}, une seule
-                fois.
+                {t('circle.validUntil', { date: formatDateTime(new Date(data.invite.expiresAt)) })}
               </Text>
               <PrimaryButton
-                label="Partager l’invitation"
+                label={t('circle.share')}
                 onPress={() => {
                   const invite = data.invite;
                   if (!invite) return;
@@ -238,48 +226,44 @@ export default function CircleScreen() {
                 }}
               />
               <PrimaryButton
-                label="Créer un nouveau code"
+                label={t('circle.newCode')}
                 variant="secondary"
                 loading={busy === 'invite'}
                 onPress={() =>
                   void run('invite', async () => {
                     await ensureFirstName();
                     await createInvite(requireSupabase());
-                    return 'Nouveau code créé : l’ancien ne fonctionne plus.';
+                    return t('circle.newCodeCreated');
                   })
                 }
               />
             </>
           ) : (
             <PrimaryButton
-              label="Inviter un proche"
+              label={t('circle.invite')}
               loading={busy === 'invite'}
               disabled={!firstName.trim()}
               onPress={() =>
                 void run('invite', async () => {
                   await ensureFirstName();
                   await createInvite(requireSupabase());
-                  return 'Code créé : partagez-le avec votre proche.';
+                  return t('circle.codeCreated');
                 })
               }
             />
           )}
-          {!firstName.trim() && (
-            <Text style={styles.muted}>Indiquez d’abord votre prénom dans « Mes réglages ».</Text>
-          )}
+          {!firstName.trim() && <Text style={styles.muted}>{t('circle.firstNameFirst')}</Text>}
         </View>
       )}
 
       <Text style={styles.heading} accessibilityRole="header">
-        Je veille sur un proche
+        {t('circle.watchingTitle')}
       </Text>
       {!notificationsOn && (
         <View style={styles.warning}>
-          <Text style={styles.body}>
-            ⚠️ Les notifications sont désactivées : vous ne serez pas prévenu(e).
-          </Text>
+          <Text style={styles.body}>{t('circle.notificationsOff')}</Text>
           <PrimaryButton
-            label="Ouvrir les réglages"
+            label={t('circle.openSettings')}
             variant="secondary"
             onPress={() => void Linking.openSettings()}
           />
@@ -290,19 +274,19 @@ export default function CircleScreen() {
           <Text style={styles.name}>{link.firstName}</Text>
           <Text style={styles.muted}>
             {link.lastAlertAt
-              ? `Dernière alerte : ${DATE_TIME.format(new Date(link.lastAlertAt))}`
-              : 'Aucune alerte pour l’instant.'}
+              ? t('circle.lastAlert', { date: formatDateTime(new Date(link.lastAlertAt)) })
+              : t('circle.noAlert')}
           </Text>
           <PrimaryButton
-            label="Ne plus veiller"
+            label={t('circle.stopWatching')}
             variant="secondary"
             loading={busy === `leave-${link.linkId}`}
             onPress={() =>
               confirmLeave(
                 link,
-                `Ne plus veiller sur ${link.firstName} ?`,
-                'Vous ne serez plus prévenu(e) de ses prises non confirmées.',
-                `Vous ne veillez plus sur ${link.firstName}.`,
+                t('circle.stopTitle', { name: link.firstName }),
+                t('circle.stopBody'),
+                t('circle.stopped', { name: link.firstName }),
               )
             }
           />
@@ -310,7 +294,7 @@ export default function CircleScreen() {
       ))}
       <View style={styles.card}>
         <TextField
-          label="Code reçu de votre proche"
+          label={t('circle.codeReceived')}
           value={code}
           onChangeText={setCode}
           placeholder="ABCD-EFGH"
@@ -319,7 +303,7 @@ export default function CircleScreen() {
           maxLength={9}
         />
         <PrimaryButton
-          label="Valider le code"
+          label={t('circle.validateCode')}
           loading={busy === 'accept'}
           disabled={code.replace(/[^A-Za-z0-9]/g, '').length !== 8 || !firstName.trim()}
           onPress={() =>
@@ -336,16 +320,12 @@ export default function CircleScreen() {
                 return 'unavailable' as const;
               });
               return push === 'no_permission'
-                ? `Vous veillez sur ${patient}. Autorisez les notifications pour être prévenu(e).`
-                : `Vous veillez maintenant sur ${patient} : vous serez prévenu(e) si une prise n’est pas confirmée.`;
+                ? t('circle.watchingNoNotifications', { name: patient })
+                : t('circle.watchingNow', { name: patient });
             })
           }
         />
-        {!firstName.trim() && (
-          <Text style={styles.muted}>
-            Indiquez d’abord votre prénom dans « Mes réglages » : votre proche le verra.
-          </Text>
-        )}
+        {!firstName.trim() && <Text style={styles.muted}>{t('circle.firstNameFirstWatcher')}</Text>}
       </View>
 
       {message ? (
@@ -361,13 +341,17 @@ export default function CircleScreen() {
       {data.alerts.length > 0 && (
         <>
           <Text style={styles.heading} accessibilityRole="header">
-            Dernières alertes envoyées à mes proches
+            {t('circle.alertsTitle')}
           </Text>
           {data.alerts.map((alert) => (
             <Text key={alert.id} style={styles.body}>
               🔔
-              {alert.plannedAt ? ` Prise de ${TIME.format(new Date(alert.plannedAt))}` : ''}
-              {alert.sentAt ? `, prévenus le ${DATE_TIME.format(new Date(alert.sentAt))}` : ''}
+              {alert.plannedAt
+                ? t('circle.alertIntake', { time: formatTime(new Date(alert.plannedAt)) })
+                : ''}
+              {alert.sentAt
+                ? t('circle.alertSent', { date: formatDateTime(new Date(alert.sentAt)) })
+                : ''}
             </Text>
           ))}
         </>

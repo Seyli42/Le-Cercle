@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import type { Medication } from '@/features/medications/types';
 import type { DoseEvent } from '@/features/reminders/doseEvents';
 import { occurrenceKey, upcomingOccurrences } from '@/features/reminders/planner';
@@ -89,7 +90,7 @@ export function buildHistory(input: {
       key,
       at,
       timeOfDay: localTime(at),
-      medicationName: label?.name ?? 'Médicament supprimé',
+      medicationName: label?.name ?? t('history.deletedMedication'),
       doseLabel: label?.doseLabel ?? '',
       status: statusOf(event),
       respondedAt: event.respondedAt,

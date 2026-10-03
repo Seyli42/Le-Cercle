@@ -1,4 +1,5 @@
 import { isValidTimeOfDay, parseLocalDate } from '@/features/medications/dates';
+import { t } from '@/i18n';
 import type { MedicationForm, MedicationInput, Weekday } from '@/features/medications/types';
 
 export const MEDICATION_FORMS: readonly MedicationForm[] = [
@@ -41,39 +42,39 @@ export function validateMedicationInput(input: MedicationInput): ValidationResul
   const doseLabel = input.doseLabel.trim().replace(/\s+/g, ' ');
   const notes = input.notes?.trim() ? input.notes.trim() : null;
 
-  if (!name) errors.name = 'Indiquez le nom du médicament.';
-  else if (name.length > LIMITS.name) errors.name = `${LIMITS.name} caractères maximum.`;
+  if (!name) errors.name = t('validation.nameRequired');
+  else if (name.length > LIMITS.name) errors.name = t('validation.maxChars', { max: LIMITS.name });
 
-  if (!MEDICATION_FORMS.includes(input.form)) errors.form = 'Choisissez une forme.';
+  if (!MEDICATION_FORMS.includes(input.form)) errors.form = t('validation.formRequired');
 
-  if (!doseLabel) errors.doseLabel = 'Indiquez la quantité par prise, par exemple « 1 comprimé ».';
+  if (!doseLabel) errors.doseLabel = t('validation.doseRequired');
   else if (doseLabel.length > LIMITS.doseLabel)
-    errors.doseLabel = `${LIMITS.doseLabel} caractères maximum.`;
+    errors.doseLabel = t('validation.maxChars', { max: LIMITS.doseLabel });
 
   const startsOn = parseLocalDate(input.startsOn);
-  if (!startsOn) errors.startsOn = 'Date de début invalide.';
+  if (!startsOn) errors.startsOn = t('validation.startInvalid');
   if (input.endsOn !== null) {
     const endsOn = parseLocalDate(input.endsOn);
-    if (!endsOn) errors.endsOn = 'Date de fin invalide.';
-    else if (startsOn && endsOn < startsOn)
-      errors.endsOn = 'La date de fin doit être après la date de début.';
+    if (!endsOn) errors.endsOn = t('validation.endInvalid');
+    else if (startsOn && endsOn < startsOn) errors.endsOn = t('validation.endBeforeStart');
   }
 
-  if (notes && notes.length > LIMITS.notes) errors.notes = `${LIMITS.notes} caractères maximum.`;
+  if (notes && notes.length > LIMITS.notes)
+    errors.notes = t('validation.maxChars', { max: LIMITS.notes });
 
   const times = input.schedules.map((s) => s.timeOfDay);
   if (input.schedules.length === 0) {
-    errors.schedules = 'Ajoutez au moins un horaire de prise.';
+    errors.schedules = t('validation.scheduleRequired');
   } else if (input.schedules.length > LIMITS.schedulesPerMedication) {
-    errors.schedules = `${LIMITS.schedulesPerMedication} horaires maximum.`;
+    errors.schedules = t('validation.maxSchedules', { max: LIMITS.schedulesPerMedication });
   } else if (!times.every(isValidTimeOfDay)) {
-    errors.schedules = 'Un horaire est invalide.';
+    errors.schedules = t('validation.scheduleInvalid');
   } else if (new Set(times).size !== times.length) {
-    errors.schedules = 'Le même horaire apparaît deux fois.';
+    errors.schedules = t('validation.scheduleDuplicate');
   } else if (
     !input.schedules.every((s) => s.daysOfWeek.length > 0 && s.daysOfWeek.every(isWeekday))
   ) {
-    errors.schedules = 'Choisissez au moins un jour de prise.';
+    errors.schedules = t('validation.dayRequired');
   }
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };

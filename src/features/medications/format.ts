@@ -1,43 +1,41 @@
 import { toLocalDateString } from '@/features/medications/dates';
 import type { Medication, MedicationForm, Schedule, Weekday } from '@/features/medications/types';
+import { formatTimeOfDay, t } from '@/i18n';
 
-export const FORM_LABELS: Readonly<Record<MedicationForm, string>> = {
-  tablet: 'Comprimé',
-  capsule: 'Gélule',
-  liquid: 'Sirop / liquide',
-  drops: 'Gouttes',
-  injection: 'Injection',
-  inhaler: 'Inhalateur',
-  patch: 'Patch',
-  cream: 'Crème / pommade',
-  other: 'Autre',
-};
+/** A read-only map whose values are read in the current language at each access. */
+function translated<K extends string | number>(
+  keys: readonly K[],
+  text: (key: K) => string,
+): Readonly<Record<K, string>> {
+  const map = {} as Record<K, string>;
+  for (const key of keys) {
+    Object.defineProperty(map, key, { get: () => text(key), enumerable: true });
+  }
+  return map;
+}
 
-export const WEEKDAY_SHORT: Readonly<Record<Weekday, string>> = {
-  1: 'Lun',
-  2: 'Mar',
-  3: 'Mer',
-  4: 'Jeu',
-  5: 'Ven',
-  6: 'Sam',
-  7: 'Dim',
-};
+const FORMS: readonly MedicationForm[] = [
+  'tablet',
+  'capsule',
+  'liquid',
+  'drops',
+  'injection',
+  'inhaler',
+  'patch',
+  'cream',
+  'other',
+];
+const WEEKDAYS: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
 
-export const WEEKDAY_LONG: Readonly<Record<Weekday, string>> = {
-  1: 'lundi',
-  2: 'mardi',
-  3: 'mercredi',
-  4: 'jeudi',
-  5: 'vendredi',
-  6: 'samedi',
-  7: 'dimanche',
-};
+export const FORM_LABELS = translated(FORMS, (form) => t(`forms.${form}`));
+export const WEEKDAY_SHORT = translated(WEEKDAYS, (day) => t(`days.short.${day}`));
+export const WEEKDAY_LONG = translated(WEEKDAYS, (day) => t(`days.long.${day}`));
 
 export function describeDays(days: readonly Weekday[]): string {
-  if (days.length === 7) return 'tous les jours';
+  if (days.length === 7) return t('days.everyDay');
   const sorted = [...days].sort();
-  if (sorted.join() === '1,2,3,4,5') return 'du lundi au vendredi';
-  if (sorted.join() === '6,7') return 'le week-end';
+  if (sorted.join() === '1,2,3,4,5') return t('days.weekdays');
+  if (sorted.join() === '6,7') return t('days.weekend');
   return sorted.map((d) => WEEKDAY_SHORT[d]).join(', ');
 }
 
@@ -47,7 +45,7 @@ export function describeSchedules(schedules: readonly Schedule[]): string[] {
   for (const s of [...schedules].sort((a, b) => a.timeOfDay.localeCompare(b.timeOfDay))) {
     const key = [...s.daysOfWeek].sort().join();
     const group = byDays.get(key) ?? { days: s.daysOfWeek, times: [] };
-    group.times.push(s.timeOfDay);
+    group.times.push(formatTimeOfDay(s.timeOfDay));
     byDays.set(key, group);
   }
   return [...byDays.values()].map((g) => `${g.times.join(', ')} · ${describeDays(g.days)}`);

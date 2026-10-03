@@ -1,6 +1,8 @@
 import * as Application from 'expo-application';
 import * as Updates from 'expo-updates';
 
+import { t } from '@/i18n';
+
 export type AppVersion = {
   /** Store version, e.g. "1.0.0". */
   readonly version: string | null;
@@ -23,7 +25,8 @@ export function getAppVersion(): AppVersion {
 /** One line for the account screen, read out to support when something goes wrong. */
 export function formatAppVersion(v: AppVersion): string {
   const parts = [`Version ${v.version ?? '?'}${v.build ? ` (${v.build})` : ''}`];
-  if (v.updateId) parts.push(`mise à jour ${v.updateId.slice(0, 8)}`);
-  if (v.channel && v.channel !== 'production') parts.push(`canal ${v.channel}`);
+  if (v.updateId) parts.push(t('version.update', { id: v.updateId.slice(0, 8) }));
+  if (v.channel && v.channel !== 'production')
+    parts.push(t('version.channel', { channel: v.channel }));
   return parts.join(' · ');
 }

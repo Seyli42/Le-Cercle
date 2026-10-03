@@ -1,15 +1,11 @@
 import { Text } from 'react-native';
 
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 export function MedicalDisclaimer() {
   const styles = useStyles();
-  return (
-    <Text style={styles.text}>
-      DoseCircle ne donne aucun conseil médical. Pour toute question sur un traitement,
-      adressez-vous à votre médecin ou pharmacien.
-    </Text>
-  );
+  return <Text style={styles.text}>{t('disclaimer')}</Text>;
 }
 
 const useStyles = makeStyles((colors) => ({

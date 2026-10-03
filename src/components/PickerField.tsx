@@ -4,6 +4,7 @@ import { Platform, Pressable, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { MIN_TOUCH, fontSize, makeStyles, spacing } from '@/theme';
+import { getLocaleTag, t, uses24HourClock } from '@/i18n';
 
 type Props = {
   readonly label: string;
@@ -31,7 +32,7 @@ export function PickerField({ label, mode, value, display, onChange, minimumDate
       <Text style={styles.label}>{label}</Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label} : ${display}. Appuyez pour modifier.`}
+        accessibilityLabel={`${label} : ${display}. ${t('common.tapToEdit')}`}
         onPress={() => {
           setDraft(value);
           setOpen(true);
@@ -51,8 +52,8 @@ export function PickerField({ label, mode, value, display, onChange, minimumDate
           <DateTimePicker
             value={isIos ? draft : value}
             mode={mode}
-            is24Hour
-            locale="fr-FR"
+            is24Hour={uses24HourClock()}
+            locale={getLocaleTag()}
             display={isIos ? 'spinner' : 'default'}
             {...(minimumDate ? { minimumDate } : {})}
             onValueChange={(_, date) => {
@@ -67,7 +68,7 @@ export function PickerField({ label, mode, value, display, onChange, minimumDate
           />
           {isIos && (
             <PrimaryButton
-              label="Valider"
+              label={t('common.validate')}
               onPress={() => {
                 setOpen(false);
                 onChange(draft);

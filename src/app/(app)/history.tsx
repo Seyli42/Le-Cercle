@@ -24,18 +24,17 @@ import { SyncStatus } from '@/features/sync/SyncStatus';
 import { useDb } from '@/lib/db/DatabaseProvider';
 import { reportError } from '@/lib/monitoring';
 import { fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
+import { formatTime, formatTimeOfDay, t } from '@/i18n';
 
 const DAYS = 30;
 
 const statusInfo = (
   colors: Colors,
 ): Readonly<Record<HistoryStatus, { label: string; color: string }>> => ({
-  taken: { label: '✓ Pris', color: colors.success },
-  skipped: { label: 'Passé', color: colors.textMuted },
-  unconfirmed: { label: 'Non confirmé', color: colors.danger },
+  taken: { label: t('historyScreen.status.taken'), color: colors.success },
+  skipped: { label: t('historyScreen.status.skipped'), color: colors.textMuted },
+  unconfirmed: { label: t('historyScreen.status.unconfirmed'), color: colors.danger },
 });
-
-const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
 type Data = { days: HistoryDay[]; week: HistoryCounts; month: HistoryCounts };
 
@@ -45,15 +44,14 @@ function Counts({ title, counts }: { readonly title: string; readonly counts: Hi
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.big}>
-        {counts.taken} prise{counts.taken > 1 ? 's' : ''} confirmée{counts.taken > 1 ? 's' : ''} sur{' '}
-        {counts.planned}
+        {t('historyScreen.confirmed', { count: counts.taken, planned: counts.planned })}
       </Text>
       {counts.skipped + counts.unconfirmed > 0 && (
         <Text style={styles.body}>
-          {counts.skipped > 0 ? `${counts.skipped} passée${counts.skipped > 1 ? 's' : ''}` : ''}
+          {counts.skipped > 0 ? t('historyScreen.skipped', { count: counts.skipped }) : ''}
           {counts.skipped > 0 && counts.unconfirmed > 0 ? ' · ' : ''}
           {counts.unconfirmed > 0
-            ? `${counts.unconfirmed} non confirmée${counts.unconfirmed > 1 ? 's' : ''}`
+            ? t('historyScreen.unconfirmed', { count: counts.unconfirmed })
             : ''}
         </Text>
       )}
@@ -110,7 +108,11 @@ export default function HistoryScreen() {
   if (!data) {
     return (
       <Screen>
-        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+          accessibilityLabel={t('common.loading')}
+        />
       </Screen>
     );
   }
@@ -118,11 +120,9 @@ export default function HistoryScreen() {
   return (
     <Screen footer={<AdBanner />}>
       <SyncStatus />
-      <Counts title="7 derniers jours" counts={data.week} />
-      <Counts title={`${DAYS} derniers jours`} counts={data.month} />
-      {data.days.length === 0 && (
-        <Text style={styles.body}>Aucune prise passée pour l’instant.</Text>
-      )}
+      <Counts title={t('historyScreen.last7')} counts={data.week} />
+      <Counts title={t('historyScreen.lastN', { days: DAYS })} counts={data.month} />
+      {data.days.length === 0 && <Text style={styles.body}>{t('historyScreen.empty')}</Text>}
       {data.days.map((day) => (
         <View key={day.date} style={styles.day}>
           <Text style={styles.dayTitle} accessibilityRole="header">
@@ -133,9 +133,9 @@ export default function HistoryScreen() {
               key={item.key}
               style={styles.row}
               accessible
-              accessibilityLabel={`${item.timeOfDay}, ${item.medicationName}, ${statusInfo(colors)[item.status].label}`}
+              accessibilityLabel={`${formatTimeOfDay(item.timeOfDay)}, ${item.medicationName}, ${statusInfo(colors)[item.status].label}`}
             >
-              <Text style={styles.time}>{item.timeOfDay}</Text>
+              <Text style={styles.time}>{formatTimeOfDay(item.timeOfDay)}</Text>
               <View style={styles.texts}>
                 <Text style={styles.name}>{item.medicationName}</Text>
                 {item.doseLabel ? <Text style={styles.body}>{item.doseLabel}</Text> : null}
@@ -143,7 +143,7 @@ export default function HistoryScreen() {
               <Text style={[styles.status, { color: statusInfo(colors)[item.status].color }]}>
                 {statusInfo(colors)[item.status].label}
                 {item.status === 'taken' && item.respondedAt
-                  ? `\nà ${TIME.format(new Date(item.respondedAt))}`
+                  ? `\n${t('historyScreen.at', { time: formatTime(new Date(item.respondedAt)) })}`
                   : ''}
               </Text>
             </View>

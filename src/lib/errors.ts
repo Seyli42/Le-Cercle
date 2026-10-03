@@ -1,6 +1,8 @@
+import { t } from '@/i18n';
+
 /**
  * Single error vocabulary for the whole app: every failure is turned into an AppError
- * so that screens can show a clear French message and Sentry gets a consistent tag.
+ * so that screens can show a clear message (in the person's language) and Sentry gets a consistent tag.
  */
 
 export type ErrorKind =
@@ -13,7 +15,7 @@ export type ErrorKind =
 
 export class AppError extends Error {
   readonly kind: ErrorKind;
-  /** Message safe to show to the user, in French. */
+  /** Message safe to show to the user, in their language. */
   readonly userMessage: string;
   override readonly cause: unknown;
 
@@ -26,15 +28,26 @@ export class AppError extends Error {
   }
 }
 
+/** Read at the moment of the error: always in the current language. */
 export const DEFAULT_MESSAGES: Readonly<Record<ErrorKind, string>> = {
-  network:
-    'Connexion impossible. Vos rappels continuent de fonctionner ; la synchronisation reprendra automatiquement.',
-  permission:
-    "Une autorisation est nécessaire. Vous pouvez l'activer dans les réglages de votre téléphone.",
-  ai: "La lecture automatique n'a pas fonctionné. Vous pouvez saisir les informations à la main.",
-  auth: 'Votre session a expiré. Merci de vous reconnecter.',
-  validation: 'Certaines informations sont incomplètes ou incorrectes.',
-  unknown: "Une erreur inattendue s'est produite. Réessayez dans quelques instants.",
+  get network() {
+    return t('errors.network');
+  },
+  get permission() {
+    return t('errors.permission');
+  },
+  get ai() {
+    return t('errors.ai');
+  },
+  get auth() {
+    return t('errors.auth');
+  },
+  get validation() {
+    return t('errors.validation');
+  },
+  get unknown() {
+    return t('errors.unknown');
+  },
 };
 
 const NETWORK_PATTERNS = [

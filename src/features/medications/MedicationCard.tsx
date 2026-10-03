@@ -4,6 +4,7 @@ import { formatLocalDate } from '@/features/medications/dates';
 import { describeSchedules, FORM_LABELS, treatmentStatus } from '@/features/medications/format';
 import type { Medication } from '@/features/medications/types';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 type Props = { readonly medication: Medication; readonly onPress: () => void };
 
@@ -13,17 +14,17 @@ export function MedicationCard({ medication, onPress }: Props) {
   const lines = describeSchedules(medication.schedules);
   const badge =
     status === 'ended'
-      ? `Terminé le ${formatLocalDate(medication.endsOn ?? '')}`
+      ? t('medicationCard.ended', { date: formatLocalDate(medication.endsOn ?? '') })
       : status === 'upcoming'
-        ? `Commence le ${formatLocalDate(medication.startsOn)}`
+        ? t('medicationCard.starts', { date: formatLocalDate(medication.startsOn) })
         : medication.endsOn
-          ? `Jusqu’au ${formatLocalDate(medication.endsOn)}`
+          ? t('medicationCard.until', { date: formatLocalDate(medication.endsOn) })
           : null;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${medication.name}, ${medication.doseLabel}, ${lines.join('. ')}. ${badge ?? ''}. Appuyez pour modifier.`}
+      accessibilityLabel={`${medication.name}, ${medication.doseLabel}, ${lines.join('. ')}. ${badge ?? ''}. ${t('common.tapToEdit')}`}
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,

@@ -9,6 +9,7 @@ import { buildExport, wipeLocalData } from '@/features/account/localData';
 import type { LocalDb } from '@/lib/db/types';
 import { AppError, toAppError } from '@/lib/errors';
 import type { AppSupabaseClient } from '@/lib/supabase';
+import { t } from '@/i18n';
 
 /**
  * Deletes the account on the server first (needs the network), then everything on the
@@ -22,19 +23,11 @@ export async function deleteAccount(
   const { error } = await client.functions.invoke('delete-account', { method: 'POST' });
   if (error) {
     if (error instanceof FunctionsHttpError) {
-      throw new AppError(
-        'unknown',
-        'La suppression n’a pas abouti. Réessayez dans quelques minutes.',
-        error,
-      );
+      throw new AppError('unknown', t('accountActions.deleteFailed'), error);
     }
     const appError = toAppError(error);
     throw appError.kind === 'network'
-      ? new AppError(
-          'network',
-          'Une connexion internet est nécessaire pour supprimer le compte.',
-          error,
-        )
+      ? new AppError('network', t('accountActions.deleteOffline'), error)
       : appError;
   }
   // The account no longer exists: nothing may be sent or reminded anymore.
@@ -58,7 +51,7 @@ export async function exportAccountData(
       watching: data.watching.map((w) => ({ firstName: w.firstName, since: w.since })),
       alertsSentToMyRelatives: data.alerts,
     }))
-    .catch(() => 'Non inclus : pas de connexion au moment de l’export.');
+    .catch(() => t('accountActions.circleNotIncluded'));
   const data = await buildExport(db, account, circle);
 
   const file = new File(Paths.cache, `dosecircle-mes-donnees-${data.exportedAt.slice(0, 10)}.json`);
@@ -67,13 +60,11 @@ export async function exportAccountData(
   file.write(JSON.stringify(data, null, 2));
 
   if (!(await Sharing.isAvailableAsync())) {
-    throw new AppError('unknown', 'Le partage de fichiers n’est pas disponible sur ce téléphone.');
+    throw new AppError('unknown', t('accountActions.noSharing'));
   }
   await Sharing.shareAsync(file.uri, {
     mimeType: 'application/json',
     UTI: 'public.json',
-    dialogTitle: 'Mes données DoseCircle',
+    dialogTitle: t('accountActions.shareTitle'),
   });
 }
-
-export const DELETE_CONFIRMATION_WORD = 'SUPPRIMER';

@@ -3,6 +3,7 @@ import { Pressable, Text } from 'react-native';
 
 import { useReminders } from '@/features/reminders/ReminderProvider';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 /** Red banner on the home screen as long as reminders might not ring. */
 export function ReminderBanner() {
@@ -14,13 +15,14 @@ export function ReminderBanner() {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Attention : ${first.title}. Appuyez pour vérifier vos rappels.`}
+      accessibilityLabel={t('reminderBanner.a11y', { title: first.title })}
       onPress={() => router.push('/reminders')}
       style={[styles.banner, critical ? styles.critical : styles.warning]}
     >
       <Text style={styles.title}>⚠️ {first.title}</Text>
       <Text style={styles.body}>
-        {issues.length > 1 ? `${issues.length} points à corriger. ` : ''}Appuyez pour corriger.
+        {issues.length > 1 ? t('reminderBanner.count', { count: issues.length }) : ''}
+        {t('reminderBanner.tap')}
       </Text>
     </Pressable>
   );

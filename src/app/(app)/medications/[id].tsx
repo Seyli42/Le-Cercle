@@ -10,6 +10,7 @@ import { useMedication, useMedicationActions } from '@/features/medications/useM
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { fontSize, makeStyles, useColors } from '@/theme';
+import { t } from '@/i18n';
 
 export default function EditMedicationScreen() {
   const styles = useStyles();
@@ -24,7 +25,11 @@ export default function EditMedicationScreen() {
   if (state.status === 'loading') {
     return (
       <Screen>
-        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+          accessibilityLabel={t('common.loading')}
+        />
       </Screen>
     );
   }
@@ -32,20 +37,20 @@ export default function EditMedicationScreen() {
   if (!medication) {
     return (
       <Screen>
-        <Text style={styles.body}>Ce médicament a été supprimé.</Text>
-        <PrimaryButton label="Retour à la liste" onPress={() => router.back()} />
+        <Text style={styles.body}>{t('editMedication.deleted')}</Text>
+        <PrimaryButton label={t('editMedication.backToList')} onPress={() => router.back()} />
       </Screen>
     );
   }
 
   const confirmDelete = () => {
     Alert.alert(
-      `Supprimer ${medication.name} ?`,
-      'Ses rappels seront arrêtés. Cette action est définitive.',
+      t('editMedication.deleteTitle', { name: medication.name }),
+      t('editMedication.deleteBody'),
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Supprimer',
+          text: t('editMedication.delete'),
           style: 'destructive',
           onPress: () => {
             setDeleting(true);
@@ -66,7 +71,7 @@ export default function EditMedicationScreen() {
     <Screen>
       <MedicationForm
         initial={medication}
-        submitLabel="Enregistrer les modifications"
+        submitLabel={t('medicationForm.saveChanges')}
         onSubmit={async (input) => {
           try {
             await update(medication.id, input);
@@ -84,7 +89,7 @@ export default function EditMedicationScreen() {
         </Text>
       ) : null}
       <PrimaryButton
-        label="Supprimer ce médicament"
+        label={t('editMedication.deleteButton')}
         variant="danger"
         loading={deleting}
         onPress={confirmDelete}

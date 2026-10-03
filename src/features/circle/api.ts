@@ -1,8 +1,8 @@
 import type { PostgrestError } from '@supabase/supabase-js';
 
-import { APP_NAME } from '@/config/brand';
 import { AppError, toAppError } from '@/lib/errors';
 import type { AppSupabaseClient } from '@/lib/supabase';
+import { t } from '@/i18n';
 
 /**
  * The circle lives on the server only: inviting and alerting relatives needs the
@@ -42,21 +42,27 @@ export type CircleData = {
   readonly alerts: readonly SentAlert[];
 };
 
-const MESSAGES: Readonly<Record<string, string>> = {
-  first_name_required: 'Indiquez d’abord votre prénom : c’est ce que voient vos proches.',
-  circle_full: `Un Cercle compte au maximum ${MAX_WATCHERS} proches.`,
-  invite_limit_reached: 'Trop d’invitations créées aujourd’hui. Réessayez demain.',
-  invalid_code:
-    'Ce code n’est pas valable. Vérifiez-le, ou demandez un nouveau code (valable 48 h).',
-  own_invite:
-    'C’est votre propre code : envoyez-le à un proche, qui le saisira dans son application.',
-  too_many_attempts: 'Trop de codes incorrects. Réessayez dans une heure.',
-  link_not_found: 'Ce lien n’existe plus.',
-};
+const SERVER_ERRORS = [
+  'first_name_required',
+  'circle_full',
+  'invite_limit_reached',
+  'invalid_code',
+  'own_invite',
+  'too_many_attempts',
+  'link_not_found',
+] as const;
+type ServerError = (typeof SERVER_ERRORS)[number];
+const isServerError = (message: string): message is ServerError =>
+  (SERVER_ERRORS as readonly string[]).includes(message);
 
 function fromPostgrest(error: PostgrestError): AppError {
-  const known = MESSAGES[error.message];
-  if (known) return new AppError('validation', known, error);
+  if (isServerError(error.message)) {
+    return new AppError(
+      'validation',
+      t(`circleErrors.${error.message}`, { max: MAX_WATCHERS }),
+      error,
+    );
+  }
   return toAppError(new Error(error.message));
 }
 
@@ -67,12 +73,7 @@ export function formatCode(code: string): string {
 
 /** Text shared by WhatsApp, SMS from the person's own phone, e-mail… */
 export function inviteMessage(patientFirstName: string, code: string): string {
-  return (
-    `${patientFirstName} vous invite à veiller sur ses prises de médicaments avec ${APP_NAME}. ` +
-    `Installez l’application ${APP_NAME} (gratuite), puis ouvrez « Mon Cercle » → ` +
-    `« Je veille sur un proche » et saisissez ce code : ${formatCode(code)} (valable 48 h). ` +
-    `Vous serez prévenu(e) par notification si une prise n’est pas confirmée.`
-  );
+  return t('circle.inviteMessage', { name: patientFirstName, code: formatCode(code) });
 }
 
 export async function loadCircle(client: AppSupabaseClient, userId: string): Promise<CircleData> {
@@ -133,7 +134,7 @@ export async function saveSettings(
 ): Promise<void> {
   const firstName = settings.firstName.trim().replace(/\s+/g, ' ');
   if (!firstName || firstName.length > 50) {
-    throw new AppError('validation', 'Indiquez votre prénom (50 caractères maximum).');
+    throw new AppError('validation', t('circleErrors.firstNameInvalid'));
   }
   const { error } = await client
     .from('profiles')
@@ -147,7 +148,7 @@ export async function createInvite(client: AppSupabaseClient): Promise<CircleInv
   const { data, error } = await client.rpc('create_circle_invite');
   if (error) throw fromPostgrest(error);
   const row = data[0];
-  if (!row) throw new AppError('unknown', 'Le code n’a pas pu être créé. Réessayez.');
+  if (!row) throw new AppError('unknown', t('circleErrors.codeNotCreated'));
   return { code: row.code, expiresAt: row.expires_at };
 }
 
@@ -155,11 +156,11 @@ export async function createInvite(client: AppSupabaseClient): Promise<CircleInv
 export async function acceptInvite(client: AppSupabaseClient, code: string): Promise<string> {
   const cleaned = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (cleaned.length !== 8) {
-    throw new AppError('validation', 'Le code compte 8 caractères, par exemple ABCD-EFGH.');
+    throw new AppError('validation', t('circleErrors.codeLength'));
   }
   const { data, error } = await client.rpc('accept_circle_invite', { p_code: cleaned });
   if (error) throw fromPostgrest(error);
-  return data[0]?.patient_first_name ?? 'votre proche';
+  return data[0]?.patient_first_name ?? t('circle.yourRelative');
 }
 
 /** Either side ends the link (a relative leaves, or the person removes them). */

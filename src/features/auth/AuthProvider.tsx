@@ -3,6 +3,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 
 import { isExpectedAuthError, toAuthAppError } from '@/features/auth/authErrors';
 import { normalizeEmail } from '@/features/auth/validation';
+import { getLanguage, t } from '@/i18n';
 import { AppError } from '@/lib/errors';
 import { reportError, setMonitoringUser } from '@/lib/monitoring';
 import { supabase, type AppSupabaseClient } from '@/lib/supabase';
@@ -30,6 +31,19 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 function fail(error: unknown, context: string): never {
   const appError = toAuthAppError(error);
   throw reportError(appError, context, { expected: isExpectedAuthError(appError) });
+}
+
+/** Keeps the account's language in step with the phone (language of the code e-mails). */
+async function rememberLanguage(client: AppSupabaseClient, session: Session): Promise<void> {
+  const language = getLanguage();
+  if (session.user.user_metadata?.language === language) return;
+  try {
+    const { error } = await client.auth.updateUser({ data: { language } });
+    if (error) reportError(error, 'auth.rememberLanguage', { expected: true });
+  } catch (error) {
+    // Offline: retried at the next launch.
+    reportError(error, 'auth.rememberLanguage', { expected: true });
+  }
 }
 
 /**
@@ -67,7 +81,10 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       .then(({ data, error }) => {
         if (error) reportError(toAuthAppError(error), 'auth.restoreSession', { expected: true });
         apply(data.session);
-        if (data.session) void recordConsent(client, data.session.user.id);
+        if (data.session) {
+          void recordConsent(client, data.session.user.id);
+          void rememberLanguage(client, data.session);
+        }
       })
       .catch((error: unknown) => {
         reportError(error, 'auth.restoreSession');
@@ -89,7 +106,8 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
     if (!supabase) return;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalizeEmail(email),
-      options: { shouldCreateUser: true },
+      // The language of the code e-mail (supabase/templates/code.html) for a new account.
+      options: { shouldCreateUser: true, data: { language: getLanguage() } },
     });
     if (error) fail(error, 'auth.requestCode');
   }, []);
@@ -114,7 +132,7 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
     if (!error) return;
     if (isAuthApiError(error) && error.code === 'invalid_credentials') {
       throw reportError(
-        new AppError('auth', 'Adresse e-mail ou mot de passe incorrect.', error),
+        new AppError('auth', t('authErrors.badPassword'), error),
         'auth.signInWithPassword',
         { expected: true },
       );

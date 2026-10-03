@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_MESSAGES } from '@/lib/errors';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 type Props = {
   readonly onRetry: () => void;
@@ -13,12 +14,10 @@ export function ErrorFallback({ onRetry }: Props) {
   const styles = useStyles();
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <Text style={styles.title}>Oups, un problème est survenu</Text>
+      <Text style={styles.title}>{t('errorFallback.title')}</Text>
       <Text style={styles.body}>{DEFAULT_MESSAGES.unknown}</Text>
-      <Text style={styles.body}>
-        Vos rappels déjà programmés ne sont pas affectés et sonneront normalement.
-      </Text>
-      <PrimaryButton label="Réessayer" onPress={onRetry} />
+      <Text style={styles.body}>{t('errorFallback.remindersSafe')}</Text>
+      <PrimaryButton label={t('common.retry')} onPress={onRetry} />
     </View>
   );
 }

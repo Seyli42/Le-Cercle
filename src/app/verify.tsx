@@ -15,6 +15,7 @@ import {
 } from '@/features/auth/validation';
 import { toAppError } from '@/lib/errors';
 import { fontSize, makeStyles } from '@/theme';
+import { t } from '@/i18n';
 
 export default function VerifyScreen() {
   const styles = useStyles();
@@ -43,7 +44,7 @@ export default function VerifyScreen() {
 
   const submit = async (value: string) => {
     if (!isValidOtp(value)) {
-      setError(`Le code contient ${OTP_LENGTH} chiffres.`);
+      setError(t('verify.codeLength', { length: OTP_LENGTH }));
       return;
     }
     if (verifying) return;
@@ -68,7 +69,7 @@ export default function VerifyScreen() {
       setCode('');
       lastSubmitted.current = null;
       setCooldown(RESEND_COOLDOWN_SECONDS);
-      setInfo('Un nouveau code vient de vous être envoyé.');
+      setInfo(t('verify.resent'));
     } catch (e) {
       setError(toAppError(e).userMessage);
     } finally {
@@ -78,12 +79,9 @@ export default function VerifyScreen() {
 
   return (
     <Screen>
-      <Text style={styles.body}>
-        Nous avons envoyé un code à <Text style={styles.strong}>{email}</Text>. Il est valable 10
-        minutes. Pensez à regarder dans vos courriers indésirables.
-      </Text>
+      <Text style={styles.body}>{t('verify.sent', { email })}</Text>
       <TextField
-        label="Code à 6 chiffres"
+        label={t('verify.code')}
         value={code}
         onChangeText={(value) => {
           const clean = sanitizeOtp(value);
@@ -105,16 +103,20 @@ export default function VerifyScreen() {
           {info}
         </Text>
       ) : null}
-      <PrimaryButton label="Valider" loading={verifying} onPress={() => void submit(code)} />
       <PrimaryButton
-        label={cooldown > 0 ? `Renvoyer le code (${cooldown} s)` : 'Renvoyer le code'}
+        label={t('verify.validate')}
+        loading={verifying}
+        onPress={() => void submit(code)}
+      />
+      <PrimaryButton
+        label={cooldown > 0 ? t('verify.resendIn', { seconds: cooldown }) : t('verify.resend')}
         variant="secondary"
         disabled={cooldown > 0}
         loading={resending}
         onPress={() => void resend()}
       />
       <PrimaryButton
-        label="Changer d’adresse e-mail"
+        label={t('verify.changeEmail')}
         variant="secondary"
         onPress={() => router.back()}
       />

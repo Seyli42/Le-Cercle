@@ -15,6 +15,7 @@ const mockAuth = {
     listeners.push(listener);
     return { data: { subscription: { unsubscribe: jest.fn() } } };
   }),
+  updateUser: async () => ({ data: {}, error: null }),
   signInWithOtp: jest.fn(),
   verifyOtp: jest.fn(),
   signOut: jest.fn(async () => {

@@ -18,15 +18,7 @@ import {
 import { useDb } from '@/lib/db/DatabaseProvider';
 import { reportError } from '@/lib/monitoring';
 import { fontSize, makeStyles, spacing, useColors, type Colors } from '@/theme';
-
-const STATUS_TEXT: Readonly<Record<TodayStatus, string>> = {
-  taken: '✓ Pris',
-  skipped: 'Passé',
-  snoozed: 'Reporté',
-  due: 'À prendre maintenant',
-  late: 'En retard',
-  upcoming: 'À venir',
-};
+import { formatTime, formatTimeOfDay, t } from '@/i18n';
 
 const statusColor = (colors: Colors): Readonly<Record<TodayStatus, string>> => ({
   taken: colors.success,
@@ -36,8 +28,6 @@ const statusColor = (colors: Colors): Readonly<Record<TodayStatus, string>> => (
   late: colors.danger,
   upcoming: colors.textMuted,
 });
-
-const TIME = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
 /** Today's intakes, with "Pris" / "Passer" buttons (also works offline). */
 export function TodayDoses() {
@@ -96,7 +86,7 @@ export function TodayDoses() {
   return (
     <View style={styles.section}>
       <Text style={styles.heading} accessibilityRole="header">
-        Aujourd’hui
+        {t('today.title')}
       </Text>
       {error ? (
         <Text style={styles.error} accessibilityRole="alert">
@@ -106,6 +96,10 @@ export function TodayDoses() {
       {doses.map((dose) => {
         const key = `${dose.occurrence.scheduleId}@${dose.occurrence.at.toISOString()}`;
         const answered = dose.status === 'taken' || dose.status === 'skipped';
+        const a11y = {
+          name: dose.occurrence.medicationName,
+          time: formatTimeOfDay(dose.occurrence.timeOfDay),
+        };
         return (
           <View
             key={key}
@@ -113,14 +107,14 @@ export function TodayDoses() {
             accessible={false}
           >
             <View style={styles.info}>
-              <Text style={styles.time}>{dose.occurrence.timeOfDay}</Text>
+              <Text style={styles.time}>{formatTimeOfDay(dose.occurrence.timeOfDay)}</Text>
               <View style={styles.texts}>
                 <Text style={styles.name}>{dose.occurrence.medicationName}</Text>
                 <Text style={styles.dose}>{dose.occurrence.doseLabel}</Text>
                 <Text style={[styles.status, { color: statusColor(colors)[dose.status] }]}>
-                  {STATUS_TEXT[dose.status]}
+                  {t(`today.status.${dose.status}`)}
                   {answered && dose.respondedAt
-                    ? ` à ${TIME.format(new Date(dose.respondedAt))}`
+                    ? t('today.at', { time: formatTime(new Date(dose.respondedAt)) })
                     : ''}
                 </Text>
               </View>
@@ -129,15 +123,15 @@ export function TodayDoses() {
               {dose.canAnswer && (
                 <>
                   <Chip
-                    label="✓ Pris"
-                    accessibilityLabel={`Marquer ${dose.occurrence.medicationName} de ${dose.occurrence.timeOfDay} comme pris`}
+                    label={t('today.taken')}
+                    accessibilityLabel={t('today.takenA11y', a11y)}
                     selected
                     role="checkbox"
                     onPress={() => busy === null && void answer(dose, 'taken')}
                   />
                   <Chip
-                    label="Passer"
-                    accessibilityLabel={`Passer la prise de ${dose.occurrence.medicationName} de ${dose.occurrence.timeOfDay}`}
+                    label={t('today.skip')}
+                    accessibilityLabel={t('today.skipA11y', a11y)}
                     selected={false}
                     role="checkbox"
                     onPress={() => busy === null && void answer(dose, 'skipped')}
@@ -146,8 +140,8 @@ export function TodayDoses() {
               )}
               {answered && (
                 <Chip
-                  label="Annuler"
-                  accessibilityLabel={`Annuler la réponse pour ${dose.occurrence.medicationName} de ${dose.occurrence.timeOfDay}`}
+                  label={t('today.undo')}
+                  accessibilityLabel={t('today.undoA11y', a11y)}
                   selected={false}
                   role="checkbox"
                   onPress={() => busy === null && void answer(dose, 'pending')}

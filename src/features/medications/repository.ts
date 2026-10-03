@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import type { Medication, MedicationInput, Schedule, Weekday } from '@/features/medications/types';
 import { validateMedicationInput, type FieldErrors } from '@/features/medications/validation';
 import type { LocalDb } from '@/lib/db/types';
@@ -12,7 +13,7 @@ export type RepositoryDeps = {
 export class MedicationValidationError extends AppError {
   readonly fieldErrors: FieldErrors;
   constructor(fieldErrors: FieldErrors) {
-    super('validation', 'Certaines informations sont à corriger.');
+    super('validation', t('errors.toFix'));
     this.fieldErrors = fieldErrors;
   }
 }
@@ -190,7 +191,7 @@ export async function createMedication(
     await writeSchedules(tx, userId, id, input, timestamp, deps);
   });
   const saved = await getMedication(db, userId, id);
-  if (!saved) throw new AppError('unknown', 'L’enregistrement a échoué. Réessayez.');
+  if (!saved) throw new AppError('unknown', t('errors.saveFailed'));
   return saved;
 }
 
@@ -222,12 +223,12 @@ export async function updateMedication(
       ],
     );
     if (result.changes === 0) {
-      throw new AppError('validation', 'Ce médicament n’existe plus.');
+      throw new AppError('validation', t('errors.medicationGone'));
     }
     await writeSchedules(tx, userId, id, input, timestamp, deps);
   });
   const saved = await getMedication(db, userId, id);
-  if (!saved) throw new AppError('unknown', 'L’enregistrement a échoué. Réessayez.');
+  if (!saved) throw new AppError('unknown', t('errors.saveFailed'));
   return saved;
 }
 

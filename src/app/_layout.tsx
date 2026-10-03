@@ -1,8 +1,8 @@
 import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { useEffect, useSyncExternalStore } from 'react';
+import { AppState, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ConfigMissing } from '@/components/ConfigMissing';
@@ -13,6 +13,7 @@ import { OnboardingProvider, useOnboarding } from '@/features/onboarding/Onboard
 import { Sentry } from '@/lib/monitoring';
 import { useColors } from '@/theme';
 import { navigationTheme } from '@/theme/navigationTheme';
+import { getLanguage, refreshLanguage, subscribeLanguage, t } from '@/i18n';
 
 // Keep the splash screen until we know whether the user is signed in,
 // so the sign-in page never flashes for someone already connected.
@@ -33,7 +34,7 @@ function RootNavigator() {
 
   const signedIn = state.status === 'signedIn';
   return (
-    <Stack screenOptions={{ headerTitleStyle: { fontSize: 20 }, headerBackTitle: 'Retour' }}>
+    <Stack screenOptions={{ headerTitleStyle: { fontSize: 20 }, headerBackTitle: t('nav.back') }}>
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
       </Stack.Protected>
@@ -42,20 +43,34 @@ function RootNavigator() {
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
-        <Stack.Screen name="sign-in" options={{ title: 'Connexion' }} />
-        <Stack.Screen name="verify" options={{ title: 'Code de connexion' }} />
+        <Stack.Screen name="sign-in" options={{ title: t('nav.signIn') }} />
+        <Stack.Screen name="verify" options={{ title: t('nav.verify') }} />
       </Stack.Protected>
       {/* Always reachable, signed in or not. */}
-      <Stack.Screen name="privacy" options={{ title: 'Confidentialité' }} />
+      <Stack.Screen name="privacy" options={{ title: t('nav.privacy') }} />
     </Stack>
   );
+}
+
+/** Re-renders the whole app in the new language when the phone's language changes. */
+function useLanguage() {
+  const language = useSyncExternalStore(subscribeLanguage, getLanguage);
+  useEffect(() => {
+    // Android can change the language while the app runs (iOS restarts the app).
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshLanguage();
+    });
+    return () => subscription.remove();
+  }, []);
+  return language;
 }
 
 function RootLayout() {
   const colors = useColors();
   const dark = useColorScheme() === 'dark';
+  const language = useLanguage();
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider key={language}>
       <ThemeProvider value={navigationTheme(colors, dark)}>
         <Sentry.ErrorBoundary fallback={({ resetError }) => <ErrorFallback onRetry={resetError} />}>
           <AuthProvider>

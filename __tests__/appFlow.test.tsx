@@ -52,6 +52,7 @@ jest.mock('@/lib/supabase', () => {
         mockAuthListeners.push(listener);
         return { data: { subscription: { unsubscribe: () => undefined } } };
       },
+      updateUser: async () => ({ data: {}, error: null }),
       signInWithOtp: async () => ({ data: {}, error: null }),
       signInWithPassword: async (credentials: unknown) => {
         mockSignInWithPassword(credentials);

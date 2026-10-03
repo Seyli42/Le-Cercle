@@ -7,11 +7,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
 import { env } from '@/config/env';
-import {
-  DELETE_CONFIRMATION_WORD,
-  deleteAccount,
-  exportAccountData,
-} from '@/features/account/accountActions';
+import { deleteAccount, exportAccountData } from '@/features/account/accountActions';
 import { useAuth } from '@/features/auth/useAuth';
 import { unregisterPushToken } from '@/features/circle/push';
 import { useAds } from '@/features/monetization/AdsProvider';
@@ -25,6 +21,7 @@ import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { requireSupabase } from '@/lib/supabase';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 export default function AccountScreen() {
   const styles = useStyles();
@@ -38,6 +35,7 @@ export default function AccountScreen() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmation, setConfirmation] = useState('');
   const premium = usePremium();
+  const deleteWord = t('account.deleteWord');
   const ads = useAds();
 
   if (shouldCrash) {
@@ -83,32 +81,27 @@ export default function AccountScreen() {
 
   return (
     <Screen>
-      {email ? <Text style={styles.body}>Connecté avec {email}</Text> : null}
-      <Text style={styles.body}>
-        Vos médicaments sont enregistrés sur ce téléphone, chiffrés, et sauvegardés en ligne dès
-        qu’il y a du réseau. Ils restent disponibles sans connexion.
-      </Text>
+      {email ? <Text style={styles.body}>{t('account.signedInAs', { email })}</Text> : null}
+      <Text style={styles.body}>{t('account.localData')}</Text>
       <SyncStatus />
       <PrimaryButton
-        label="Sauvegarder maintenant"
+        label={t('account.syncNow')}
         variant="secondary"
         onPress={() => void syncNow('manual')}
       />
       <PrimaryButton
-        label="Se déconnecter"
+        label={t('account.signOut')}
         variant="secondary"
         loading={signingOut}
         onPress={() =>
           Alert.alert(
-            'Se déconnecter ?',
-            'Vous ne recevrez plus aucun rappel de médicament sur ce téléphone tant que vous ne serez pas reconnecté.' +
-              (getSyncState().pending > 0
-                ? ' Certaines modifications ne sont pas encore sauvegardées en ligne : elles restent sur ce téléphone et seront envoyées à votre prochaine connexion.'
-                : ''),
+            t('account.signOutTitle'),
+            t('account.signOutBody') +
+              (getSyncState().pending > 0 ? t('account.signOutPending') : ''),
             [
-              { text: 'Annuler', style: 'cancel' },
+              { text: t('common.cancel'), style: 'cancel' },
               {
-                text: 'Se déconnecter',
+                text: t('account.signOut'),
                 style: 'destructive',
                 onPress: () => {
                   setSigningOut(true);
@@ -127,29 +120,28 @@ export default function AccountScreen() {
           )
         }
       />
-      <PrimaryButton label="Vérifier mes rappels" onPress={() => router.push('/reminders')} />
       <PrimaryButton
-        label={
-          premium.state === 'premium'
-            ? '✓ DoseCircle Premium'
-            : 'DoseCircle Premium : sans publicité'
-        }
+        label={t('account.checkReminders')}
+        onPress={() => router.push('/reminders')}
+      />
+      <PrimaryButton
+        label={premium.state === 'premium' ? t('account.premiumActive') : t('account.premium')}
         variant="secondary"
         onPress={() => router.push('/premium')}
       />
 
       <Text style={styles.section} accessibilityRole="header">
-        Mes données
+        {t('account.myData')}
       </Text>
       <PrimaryButton
-        label="Exporter mes données"
+        label={t('account.export')}
         variant="secondary"
         loading={busy === 'export'}
         onPress={() => void exportData()}
       />
       {!confirmingDelete ? (
         <PrimaryButton
-          label="Supprimer mon compte"
+          label={t('account.delete')}
           variant="danger"
           onPress={() => {
             setConfirmation('');
@@ -158,34 +150,27 @@ export default function AccountScreen() {
         />
       ) : (
         <View style={styles.danger}>
-          <Text style={styles.strong}>Supprimer définitivement votre compte ?</Text>
-          <Text style={styles.body}>
-            Vos médicaments, votre historique, votre Cercle et vos réglages seront effacés de ce
-            téléphone et de nos serveurs. Vos rappels s’arrêteront et vos proches ne seront plus
-            prévenus. Cette action est irréversible : exportez vos données avant si besoin.
-          </Text>
+          <Text style={styles.strong}>{t('account.deleteTitle')}</Text>
+          <Text style={styles.body}>{t('account.deleteBody')}</Text>
           {premium.source === 'store' ? (
-            <Text style={styles.strong}>
-              Votre abonnement Premium n’est pas résilié par cette suppression : résiliez-le dans
-              les réglages de l’App Store ou de Google Play.
-            </Text>
+            <Text style={styles.strong}>{t('account.deleteSubscription')}</Text>
           ) : null}
           <TextField
-            label={`Pour confirmer, tapez ${DELETE_CONFIRMATION_WORD}`}
+            label={t('account.typeToConfirm', { word: deleteWord })}
             value={confirmation}
             onChangeText={setConfirmation}
             autoCapitalize="characters"
             autoCorrect={false}
           />
           <PrimaryButton
-            label="Supprimer définitivement"
+            label={t('account.deleteForever')}
             variant="danger"
             loading={busy === 'delete'}
-            disabled={confirmation.trim().toUpperCase() !== DELETE_CONFIRMATION_WORD}
+            disabled={confirmation.trim().toUpperCase() !== deleteWord.toUpperCase()}
             onPress={() => void removeAccount()}
           />
           <PrimaryButton
-            label="Annuler"
+            label={t('common.cancel')}
             variant="secondary"
             onPress={() => setConfirmingDelete(false)}
           />
@@ -200,13 +185,13 @@ export default function AccountScreen() {
         </Text>
       ) : null}
       <PrimaryButton
-        label="Confidentialité"
+        label={t('account.privacy')}
         variant="secondary"
         onPress={() => router.push('/privacy')}
       />
       {ads.privacyOptionsRequired && premium.state === 'free' ? (
         <PrimaryButton
-          label="Choix publicitaires"
+          label={t('account.adChoices')}
           variant="secondary"
           onPress={() => void ads.openPrivacyOptions()}
         />
@@ -218,16 +203,16 @@ export default function AccountScreen() {
 
       {env.environment !== 'production' && (
         <>
-          <Text style={styles.section}>Outils de test (masqués en production)</Text>
+          <Text style={styles.section}>{t('account.devTools')}</Text>
           <PrimaryButton
-            label="Tester une erreur gérée"
+            label={t('account.testError')}
             onPress={() => {
               const error = reportError(new Error('Network request failed'), 'dev.test');
               setMessage(error.userMessage);
             }}
           />
           <PrimaryButton
-            label="Tester un plantage d’écran"
+            label={t('account.testCrash')}
             variant="danger"
             onPress={() => setShouldCrash(true)}
           />

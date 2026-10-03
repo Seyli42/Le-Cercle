@@ -8,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
+import { getLanguage } from '@/i18n';
 import type { AppSupabaseClient } from '@/lib/supabase';
 
 const TOKEN_KEY = 'push_token_v1';
@@ -30,6 +31,8 @@ export async function registerPushToken(client: AppSupabaseClient): Promise<Push
   const { error } = await client.rpc('register_push_token', {
     p_token: token,
     p_platform: Platform.OS,
+    // Alerts are written in the language of the phone that receives them.
+    p_locale: getLanguage(),
   });
   if (error) throw new Error(error.message);
   await SecureStore.setItemAsync(TOKEN_KEY, token).catch(() => undefined);

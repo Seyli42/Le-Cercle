@@ -6,6 +6,7 @@ import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { AD_REQUEST, bannerUnitId } from '@/features/monetization/ads';
 import { useAds } from '@/features/monetization/AdsProvider';
 import { MIN_TOUCH, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
 
 /** The only banner of the app (history screen), clearly labelled as an ad. */
 export function AdBanner() {
@@ -19,14 +20,14 @@ export function AdBanner() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.label}>Publicité</Text>
+        <Text style={styles.label}>{t('ads.label')}</Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Retirer la publicité avec Premium"
+          accessibilityLabel={t('ads.removeA11y')}
           onPress={() => router.push('/premium')}
           style={styles.link}
         >
-          <Text style={styles.linkText}>Retirer la publicité</Text>
+          <Text style={styles.linkText}>{t('ads.remove')}</Text>
         </Pressable>
       </View>
       <BannerAd

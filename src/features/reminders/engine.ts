@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import * as Crypto from 'expo-crypto';
 import * as Notifications from 'expo-notifications';
 
@@ -205,8 +206,8 @@ async function snooze(
     // Same identifier for the same intake: snoozing twice replaces, never duplicates.
     identifier: `${SNOOZE_PREFIX}${data.scheduleId}_${data.scheduledAt.replace(/[-:.]/g, '')}`,
     at,
-    title: content.title ?? '💊 Rappel de médicament',
-    body: `${content.body ?? ''} (rappel reporté)`.trim(),
+    title: content.title ?? t('notifications.snoozedTitle'),
+    body: `${content.body ?? ''} ${t('notifications.snoozedSuffix')}`.trim(),
     data,
   });
   await dismissPresented(data.scheduleId, data.scheduledAt).catch(() => undefined);

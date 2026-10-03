@@ -147,6 +147,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    // Languages of the app (src/i18n): declared to the stores and to the phone settings
+    // (per-app language), and right-to-left layout for Arabic.
+    [
+      'expo-localization',
+      {
+        supportsRTL: true,
+        supportedLocales: ['fr', 'en', 'es', 'pt', 'zh-Hans', 'ja', 'ru', 'ar', 'hi', 'id', 'ms'],
+      },
+    ],
     // Excludes the encrypted session from Android backups (it could not be decrypted after restore).
     ['expo-secure-store', { configureAndroidBackup: true }],
     // Encrypts the local database (medications, schedules) with SQLCipher.

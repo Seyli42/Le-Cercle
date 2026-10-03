@@ -12,6 +12,7 @@ import { GettingStarted } from '@/features/onboarding/GettingStarted';
 import { ReminderBanner } from '@/features/reminders/ReminderBanner';
 import { TodayDoses } from '@/features/reminders/TodayDoses';
 import { fontSize, makeStyles, spacing, useColors } from '@/theme';
+import { t } from '@/i18n';
 
 export default function MedicationListScreen() {
   const styles = useStyles();
@@ -23,7 +24,7 @@ export default function MedicationListScreen() {
       options={{
         headerRight: () => (
           <Link href="/account" style={styles.headerLink} accessibilityRole="button">
-            Compte
+            {t('home.account')}
           </Link>
         ),
       }}
@@ -46,28 +47,30 @@ export default function MedicationListScreen() {
       <ReminderBanner />
       <TodayDoses />
       <PrimaryButton
-        label="Voir l’historique des prises"
+        label={t('home.history')}
         variant="secondary"
         onPress={() => router.push('/history')}
       />
       <PrimaryButton
-        label="Mon Cercle : proches prévenus"
+        label={t('home.circle')}
         variant="secondary"
         onPress={() => router.push('/circle')}
       />
       {state.status !== 'loading' && state.data.length > 0 && (
         <Text style={styles.heading} accessibilityRole="header">
-          Mes traitements
+          {t('home.treatments')}
         </Text>
       )}
       {state.status === 'loading' ? (
-        <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Chargement" />
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+          accessibilityLabel={t('common.loading')}
+        />
       ) : state.data.length === 0 ? (
         <>
-          <Text style={styles.title}>Aucun médicament pour l’instant</Text>
-          <Text style={styles.body}>
-            Ajoutez vos médicaments et leurs horaires : DoseCircle vous les rappellera.
-          </Text>
+          <Text style={styles.title}>{t('home.emptyTitle')}</Text>
+          <Text style={styles.body}>{t('home.emptyBody')}</Text>
         </>
       ) : (
         [...state.data]
@@ -86,10 +89,7 @@ export default function MedicationListScreen() {
             />
           ))
       )}
-      <PrimaryButton
-        label="+ Ajouter un médicament"
-        onPress={() => router.push('/medications/new')}
-      />
+      <PrimaryButton label={t('home.add')} onPress={() => router.push('/medications/new')} />
       <MedicalDisclaimer />
     </Screen>
   );

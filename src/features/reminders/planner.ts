@@ -14,6 +14,7 @@
  *   planned right after the last reminder so the user is never left silently without.
  */
 
+import { t } from '@/i18n';
 import type { Medication, Weekday } from '@/features/medications/types';
 
 export type Occurrence = {
@@ -131,7 +132,7 @@ export function doseContent(
 ) {
   return {
     title: `💊 ${occurrence.medicationName}`,
-    body: `C’est l’heure de votre prise de ${occurrence.timeOfDay} : ${occurrence.doseLabel}.`,
+    body: t('notifications.doseBody', { time: occurrence.timeOfDay, dose: occurrence.doseLabel }),
   };
 }
 
@@ -186,8 +187,8 @@ export function planReminders(input: PlanInput): Plan {
     notifications.push({
       identifier: `${SAFETY_PREFIX}${compactInstant(at)}`,
       at,
-      title: 'Ouvrez DoseCircle',
-      body: 'Ouvrez l’application pour programmer vos prochains rappels de médicaments.',
+      title: t('notifications.safetyTitle'),
+      body: t('notifications.safetyBody'),
       data: { kind: 'safety', userId: input.userId },
     });
   }

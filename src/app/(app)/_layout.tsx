@@ -6,6 +6,7 @@ import { PremiumProvider } from '@/features/monetization/PremiumProvider';
 import { ReminderProvider } from '@/features/reminders/ReminderProvider';
 import { SyncProvider } from '@/features/sync/SyncProvider';
 import { DatabaseProvider } from '@/lib/db/DatabaseProvider';
+import { t } from '@/i18n';
 
 export default function SignedInLayout() {
   return (
@@ -16,16 +17,22 @@ export default function SignedInLayout() {
           <PremiumProvider>
             <AdsProvider>
               <Stack
-                screenOptions={{ headerTitleStyle: { fontSize: 20 }, headerBackTitle: 'Retour' }}
+                screenOptions={{
+                  headerTitleStyle: { fontSize: 20 },
+                  headerBackTitle: t('nav.back'),
+                }}
               >
-                <Stack.Screen name="index" options={{ title: 'Mes médicaments' }} />
-                <Stack.Screen name="medications/new" options={{ title: 'Nouveau médicament' }} />
-                <Stack.Screen name="medications/[id]" options={{ title: 'Modifier' }} />
-                <Stack.Screen name="account" options={{ title: 'Mon compte' }} />
-                <Stack.Screen name="reminders" options={{ title: 'Vérifier mes rappels' }} />
-                <Stack.Screen name="history" options={{ title: 'Historique des prises' }} />
-                <Stack.Screen name="circle" options={{ title: 'Mon Cercle' }} />
-                <Stack.Screen name="premium" options={{ title: 'DoseCircle Premium' }} />
+                <Stack.Screen name="index" options={{ title: t('nav.home') }} />
+                <Stack.Screen name="medications/new" options={{ title: t('nav.newMedication') }} />
+                <Stack.Screen
+                  name="medications/[id]"
+                  options={{ title: t('nav.editMedication') }}
+                />
+                <Stack.Screen name="account" options={{ title: t('nav.account') }} />
+                <Stack.Screen name="reminders" options={{ title: t('nav.reminders') }} />
+                <Stack.Screen name="history" options={{ title: t('nav.history') }} />
+                <Stack.Screen name="circle" options={{ title: t('nav.circle') }} />
+                <Stack.Screen name="premium" options={{ title: t('nav.premium') }} />
               </Stack>
             </AdsProvider>
           </PremiumProvider>

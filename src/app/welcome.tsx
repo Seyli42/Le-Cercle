@@ -6,25 +6,15 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
 import { useOnboarding } from '@/features/onboarding/OnboardingProvider';
 import { fontSize, makeStyles, spacing } from '@/theme';
+import { t } from '@/i18n';
+import { APP_NAME } from '@/config/brand';
 
-const POINTS: readonly { readonly icon: string; readonly title: string; readonly body: string }[] =
+const points = () =>
   [
-    {
-      icon: '⏰',
-      title: 'Des rappels qui sonnent, toujours',
-      body: 'Même sans internet, téléphone verrouillé ou après un redémarrage. Un bouton suffit pour dire « Pris ».',
-    },
-    {
-      icon: '👪',
-      title: 'Vos proches veillent, si vous le souhaitez',
-      body: 'Si une prise n’est pas confirmée, les proches que vous choisissez sont prévenus par une notification sur leur téléphone. Sans jamais le nom de vos médicaments.',
-    },
-    {
-      icon: '🔒',
-      title: 'Vos données restent les vôtres',
-      body: 'Chiffrées sur votre téléphone, sauvegardées en Europe, jamais revendues. Vous pouvez tout exporter ou tout supprimer.',
-    },
-  ];
+    { icon: '⏰', title: t('welcome.remindersTitle'), body: t('welcome.remindersBody') },
+    { icon: '👪', title: t('welcome.circleTitle'), body: t('welcome.circleBody') },
+    { icon: '🔒', title: t('welcome.privacyTitle'), body: t('welcome.privacyBody') },
+  ] as const;
 
 export default function WelcomeScreen() {
   const styles = useStyles();
@@ -33,10 +23,10 @@ export default function WelcomeScreen() {
     <Screen>
       <Stack.Screen options={{ headerShown: false }} />
       <Text style={styles.brand} accessibilityRole="header">
-        DoseCircle
+        {APP_NAME}
       </Text>
-      <Text style={styles.lead}>Vos médicaments, à l’heure. Vos proches, rassurés.</Text>
-      {POINTS.map((point) => (
+      <Text style={styles.lead}>{t('welcome.lead')}</Text>
+      {points().map((point) => (
         <View key={point.title} style={styles.point} accessible>
           <Text style={styles.icon} importantForAccessibility="no" accessibilityElementsHidden>
             {point.icon}
@@ -47,9 +37,9 @@ export default function WelcomeScreen() {
           </View>
         </View>
       ))}
-      <PrimaryButton label="Commencer" onPress={markSeen} />
+      <PrimaryButton label={t('welcome.start')} onPress={markSeen} />
       <PrimaryButton
-        label="Confidentialité"
+        label={t('welcome.privacy')}
         variant="secondary"
         onPress={() => router.push('/privacy')}
       />

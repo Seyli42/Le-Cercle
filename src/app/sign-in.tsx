@@ -12,6 +12,7 @@ import { useAuth } from '@/features/auth/useAuth';
 import { isValidEmail, normalizeEmail } from '@/features/auth/validation';
 import { toAppError } from '@/lib/errors';
 import { fontSize, makeStyles } from '@/theme';
+import { t } from '@/i18n';
 
 export default function SignInScreen() {
   const styles = useStyles();
@@ -26,11 +27,11 @@ export default function SignInScreen() {
 
   const submit = async () => {
     if (!isValidEmail(email)) {
-      setError('Saisissez une adresse e-mail valide, par exemple marie@exemple.fr.');
+      setError(t('signIn.emailInvalid'));
       return;
     }
     if (!consent) {
-      setError('Merci d’accepter le traitement de vos données de santé pour continuer.');
+      setError(t('signIn.consentRequired'));
       return;
     }
     setError(null);
@@ -52,19 +53,16 @@ export default function SignInScreen() {
 
   return (
     <Screen>
-      <Text style={styles.title}>Bienvenue sur DoseCircle</Text>
-      <Text style={styles.body}>
-        Saisissez votre adresse e-mail : nous vous envoyons un code à 6 chiffres. Pas de mot de
-        passe à retenir.
-      </Text>
+      <Text style={styles.title}>{t('signIn.title')}</Text>
+      <Text style={styles.body}>{t('signIn.intro')}</Text>
       <TextField
-        label="Adresse e-mail"
+        label={t('signIn.email')}
         value={email}
         onChangeText={(value) => {
           setEmail(value);
           setError(null);
         }}
-        placeholder="marie@exemple.fr"
+        placeholder={t('signIn.emailPlaceholder')}
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
@@ -76,7 +74,7 @@ export default function SignInScreen() {
       />
       {demo ? (
         <TextField
-          label="Mot de passe du compte de démonstration"
+          label={t('signIn.demoPassword')}
           value={password}
           onChangeText={(value) => {
             setPassword(value);
@@ -95,10 +93,10 @@ export default function SignInScreen() {
           setConsent(value);
           setError(null);
         }}
-        label="J’accepte que DoseCircle conserve mes traitements et horaires de prise pour m’envoyer des rappels."
+        label={t('signIn.consent')}
       />
       <PrimaryButton
-        label={demo ? 'Se connecter' : 'Recevoir mon code'}
+        label={demo ? t('signIn.signIn') : t('signIn.getCode')}
         loading={sending}
         onPress={() => void submit()}
       />

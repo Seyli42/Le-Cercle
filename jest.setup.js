@@ -66,3 +66,9 @@ jest.mock('react-native-purchases', () => ({
     PAYMENT_PENDING_ERROR: '20',
   },
 }));
+
+// Tests run in French (the reference language) unless a test switches language.
+jest.mock('expo-localization', () => ({
+  getLocales: () => [{ languageCode: 'fr', languageTag: 'fr-FR', textDirection: 'ltr' }],
+  getCalendars: () => [{ timeZone: 'Europe/Paris', uses24hourClock: true, firstWeekday: 2 }],
+}));

@@ -14,6 +14,7 @@ import Purchases, {
 
 import { env } from '@/config/env';
 import { AppError } from '@/lib/errors';
+import { t } from '@/i18n';
 
 /** Entitlement identifier configured in the RevenueCat dashboard. */
 export const PREMIUM_ENTITLEMENT = 'premium';
@@ -98,36 +99,24 @@ export function toPurchaseError(error: unknown): AppError {
   if (isPurchasesError(error)) {
     switch (error.code) {
       case PURCHASES_ERROR_CODE.NETWORK_ERROR:
-        return new AppError('network', 'Pas de connexion : réessayez une fois connecté.', error);
+        return new AppError('network', t('purchaseErrors.network'), error);
       case PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR:
-        return new AppError(
-          'permission',
-          'Les achats sont désactivés sur ce téléphone (contrôle parental ou réglages).',
-          error,
-        );
+        return new AppError('permission', t('purchaseErrors.notAllowed'), error);
       case PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR:
-        return new AppError(
-          'validation',
-          'Paiement en attente de validation : Premium s’activera dès qu’il sera confirmé.',
-          error,
-        );
+        return new AppError('validation', t('purchaseErrors.pending'), error);
       case PURCHASES_ERROR_CODE.STORE_PROBLEM_ERROR:
-        return new AppError(
-          'network',
-          'Le store ne répond pas pour le moment. Réessayez dans quelques minutes.',
-          error,
-        );
+        return new AppError('network', t('purchaseErrors.store'), error);
       default:
         break;
     }
   }
-  return new AppError('unknown', 'L’achat n’a pas abouti. Vous n’avez pas été débité.', error);
+  return new AppError('unknown', t('purchaseErrors.failed'), error);
 }
 
 /** Returns true once Premium is active, false if the person cancelled. */
 export async function buyPremium(offerId: string): Promise<boolean> {
   const pkg = packages.get(offerId);
-  if (!pkg) throw new AppError('unknown', 'Offre indisponible : rouvrez cette page.');
+  if (!pkg) throw new AppError('unknown', t('purchaseErrors.offerGone'));
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
     return hasPremium(customerInfo);
