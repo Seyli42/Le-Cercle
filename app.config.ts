@@ -108,6 +108,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // No camera, no microphone: nothing in the app uses them.
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
+      // Interest-based ad targeting (Privacy Sandbox Topics): contrary to our
+      // non-personalised ads choice (docs/MONETISATION.md).
+      'android.permission.ACCESS_ADSERVICES_TOPICS',
       // Biometrics (secure storage without fingerprint lock) and launcher badges: unused.
       'android.permission.USE_BIOMETRIC',
       'android.permission.USE_FINGERPRINT',
