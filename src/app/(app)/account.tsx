@@ -13,10 +13,13 @@ import {
   exportAccountData,
 } from '@/features/account/accountActions';
 import { useAuth } from '@/features/auth/useAuth';
+import { useAds } from '@/features/monetization/AdsProvider';
+import { usePremium } from '@/features/monetization/PremiumProvider';
 import { cancelAllReminders } from '@/features/reminders/engine';
 import { getSyncState, syncNow } from '@/features/sync/scheduler';
 import { SyncStatus } from '@/features/sync/SyncStatus';
 import { useDb } from '@/lib/db/DatabaseProvider';
+import { formatAppVersion, getAppVersion } from '@/lib/appVersion';
 import { AppError } from '@/lib/errors';
 import { reportError } from '@/lib/monitoring';
 import { requireSupabase } from '@/lib/supabase';
@@ -33,6 +36,8 @@ export default function AccountScreen() {
   const [dataMessage, setDataMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmation, setConfirmation] = useState('');
+  const premium = usePremium();
+  const ads = useAds();
 
   if (shouldCrash) {
     throw new Error('Test volontaire de l’écran d’erreur');
@@ -119,6 +124,13 @@ export default function AccountScreen() {
         }
       />
       <PrimaryButton label="Vérifier mes rappels" onPress={() => router.push('/reminders')} />
+      <PrimaryButton
+        label={
+          premium.state === 'premium' ? '✓ Le Cercle Premium' : 'Le Cercle Premium : sans publicité'
+        }
+        variant="secondary"
+        onPress={() => router.push('/premium')}
+      />
 
       <Text style={styles.section} accessibilityRole="header">
         Mes données
@@ -146,6 +158,12 @@ export default function AccountScreen() {
             téléphone et de nos serveurs. Vos rappels s’arrêteront et vos proches ne seront plus
             prévenus. Cette action est irréversible : exportez vos données avant si besoin.
           </Text>
+          {premium.source === 'store' ? (
+            <Text style={styles.strong}>
+              Votre abonnement Premium n’est pas résilié par cette suppression : résiliez-le dans
+              les réglages de l’App Store ou de Google Play.
+            </Text>
+          ) : null}
           <TextField
             label={`Pour confirmer, tapez ${DELETE_CONFIRMATION_WORD}`}
             value={confirmation}
@@ -180,7 +198,17 @@ export default function AccountScreen() {
         variant="secondary"
         onPress={() => router.push('/privacy')}
       />
+      {ads.privacyOptionsRequired && premium.state === 'free' ? (
+        <PrimaryButton
+          label="Choix publicitaires"
+          variant="secondary"
+          onPress={() => void ads.openPrivacyOptions()}
+        />
+      ) : null}
       <MedicalDisclaimer />
+      <Text style={styles.version} selectable>
+        {formatAppVersion(getAppVersion())}
+      </Text>
 
       {env.environment !== 'production' && (
         <>
@@ -220,6 +248,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.dangerSurface,
     gap: spacing.sm,
   },
+  version: { fontSize: 16, color: colors.textMuted, textAlign: 'center' },
   section: {
     fontSize: fontSize.body,
     fontWeight: '600',

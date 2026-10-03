@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react-native';
+import * as Updates from 'expo-updates';
 
 import { env } from '@/config/env';
 import { AppError, toAppError } from '@/lib/errors';
@@ -32,6 +33,18 @@ Sentry.init({
     return breadcrumb;
   },
 });
+
+// Which over-the-air update a crash comes from: lets a faulty update be spotted (and
+// rolled back with `eas update:rollback`) within minutes.
+Sentry.setTag('update_id', Updates.updateId ?? 'embedded');
+Sentry.setTag('update_channel', Updates.channel ?? 'none');
+if (Updates.isEmergencyLaunch) {
+  // An update crashed at startup: expo-updates fell back to the store build's code.
+  Sentry.captureMessage(
+    `expo-updates emergency launch: ${Updates.emergencyLaunchReason ?? '?'}`,
+    'error',
+  );
+}
 
 type ReportOptions = {
   /**

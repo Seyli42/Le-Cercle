@@ -6,6 +6,60 @@ const IS_DEV = process.env.APP_VARIANT === 'development';
 
 const BUNDLE_ID = IS_DEV ? 'com.lecercle.app.dev' : 'com.lecercle.app';
 
+// AdMob APPLICATION ids (ca-app-pub-…~…). Defaults: Google's sample apps (test ads only).
+const ADMOB_IOS_APP_ID = process.env.ADMOB_IOS_APP_ID || 'ca-app-pub-3940256099942544~1458002511';
+const ADMOB_ANDROID_APP_ID =
+  process.env.ADMOB_ANDROID_APP_ID || 'ca-app-pub-3940256099942544~3347511713';
+
+// Filled once with the id printed by `npx eas-cli@latest init` (not a secret).
+// Empty = over-the-air updates disabled (local development).
+const EAS_PROJECT_ID = '';
+
+/** Apple privacy manifest: what the app collects (must match the App Store "App Privacy"
+ * answers in docs/STORES.md) and why it uses APIs Apple considers sensitive. */
+const collected = (type: string, linked: boolean) => ({
+  NSPrivacyCollectedDataType: `NSPrivacyCollectedDataType${type}`,
+  NSPrivacyCollectedDataTypeLinked: linked,
+  NSPrivacyCollectedDataTypeTracking: false,
+  NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+});
+const advertising = (type: string) => ({
+  NSPrivacyCollectedDataType: `NSPrivacyCollectedDataType${type}`,
+  NSPrivacyCollectedDataTypeLinked: false,
+  NSPrivacyCollectedDataTypeTracking: false,
+  NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising'],
+});
+const privacyManifests = {
+  NSPrivacyTracking: false,
+  NSPrivacyTrackingDomains: [],
+  NSPrivacyCollectedDataTypes: [
+    collected('Health', true), // medications, schedules, intake history
+    collected('EmailAddress', true), // sign-in
+    collected('UserID', true), // account id (also on crash reports)
+    collected('Contacts', true), // the circle: first names + phone numbers of relatives
+    collected('PhotosorVideos', false), // prescription photo, read then forgotten
+    collected('CrashData', true),
+    collected('PerformanceData', true),
+    // Free version (non-personalised ads, docs/MONETISATION.md): what the ad SDK sends.
+    advertising('DeviceID'),
+    advertising('ProductInteraction'),
+    advertising('AdvertisingData'),
+    advertising('CoarseLocation'),
+    // Premium: purchases (RevenueCat), linked to the account.
+    collected('PurchaseHistory', true),
+  ],
+  // Union of the reasons declared by the libraries (Apple does not always read theirs).
+  NSPrivacyAccessedAPITypes: [
+    { type: 'UserDefaults', reasons: ['CA92.1'] },
+    { type: 'FileTimestamp', reasons: ['C617.1', '0A2A.1', '3B52.1'] },
+    { type: 'SystemBootTime', reasons: ['35F9.1'] },
+    { type: 'DiskSpace', reasons: ['E174.1', '85F4.1'] },
+  ].map(({ type, reasons }) => ({
+    NSPrivacyAccessedAPIType: `NSPrivacyAccessedAPICategory${type}`,
+    NSPrivacyAccessedAPITypeReasons: reasons,
+  })),
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: IS_DEV ? 'Le Cercle (Dev)' : 'Le Cercle',
@@ -16,10 +70,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/icon.png',
   // Follows the phone's light / dark setting (see src/theme).
   userInterfaceStyle: 'automatic',
+  // An update is only delivered to store builds whose native code is identical
+  // (fingerprint): a JS update can never crash a binary it was not built for.
+  runtimeVersion: { policy: 'fingerprint' },
+  updates: EAS_PROJECT_ID
+    ? {
+        url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
+        // Never delay startup (reminders first): a new update applies at the next launch.
+        checkAutomatically: 'ON_LOAD',
+        fallbackToCacheTimeout: 0,
+      }
+    : { enabled: false },
+  extra: EAS_PROJECT_ID ? { eas: { projectId: EAS_PROJECT_ID } } : {},
   ios: {
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: false,
+    // Standard encryption only (HTTPS, SQLCipher/AES for data stored on the phone): exempt
+    // from US export declarations. See docs/PUBLICATION.md for the French ANSSI question.
     config: { usesNonExemptEncryption: false },
+    privacyManifests,
     entitlements: {
       // Lets medication reminders break through Focus / Do Not Disturb modes.
       'com.apple.developer.usernotifications.time-sensitive': true,
@@ -58,7 +127,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'me.everything.badger.permission.BADGE_COUNT_WRITE',
     ],
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#1D4ED8',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',
@@ -98,6 +167,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         imageWidth: 200,
         backgroundColor: '#FFFFFF',
         dark: { image: './assets/splash-icon.png', backgroundColor: '#0F172A' },
+      },
+    ],
+    // Ads of the free version. No tracking prompt: non-personalised ads only.
+    [
+      'react-native-google-mobile-ads',
+      {
+        iosAppId: ADMOB_IOS_APP_ID,
+        androidAppId: ADMOB_ANDROID_APP_ID,
+        // Nothing is sent to Google before the consent form has been answered.
+        delayAppMeasurementInit: true,
       },
     ],
     [

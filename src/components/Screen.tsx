@@ -5,7 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeStyles, spacing } from '@/theme';
 
 /** Standard page: safe areas, scroll, and keyboard that never hides the form. */
-export function Screen({ children }: { readonly children: ReactNode }) {
+export function Screen({
+  children,
+  footer,
+}: {
+  readonly children: ReactNode;
+  /** Fixed below the scrolling content (e.g. an ad banner). */
+  readonly footer?: ReactNode;
+}) {
   const styles = useStyles();
   return (
     <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
@@ -16,6 +23,7 @@ export function Screen({ children }: { readonly children: ReactNode }) {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {children}
         </ScrollView>
+        {footer}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

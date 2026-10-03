@@ -207,6 +207,20 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      premium_grants: {
+        Row: {
+          id: string;
+          user_id: string;
+          starts_at: string;
+          ends_at: string | null;
+          reason: string;
+          created_at: string;
+        };
+        // Written by the administrator only (service_role).
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -221,6 +235,10 @@ export type Database = {
       sync_heartbeat: {
         Args: { p_timezone: string };
         Returns: undefined;
+      };
+      my_premium_grant: {
+        Args: Record<string, never>;
+        Returns: { ends_at: string | null; reason: string }[];
       };
     };
     Enums: { [_ in never]: never };

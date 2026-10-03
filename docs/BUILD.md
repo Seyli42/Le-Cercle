@@ -40,4 +40,5 @@ EAS active automatiquement la capacité « Time Sensitive Notifications » de l'
 
 ## Ensuite
 
-Suivez le protocole de test de [`docs/RAPPELS.md`](RAPPELS.md).
+Suivez le protocole de test de [`docs/RAPPELS.md`](RAPPELS.md). Pour publier sur les
+stores : [`docs/PUBLICATION.md`](PUBLICATION.md).

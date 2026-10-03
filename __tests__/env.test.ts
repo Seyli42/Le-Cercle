@@ -7,7 +7,17 @@ describe('parseEnv', () => {
   };
 
   it('defaults to development without Sentry nor Supabase', () => {
-    expect(parseEnv({})).toEqual({ sentryDsn: null, environment: 'development', supabase: null });
+    expect(parseEnv({})).toEqual({
+      sentryDsn: null,
+      environment: 'development',
+      supabase: null,
+      reviewEmail: null,
+      monetization: {
+        revenueCat: { ios: null, android: null },
+        bannerUnit: { ios: null, android: null },
+        interstitialUnit: { ios: null, android: null },
+      },
+    });
   });
 
   it('reads the Supabase config and trims the trailing slash', () => {
@@ -61,5 +71,28 @@ describe('parseEnv', () => {
       EXPO_PUBLIC_SENTRY_DSN: 'https://key@o0.ingest.sentry.io/0',
     });
     expect(result.environment).toBe('production');
+  });
+
+  it('reads the reviewers demo address, lower-cased', () => {
+    expect(parseEnv({ EXPO_PUBLIC_REVIEW_EMAIL: ' Demo@LeCercle.fr ' }).reviewEmail).toBe(
+      'demo@lecercle.fr',
+    );
+    expect(() => parseEnv({ EXPO_PUBLIC_REVIEW_EMAIL: 'demo' })).toThrow(/REVIEW_EMAIL/);
+  });
+
+  it('reads the monetization ids and refuses secrets or malformed ids', () => {
+    const m = parseEnv({
+      EXPO_PUBLIC_REVENUECAT_IOS_KEY: 'appl_abc',
+      EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID: 'ca-app-pub-1234567890/987654',
+    }).monetization;
+    expect(m.revenueCat).toEqual({ ios: 'appl_abc', android: null });
+    expect(m.interstitialUnit.android).toBe('ca-app-pub-1234567890/987654');
+    expect(() => parseEnv({ EXPO_PUBLIC_REVENUECAT_ANDROID_KEY: 'sk_live_123' })).toThrow(
+      /secrète/,
+    );
+    // The app id (with "~") is not an ad unit id: a classic mix-up.
+    expect(() => parseEnv({ EXPO_PUBLIC_ADMOB_BANNER_IOS: 'ca-app-pub-123~456' })).toThrow(
+      /invalide/,
+    );
   });
 });

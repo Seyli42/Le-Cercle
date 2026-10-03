@@ -6,6 +6,7 @@
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
+import { resetAdsForTests } from '@/features/monetization/ads';
 import type { LocalDb } from '@/lib/db/types';
 
 import { createTestDb } from './helpers/nodeDb';
@@ -16,6 +17,19 @@ const mockAuthListeners: Listener[] = [];
 const mockSession = { user: { id: 'user-1', email: 'marie@exemple.fr' } };
 let mockStoredSession: unknown = null;
 const mockInvoke = jest.fn();
+const mockSignInWithPassword = jest.fn();
+
+jest.mock('@/config/env', () => ({
+  env: {
+    ...jest.requireActual<typeof import('@/config/env')>('@/config/env').env,
+    reviewEmail: 'demo@lecercle.fr',
+    monetization: {
+      revenueCat: { ios: 'appl_test', android: 'goog_test' },
+      bannerUnit: { ios: null, android: null },
+      interstitialUnit: { ios: null, android: null },
+    },
+  },
+}));
 
 jest.mock('@/lib/supabase', () => {
   const chain: Record<string, unknown> = {};
@@ -30,6 +44,13 @@ jest.mock('@/lib/supabase', () => {
         return { data: { subscription: { unsubscribe: () => undefined } } };
       },
       signInWithOtp: async () => ({ data: {}, error: null }),
+      signInWithPassword: async (credentials: unknown) => {
+        mockSignInWithPassword(credentials);
+        const session = { user: { id: 'demo', email: 'demo@lecercle.fr' } };
+        mockStoredSession = session;
+        mockAuthListeners.forEach((l) => l('SIGNED_IN', session));
+        return { data: { user: session.user, session }, error: null };
+      },
       verifyOtp: async () => {
         mockStoredSession = mockSession;
         mockAuthListeners.forEach((l) => l('SIGNED_IN', mockSession));
@@ -44,6 +65,7 @@ jest.mock('@/lib/supabase', () => {
       stopAutoRefresh: () => undefined,
     },
     from: () => chain,
+    rpc: async () => ({ data: [], error: null }),
   };
   return { supabase: client, requireSupabase: () => client };
 });
@@ -125,6 +147,7 @@ beforeEach(() => {
   mockScheduled.clear();
   mockStoredSession = null;
   mockInvoke.mockReset();
+  mockSignInWithPassword.mockReset();
 });
 
 it('first launch: welcome, sign-in by e-mail code, then the home screen', async () => {
@@ -149,6 +172,33 @@ it('first launch: welcome, sign-in by e-mail code, then the home screen', async 
   expect(screen.getByText('Aucun médicament pour l’instant')).toBeTruthy();
   // The welcome is never shown again on this phone.
   expect(mockSecure.get('onboarding_seen_v1')).toBe('yes');
+});
+
+it('store reviewers: only the demo address gets a password field', async () => {
+  mockSecure.set('onboarding_seen_v1', 'yes');
+  await renderRouter('./src/app');
+
+  const email = await screen.findByLabelText('Adresse e-mail');
+  await fireEvent.changeText(email, 'marie@exemple.fr');
+  expect(screen.queryByLabelText('Mot de passe du compte de démonstration')).toBeNull();
+
+  await fireEvent.changeText(email, 'Demo@LeCercle.fr');
+  await fireEvent.changeText(
+    screen.getByLabelText('Mot de passe du compte de démonstration'),
+    'Revue-2026!',
+  );
+  await fireEvent.press(
+    screen.getByLabelText(
+      'J’accepte que Le Cercle conserve mes traitements et horaires de prise pour m’envoyer des rappels.',
+    ),
+  );
+  await fireEvent.press(screen.getByLabelText('Se connecter'));
+
+  expect(await screen.findByText('Pour bien démarrer')).toBeTruthy();
+  expect(mockSignInWithPassword).toHaveBeenCalledWith({
+    email: 'demo@lecercle.fr',
+    password: 'Revue-2026!',
+  });
 });
 
 it('adds a medication: saved on the phone, listed, and its reminders scheduled', async () => {
@@ -222,4 +272,123 @@ it('refuses to delete offline and keeps everything', async () => {
     await screen.findByText('Une connexion internet est nécessaire pour supprimer le compte.'),
   ).toBeTruthy();
   expect(screen.getByText('Connecté avec marie@exemple.fr')).toBeTruthy();
+});
+
+// --- Free version with ads / Premium -----------------------------------------
+type AdsMock = {
+  interstitial: { show: jest.Mock };
+  AdsConsent: { gatherConsent: jest.Mock; requestInfoUpdate: jest.Mock; getConsentInfo: jest.Mock };
+};
+type PurchasesMock = { default: { getCustomerInfo: jest.Mock; logIn: jest.Mock } };
+const ads = () => jest.requireMock<AdsMock>('react-native-google-mobile-ads');
+const purchases = () => jest.requireMock<PurchasesMock>('react-native-purchases');
+const PREMIUM = { entitlements: { active: { premium: { isActive: true } } } };
+const FREE = { entitlements: { active: {} } };
+/** What the store says about this account (first sign-in or account switch alike). */
+const storeSays = (info: typeof PREMIUM | typeof FREE) => {
+  purchases().default.getCustomerInfo.mockResolvedValue(info);
+  purchases().default.logIn.mockResolvedValue({ customerInfo: info, created: false });
+};
+
+async function addMedicationAt7am(name: string) {
+  // 07:00: the 08:00 intake is an hour away, so nothing forbids an ad.
+  jest.setSystemTime(new Date(2026, 9, 10, 7, 0));
+  await fireEvent.press(await screen.findByLabelText('+ Ajouter un médicament'));
+  await fireEvent.changeText(await screen.findByLabelText('Nom du médicament'), name);
+  await fireEvent.changeText(screen.getByLabelText('Quantité par prise'), '1 comprimé');
+  await fireEvent.press(screen.getByLabelText('Enregistrer'));
+  await screen.findAllByText(name);
+}
+
+describe('free version', () => {
+  beforeEach(() => {
+    mockStoredSession = mockSession;
+    mockSecure.set('onboarding_seen_v1', 'yes');
+    resetAdsForTests();
+    ads().interstitial.show.mockClear();
+    ads().AdsConsent.gatherConsent.mockClear();
+    ads().AdsConsent.requestInfoUpdate.mockClear();
+  });
+
+  it('a full-screen ad may follow a saved medication, once a day at most', async () => {
+    storeSays(FREE);
+    mockSecure.set('ads_first_launch_v1', String(new Date(2026, 8, 1).getTime()));
+    await renderRouter('./src/app');
+
+    await addMedicationAt7am('Levothyrox 75');
+    await waitFor(() => expect(ads().interstitial.show).toHaveBeenCalledTimes(1));
+    // Consent already given: prepared silently at launch, no form shown.
+    expect(ads().AdsConsent.requestInfoUpdate).toHaveBeenCalled();
+    expect(ads().AdsConsent.gatherConsent).not.toHaveBeenCalled();
+
+    await addMedicationAt7am('Doliprane');
+    await act(async () => {
+      await jest.runOnlyPendingTimersAsync();
+    });
+    expect(ads().interstitial.show).toHaveBeenCalledTimes(1);
+  });
+
+  it('no ad, and not even the consent form, during the first days', async () => {
+    storeSays(FREE);
+    await renderRouter('./src/app');
+    await addMedicationAt7am('Levothyrox 75');
+    await act(async () => {
+      await jest.runOnlyPendingTimersAsync();
+    });
+    expect(ads().interstitial.show).not.toHaveBeenCalled();
+    expect(ads().AdsConsent.gatherConsent).not.toHaveBeenCalled();
+    expect(ads().AdsConsent.requestInfoUpdate).not.toHaveBeenCalled();
+  });
+
+  it('consent not given yet: the form appears after a finished task, never at launch', async () => {
+    storeSays(FREE);
+    mockSecure.set('ads_first_launch_v1', String(new Date(2026, 8, 1).getTime()));
+    const consent = (canRequestAds: boolean) => ({
+      status: canRequestAds ? 'OBTAINED' : 'REQUIRED',
+      canRequestAds,
+      privacyOptionsRequirementStatus: 'REQUIRED',
+      isConsentFormAvailable: true,
+    });
+    ads()
+      .AdsConsent.getConsentInfo.mockResolvedValueOnce(consent(false))
+      .mockResolvedValueOnce(consent(true));
+    await renderRouter('./src/app');
+    await screen.findByLabelText('+ Ajouter un médicament');
+    await act(async () => {
+      await jest.runOnlyPendingTimersAsync();
+    });
+    expect(ads().AdsConsent.gatherConsent).not.toHaveBeenCalled();
+
+    await addMedicationAt7am('Levothyrox 75');
+    await waitFor(() => expect(ads().AdsConsent.gatherConsent).toHaveBeenCalledTimes(1));
+    // The form was the "interruption" of this moment: no ad on top of it.
+    expect(ads().interstitial.show).not.toHaveBeenCalled();
+  });
+
+  it('Premium: no ad, no banner, not even the consent form', async () => {
+    storeSays(PREMIUM);
+    mockSecure.set('ads_first_launch_v1', String(new Date(2026, 8, 1).getTime()));
+    await renderRouter('./src/app');
+
+    await addMedicationAt7am('Levothyrox 75');
+    await act(async () => {
+      await jest.runOnlyPendingTimersAsync();
+    });
+    expect(ads().interstitial.show).not.toHaveBeenCalled();
+    expect(ads().AdsConsent.gatherConsent).not.toHaveBeenCalled();
+    expect(ads().AdsConsent.requestInfoUpdate).not.toHaveBeenCalled();
+
+    await act(async () => router.push('/premium'));
+    expect(await screen.findByText('✓ Vous êtes Premium')).toBeTruthy();
+  });
+
+  it('the history banner is labelled, with a way to remove ads', async () => {
+    storeSays(FREE);
+    mockSecure.set('ads_first_launch_v1', String(new Date(2026, 8, 1).getTime()));
+    await renderRouter('./src/app', { initialUrl: '/history' });
+
+    expect(await screen.findByText('Publicité')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('Retirer la publicité avec Premium'));
+    expect(await screen.findByText('Le Cercle Premium')).toBeTruthy();
+  });
 });

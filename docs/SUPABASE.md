@@ -49,6 +49,21 @@ c'est le code à 6 chiffres. Sans cela, l'utilisateur reçoit un lien au lieu d'
 
 **Authentication → Rate Limits** : laissez les valeurs par défaut.
 
+### Bloquer la connexion par mot de passe (sécurité, obligatoire)
+
+Supabase accepte par défaut les inscriptions « e-mail + mot de passe », que l'app n'utilise
+pas. Sans ce réglage, quelqu'un pourrait créer à l'avance un compte avec l'adresse d'une
+autre personne et un mot de passe, puis lire ses données le jour où elle utilise l'app.
+
+1. `npm run db:push` (crée la fonction `custom_access_token_hook`).
+2. **Authentication → Hooks → Customize Access Token (JWT) Claims** → **Postgres** →
+   schéma `public`, fonction `custom_access_token_hook` → **Enable**.
+3. **Authentication → Sign In / Providers → Email** : **Minimum password length** `12`,
+   **Password requirements** : lettres minuscules, majuscules, chiffres et symboles.
+
+Seul le compte de démonstration des stores pourra utiliser un mot de passe
+(`docs/PUBLICATION.md`, étape 2). Testé par `supabase/tests/database/auth_hardening.test.sql`.
+
 ## 5. E-mails en production (obligatoire avant le lancement)
 
 Le serveur d'e-mail fourni par Supabase est limité à quelques envois par heure : suffisant

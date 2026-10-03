@@ -55,3 +55,10 @@ modules/*/ios/build/
 
 # Deno lockfile created if Deno is ever run from the root (use npm run *:functions)
 /deno.lock
+
+# Store credentials (Google Play service account, App Store Connect key): never committed
+/secrets/
+*.p8
+
+# Generated website (npm run website:build)
+/website/dist/

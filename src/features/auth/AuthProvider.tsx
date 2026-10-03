@@ -1,8 +1,9 @@
-import type { Session } from '@supabase/supabase-js';
+import { isAuthApiError, type Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { isExpectedAuthError, toAuthAppError } from '@/features/auth/authErrors';
 import { normalizeEmail } from '@/features/auth/validation';
+import { AppError } from '@/lib/errors';
 import { reportError, setMonitoringUser } from '@/lib/monitoring';
 import { supabase, type AppSupabaseClient } from '@/lib/supabase';
 
@@ -19,6 +20,8 @@ export type AuthContextValue = {
   readonly requestCode: (email: string) => Promise<void>;
   /** Checks the code and opens the session. Throws an AppError with a user-facing message. */
   readonly verifyCode: (email: string, code: string) => Promise<void>;
+  /** Store reviewers' demo account only (see env.reviewEmail). */
+  readonly signInWithPassword: (email: string, password: string) => Promise<void>;
   readonly signOut: () => Promise<void>;
 };
 
@@ -102,6 +105,23 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
     if (data.user) void recordConsent(supabase, data.user.id);
   }, []);
 
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    if (!supabase) return;
+    const { error } = await supabase.auth.signInWithPassword({
+      email: normalizeEmail(email),
+      password,
+    });
+    if (!error) return;
+    if (isAuthApiError(error) && error.code === 'invalid_credentials') {
+      throw reportError(
+        new AppError('auth', 'Adresse e-mail ou mot de passe incorrect.', error),
+        'auth.signInWithPassword',
+        { expected: true },
+      );
+    }
+    fail(error, 'auth.signInWithPassword');
+  }, []);
+
   const signOut = useCallback(async () => {
     if (!supabase) return;
     // 'local' works offline: the session is removed from this phone in every case.
@@ -110,8 +130,8 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ state, requestCode, verifyCode, signOut }),
-    [state, requestCode, verifyCode, signOut],
+    () => ({ state, requestCode, verifyCode, signInWithPassword, signOut }),
+    [state, requestCode, verifyCode, signInWithPassword, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

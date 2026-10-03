@@ -16,6 +16,8 @@
 | Proches (« le Cercle »)        | Prénom et numéro de portable des proches, leur consentement, journal des SMS envoyés                             | Vous / le proche |
 | Lecture d'ordonnance           | Photo transmise pour lecture (non conservée), compteurs d'usage                                                  | Vous             |
 | Technique                      | Rapports de plantage (sans données de santé ni identité)                                                         | L'app            |
+| Publicité (version gratuite)   | Identifiant publicitaire de l'appareil, adresse IP (localisation approximative), interactions avec les annonces  | SDK Google AdMob |
+| Abonnement Premium             | Historique d'achat (produit, dates, store), identifiant de compte                                                | App Store / Play |
 
 ## 2. Finalités et bases légales
 
@@ -24,18 +26,25 @@
 - Alertes aux proches : consentement de l'utilisateur **et** du proche (réponse « OUI »).
 - Lecture d'ordonnance : consentement explicite au premier scan.
 - Rapports de plantage : intérêt légitime (fiabilité du service).
+- Publicité de la version gratuite : **consentement** recueilli par le formulaire Google
+  (UMP / TCF) au premier lancement, modifiable à tout moment (« Mon compte » →
+  « Choix publicitaires »). Annonces **non personnalisées uniquement** ; aucune donnée de
+  santé, aucun mot-clé, aucun contenu de l'app n'est transmis à la régie.
+- Abonnement Premium : exécution du contrat.
 
-Aucune publicité, aucune revente, aucun profilage, aucune décision automatisée.
+Aucune revente de données, aucun profilage, aucune décision automatisée.
 
 ## 3. Destinataires / sous-traitants
 
-| Sous-traitant  | Rôle                                                 | Localisation                        | Garanties                                                                      |
-| -------------- | ---------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Supabase       | Base de données, authentification, fonctions serveur | Union européenne ([région choisie]) | DPA Supabase                                                                   |
-| Twilio         | Envoi et réception des SMS                           | [à préciser]                        | DPA + clauses contractuelles types                                             |
-| Anthropic      | Lecture des photos d'ordonnance                      | États-Unis                          | DPA + clauses contractuelles types ; données non utilisées pour l'entraînement |
-| Sentry         | Rapports de plantage (sans données de santé)         | [UE ou US selon l'offre]            | DPA                                                                            |
-| Apple / Google | Distribution de l'app, notifications locales         | —                                   | —                                                                              |
+| Sous-traitant  | Rôle                                                                   | Localisation                        | Garanties                                                                      |
+| -------------- | ---------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Supabase       | Base de données, authentification, fonctions serveur                   | Union européenne ([région choisie]) | DPA Supabase                                                                   |
+| Twilio         | Envoi et réception des SMS                                             | [à préciser]                        | DPA + clauses contractuelles types                                             |
+| Anthropic      | Lecture des photos d'ordonnance                                        | États-Unis                          | DPA + clauses contractuelles types ; données non utilisées pour l'entraînement |
+| Sentry         | Rapports de plantage (sans données de santé)                           | [UE ou US selon l'offre]            | DPA                                                                            |
+| Google (AdMob) | Publicités de la version gratuite (non personnalisées)                 | Monde (Google)                      | Conditions Google « responsable conjoint » / TCF                               |
+| RevenueCat     | Validation et suivi des abonnements Premium                            | États-Unis                          | DPA + clauses contractuelles types                                             |
+| Apple / Google | Distribution de l'app, paiement des abonnements, notifications locales | —                                   | —                                                                              |
 
 > Pour un usage par des établissements de santé : prévoir un hébergeur certifié **HDS**.
 
@@ -44,6 +53,8 @@ Aucune publicité, aucune revente, aucun profilage, aucune décision automatisé
 - Données du compte et de santé : jusqu'à la suppression du compte.
 - Photos d'ordonnance : **non conservées** (traitement en mémoire uniquement).
 - Journal des SMS et des lectures IA : jusqu'à la suppression du compte.
+- Historique d'achat : supprimé chez RevenueCat à la suppression du compte (les stores
+  conservent leurs propres factures selon leurs obligations légales).
 - Suppression du compte : effacement immédiat et définitif (base de données en cascade et
   téléphone). Les sauvegardes techniques de l'hébergeur expirent sous [7] jours.
 

@@ -15,11 +15,15 @@ const SECTIONS: readonly { readonly title: string; readonly body: string }[] = [
   },
   {
     title: 'Pourquoi',
-    body: 'Uniquement pour vous rappeler vos prises, sauvegarder vos données, et prévenir les proches que vous avez choisis. Aucune publicité, aucune revente, aucun profilage.',
+    body: 'Uniquement pour vous rappeler vos prises, sauvegarder vos données, et prévenir les proches que vous avez choisis. Aucune revente, aucun profilage.',
+  },
+  {
+    title: 'Publicité (version gratuite)',
+    body: 'La version gratuite affiche quelques publicités (Google AdMob), uniquement non personnalisées et après votre accord. Vos données de santé ne sont jamais transmises aux régies : elles ne savent pas que vous prenez un traitement. Premium supprime toute publicité ; l’achat est géré par l’App Store ou Google Play, via RevenueCat.',
   },
   {
     title: 'Où sont vos données',
-    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les SMS passent par Twilio, la lecture d’ordonnance par Anthropic (la photo n’est pas conservée), les rapports de plantage par Sentry (sans aucune donnée de santé).',
+    body: 'Sur votre téléphone (base chiffrée) et sur nos serveurs en Europe (Supabase). Les SMS passent par Twilio, la lecture d’ordonnance par Anthropic (la photo n’est pas conservée), les rapports de plantage par Sentry (sans aucune donnée de santé), les publicités par Google AdMob et l’abonnement par RevenueCat.',
   },
   {
     title: 'Combien de temps',

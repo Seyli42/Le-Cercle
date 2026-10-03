@@ -12,11 +12,28 @@ export type SupabaseConfig = {
   readonly publishableKey: string;
 };
 
+export type PlatformPair = { readonly ios: string | null; readonly android: string | null };
+
+export type MonetizationConfig = {
+  /** RevenueCat PUBLIC SDK keys (appl_… / goog_…): Premium subscription. */
+  readonly revenueCat: PlatformPair;
+  /** AdMob ad unit ids (ca-app-pub-…/…). Missing = Google test ads outside production. */
+  readonly bannerUnit: PlatformPair;
+  readonly interstitialUnit: PlatformPair;
+};
+
 export type AppEnv = {
   readonly sentryDsn: string | null;
   readonly environment: 'development' | 'preview' | 'production';
   /** null only in development, when .env is not filled yet. */
   readonly supabase: SupabaseConfig | null;
+  /**
+   * Demo account given to the App Store / Google Play reviewers, who cannot receive our
+   * e-mail codes: only this address may sign in with a password (enforced server-side
+   * by the custom_access_token_hook allowlist). null = no demo account.
+   */
+  readonly reviewEmail: string | null;
+  readonly monetization: MonetizationConfig;
 };
 
 type RawEnv = {
@@ -24,6 +41,13 @@ type RawEnv = {
   readonly EXPO_PUBLIC_APP_ENV?: string | undefined;
   readonly EXPO_PUBLIC_SUPABASE_URL?: string | undefined;
   readonly EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string | undefined;
+  readonly EXPO_PUBLIC_REVIEW_EMAIL?: string | undefined;
+  readonly EXPO_PUBLIC_REVENUECAT_IOS_KEY?: string | undefined;
+  readonly EXPO_PUBLIC_REVENUECAT_ANDROID_KEY?: string | undefined;
+  readonly EXPO_PUBLIC_ADMOB_BANNER_IOS?: string | undefined;
+  readonly EXPO_PUBLIC_ADMOB_BANNER_ANDROID?: string | undefined;
+  readonly EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS?: string | undefined;
+  readonly EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID?: string | undefined;
 };
 
 const ENVIRONMENTS = ['development', 'preview', 'production'] as const;
@@ -51,6 +75,50 @@ function parseSupabase(raw: RawEnv): SupabaseConfig | null {
   return { url: url.replace(/\/+$/, ''), publishableKey };
 }
 
+const optional = (value: string | undefined) => value?.trim() || null;
+
+function revenueCatKey(name: string, value: string | undefined): string | null {
+  const key = optional(value);
+  // A secret key (sk_…) would let anyone grant themselves subscriptions or read customers.
+  if (key && /^sk_/.test(key)) {
+    throw new Error(
+      `${name} : clé secrète RevenueCat détectée, utilisez la clé publique (appl_… / goog_…).`,
+    );
+  }
+  return key;
+}
+
+function adUnit(name: string, value: string | undefined): string | null {
+  const unit = optional(value);
+  if (unit && !/^ca-app-pub-\d+\/\d+$/.test(unit)) {
+    throw new Error(`${name} invalide : "${unit}" (format ca-app-pub-123…/456…).`);
+  }
+  return unit;
+}
+
+function parseMonetization(raw: RawEnv): MonetizationConfig {
+  return {
+    revenueCat: {
+      ios: revenueCatKey('EXPO_PUBLIC_REVENUECAT_IOS_KEY', raw.EXPO_PUBLIC_REVENUECAT_IOS_KEY),
+      android: revenueCatKey(
+        'EXPO_PUBLIC_REVENUECAT_ANDROID_KEY',
+        raw.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY,
+      ),
+    },
+    bannerUnit: {
+      ios: adUnit('EXPO_PUBLIC_ADMOB_BANNER_IOS', raw.EXPO_PUBLIC_ADMOB_BANNER_IOS),
+      android: adUnit('EXPO_PUBLIC_ADMOB_BANNER_ANDROID', raw.EXPO_PUBLIC_ADMOB_BANNER_ANDROID),
+    },
+    interstitialUnit: {
+      ios: adUnit('EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS', raw.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS),
+      android: adUnit(
+        'EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID',
+        raw.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID,
+      ),
+    },
+  };
+}
+
 export function parseEnv(raw: RawEnv): AppEnv {
   const dsn = raw.EXPO_PUBLIC_SENTRY_DSN?.trim();
   const environment = raw.EXPO_PUBLIC_APP_ENV?.trim() || 'development';
@@ -68,7 +136,18 @@ export function parseEnv(raw: RawEnv): AppEnv {
     if (!supabase) throw new Error(`La configuration Supabase est obligatoire en ${environment}.`);
   }
 
-  return { sentryDsn: dsn ? dsn : null, environment, supabase };
+  const reviewEmail = raw.EXPO_PUBLIC_REVIEW_EMAIL?.trim().toLowerCase() || null;
+  if (reviewEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reviewEmail)) {
+    throw new Error(`EXPO_PUBLIC_REVIEW_EMAIL invalide : "${reviewEmail}".`);
+  }
+
+  return {
+    sentryDsn: dsn ? dsn : null,
+    environment,
+    supabase,
+    reviewEmail,
+    monetization: parseMonetization(raw),
+  };
 }
 
 // Each variable must be read with its full literal name: Expo inlines them at build time.
@@ -77,4 +156,11 @@ export const env: AppEnv = parseEnv({
   EXPO_PUBLIC_APP_ENV: process.env.EXPO_PUBLIC_APP_ENV,
   EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  EXPO_PUBLIC_REVIEW_EMAIL: process.env.EXPO_PUBLIC_REVIEW_EMAIL,
+  EXPO_PUBLIC_REVENUECAT_IOS_KEY: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY,
+  EXPO_PUBLIC_REVENUECAT_ANDROID_KEY: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY,
+  EXPO_PUBLIC_ADMOB_BANNER_IOS: process.env.EXPO_PUBLIC_ADMOB_BANNER_IOS,
+  EXPO_PUBLIC_ADMOB_BANNER_ANDROID: process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID,
+  EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS,
+  EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID,
 });

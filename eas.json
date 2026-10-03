@@ -8,19 +8,28 @@
       "developmentClient": true,
       "distribution": "internal",
       "environment": "development",
+      "channel": "development",
       "env": { "APP_VARIANT": "development" }
     },
     "preview": {
       "distribution": "internal",
       "environment": "preview",
+      "channel": "preview",
       "android": { "buildType": "apk" }
     },
     "production": {
       "environment": "production",
+      "channel": "production",
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./secrets/google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    }
   }
 }

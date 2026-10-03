@@ -1,0 +1,53 @@
+# Manual release (GitHub → Actions → Release → Run workflow).
+# Needs one repository secret: EXPO_TOKEN (expo.dev → Account settings → Access tokens).
+# Store credentials stay on EAS servers (eas credentials), never in GitHub.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'build = nouvelle version pour les stores ; update = correctif JavaScript immédiat'
+        type: choice
+        options: [build, update]
+        default: build
+      platform:
+        description: 'Plateforme (build uniquement)'
+        type: choice
+        options: [all, android, ios]
+        default: all
+      message:
+        description: 'Description de la mise à jour (update uniquement)'
+        type: string
+        default: ''
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Nothing reaches users unless every check passes.
+      - run: npm run check
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build + envoi aux stores (tests internes / TestFlight)
+        if: inputs.action == 'build'
+        run: eas build --profile production --platform ${{ inputs.platform }} --non-interactive --auto-submit --no-wait
+
+      - name: Mise à jour à 10 % des utilisateurs d'abord
+        if: inputs.action == 'update'
+        env:
+          MESSAGE: ${{ inputs.message }}
+        run: |
+          test -n "$MESSAGE" || { echo "Décrivez la mise à jour (champ message)."; exit 1; }
+          eas update --channel production --environment production --message "$MESSAGE" --rollout-percentage 10 --non-interactive

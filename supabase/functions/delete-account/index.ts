@@ -25,5 +25,28 @@ Deno.serve(async (request) => {
     console.error('delete-account', deleteError.message);
     return json({ error: 'delete_failed' }, 500);
   }
+  await deleteRevenueCatCustomer(data.user.id);
   return json({ ok: true });
 });
+
+/**
+ * The purchase history kept by RevenueCat (customer id = user id) is erased too. Best
+ * effort: the account is already gone, a failure is logged for a manual cleanup. It does
+ * NOT cancel a running store subscription (only the person can, in the store settings).
+ */
+async function deleteRevenueCatCustomer(userId: string): Promise<void> {
+  const secret = Deno.env.get('REVENUECAT_SECRET_API_KEY');
+  if (!secret) return;
+  try {
+    const response = await fetch(
+      `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`,
+      { method: 'DELETE', headers: { Authorization: `Bearer ${secret}` } },
+    );
+    // 404: never bought anything, nothing to delete.
+    if (!response.ok && response.status !== 404) {
+      console.error('delete-account revenuecat', response.status, userId);
+    }
+  } catch (error) {
+    console.error('delete-account revenuecat', String(error), userId);
+  }
+}

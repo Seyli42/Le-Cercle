@@ -7,6 +7,7 @@ import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
+import { env } from '@/config/env';
 import { useAuth } from '@/features/auth/useAuth';
 import { isValidEmail, normalizeEmail } from '@/features/auth/validation';
 import { toAppError } from '@/lib/errors';
@@ -14,11 +15,14 @@ import { fontSize, makeStyles } from '@/theme';
 
 export default function SignInScreen() {
   const styles = useStyles();
-  const { requestCode } = useAuth();
+  const { requestCode, signInWithPassword } = useAuth();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  // Store reviewers cannot read our e-mails: their demo address signs in with a password.
+  const demo = env.reviewEmail !== null && normalizeEmail(email) === env.reviewEmail;
 
   const submit = async () => {
     if (!isValidEmail(email)) {
@@ -32,6 +36,11 @@ export default function SignInScreen() {
     setError(null);
     setSending(true);
     try {
+      if (demo) {
+        // On success the session opens and the app leaves this screen by itself.
+        await signInWithPassword(email, password);
+        return;
+      }
       await requestCode(email);
       router.push({ pathname: '/verify', params: { email: normalizeEmail(email) } });
     } catch (e) {
@@ -61,10 +70,25 @@ export default function SignInScreen() {
         autoCorrect={false}
         autoComplete="email"
         textContentType="emailAddress"
-        returnKeyType="send"
+        returnKeyType={demo ? 'next' : 'send'}
         onSubmitEditing={() => void submit()}
         error={error}
       />
+      {demo ? (
+        <TextField
+          label="Mot de passe du compte de démonstration"
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            setError(null);
+          }}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="password"
+          onSubmitEditing={() => void submit()}
+        />
+      ) : null}
       <Checkbox
         checked={consent}
         onChange={(value) => {
@@ -73,7 +97,11 @@ export default function SignInScreen() {
         }}
         label="J’accepte que Le Cercle conserve mes traitements et horaires de prise pour m’envoyer des rappels."
       />
-      <PrimaryButton label="Recevoir mon code" loading={sending} onPress={() => void submit()} />
+      <PrimaryButton
+        label={demo ? 'Se connecter' : 'Recevoir mon code'}
+        loading={sending}
+        onPress={() => void submit()}
+      />
       <MedicalDisclaimer />
     </Screen>
   );

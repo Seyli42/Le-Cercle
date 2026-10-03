@@ -1,5 +1,5 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
@@ -15,6 +15,8 @@ import {
 } from '@/features/history/history';
 import { formatLocalDate } from '@/features/medications/dates';
 import { listMedications, medicationLabels } from '@/features/medications/repository';
+import { AdBanner } from '@/features/monetization/AdBanner';
+import { useAds } from '@/features/monetization/AdsProvider';
 import { listDoseEvents } from '@/features/reminders/doseEvents';
 import { useReminders } from '@/features/reminders/ReminderProvider';
 import { startOfLocalDay } from '@/features/reminders/today';
@@ -67,6 +69,13 @@ export default function HistoryScreen() {
   const { version } = useReminders();
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
+  const { onMoment } = useAds();
+  const onMomentRef = useRef(onMoment);
+  useEffect(() => {
+    onMomentRef.current = onMoment;
+  }, [onMoment]);
+  // Leaving the history is one of the two moments a full-screen ad may follow.
+  useEffect(() => () => onMomentRef.current('history_closed'), []);
 
   const load = useCallback(() => {
     let active = true;
@@ -107,7 +116,7 @@ export default function HistoryScreen() {
   }
 
   return (
-    <Screen>
+    <Screen footer={<AdBanner />}>
       <SyncStatus />
       <Counts title="7 derniers jours" counts={data.week} />
       <Counts title={`${DAYS} derniers jours`} counts={data.month} />

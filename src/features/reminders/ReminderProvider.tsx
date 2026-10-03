@@ -14,6 +14,7 @@ import { AppState } from 'react-native';
 import { canScheduleExactAlarms, isIgnoringBatteryOptimizations } from 'reminder-health';
 
 import { useUserId } from '@/features/auth/useUserId';
+import { noteOpenedFromReminder } from '@/features/monetization/adSession';
 import { registerBackgroundTasks } from '@/features/reminders/background';
 import {
   getLastSyncResult,
@@ -100,6 +101,8 @@ export function ReminderProvider({ children }: { readonly children: ReactNode })
     });
 
     const onResponse = (response: Notifications.NotificationResponse) => {
+      // Came to confirm an intake: no full-screen ad in this session.
+      noteOpenedFromReminder();
       handleNotificationResponse(db, userId, response)
         .then((dose) => {
           if (dose) router.navigate('/');

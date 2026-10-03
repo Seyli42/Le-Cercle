@@ -52,13 +52,16 @@ src/
     scan/         Scan d'ordonnance : photo, lecture IA, pré-remplissage
     account/      Export des données et suppression du compte (RGPD)
     onboarding/   Écran d'accueil du premier lancement, « Pour bien démarrer »
+    monetization/ Publicité (AdMob, règles d'affichage) et Premium (RevenueCat)
   lib/          Logique : erreurs, monitoring (Sentry), client Supabase…
     db/           Base locale chiffrée et ses migrations
   theme/        Couleurs (clair + sombre), tailles, espacements
 __tests__/      Tests automatiques (dont appFlow : l'app entière, écran par écran)
 docs/           Documentation projet
+store/          Textes et visuels des fiches App Store / Google Play
+website/        Site public (confidentialité, suppression de compte, support) à héberger
 supabase/       Base de données : migrations, tests, fonctions serveur (Twilio), e-mails
-scripts/        Outils (test de la base)
+scripts/        Outils (test de la base, icônes, génération du site)
 modules/        Code natif maison (reminder-health : diagnostic Android des rappels)
 ```
 
@@ -79,6 +82,22 @@ entre les téléphones du même compte (voir `docs/SYNCHRO.md`).
 
 Voir [`docs/FINITIONS.md`](docs/FINITIONS.md) : mode sombre automatique, contrastes vérifiés,
 export des données, suppression du compte, page confidentialité, tests de bout en bout.
+
+## Gratuit avec publicité, Premium sans publicité
+
+Voir [`docs/MONETISATION.md`](docs/MONETISATION.md) : quand une pub peut apparaître (jamais
+pendant un rappel, au plus une plein écran par jour), mise en service AdMob et RevenueCat,
+Premium offert aux clients B2B.
+
+## Publier sur les stores
+
+Voir [`docs/PUBLICATION.md`](docs/PUBLICATION.md) (pas à pas) et
+[`docs/STORES.md`](docs/STORES.md) (réponses aux questionnaires Apple et Google).
+
+| Commande                | À quoi ça sert                                                       |
+| ----------------------- | -------------------------------------------------------------------- |
+| `npm run website:build` | Génère le site public dans `website/dist` (à envoyer sur Hostinger). |
+| `npm run icons`         | Regénère les icônes de l'app et des stores.                          |
 
 ## Secrets
 
