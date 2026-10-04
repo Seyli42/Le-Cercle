@@ -26,9 +26,15 @@ Apple et Google existent déjà. Tout le reste est gratuit au départ.
 - Valeurs publiques de l'app :
   `EXPO_PUBLIC_SUPABASE_URL=https://crpztgvgffhkyozixyfq.supabase.co`,
   `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_QUOydw5QA9Yy4UynTF_HAQ_0jQKGsuo`.
-- **Prochaine étape** : construire l'app dans le cloud (EAS) depuis une session Claude Code,
-  avec un jeton Expo rangé dans la variable d'environnement `EXPO_TOKEN` (jamais dans le
-  chat). Les phases 0 et 2 ci-dessous sont donc inutiles si on passe par là.
+- **Prochaine étape** (session Claude Code avec `EXPO_TOKEN` dans l'environnement, jamais
+  dans le chat) : construire l'APK Android de test, profil `test` d'`eas.json` (déjà branché
+  sur Supabase, mode « development » : pubs de test, pas de Sentry) :
+  1. `npx eas-cli@latest init --non-interactive --force` → reporter l'identifiant affiché
+     dans `app.config.ts` (`const EAS_PROJECT_ID = '…';`), commit.
+  2. `npx eas-cli@latest build --profile test --platform android --non-interactive --no-wait`
+     → donner à Ilyes le lien / QR code d'installation (téléphone Android).
+  3. Ensuite : Sentry (puis profil `preview`), Firebase (`google-services.json`) pour les
+     alertes aux proches sur Android.
 
 ---
 
