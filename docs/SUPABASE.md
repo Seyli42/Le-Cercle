@@ -49,6 +49,10 @@ remplacez le sujet et le contenu par ceux de `supabase/templates/code.html`
 suit la langue de l'utilisateur, voir `docs/LANGUES.md`). Le contenu doit contenir `{{ .Token }}` :
 c'est le code à 6 chiffres. Sans cela, l'utilisateur reçoit un lien au lieu d'un code.
 
+> L'aperçu (Preview) de Supabase affiche les lignes `{{ … }}` telles quelles et toutes les
+> langues à la suite : c'est normal, le vrai e-mail ne contient que la langue de la personne.
+> Supabase exige un **SMTP personnalisé** (§5) avant de pouvoir modifier les modèles.
+
 **Authentication → Rate Limits** : laissez les valeurs par défaut.
 
 ### Bloquer la connexion par mot de passe (sécurité, obligatoire)
