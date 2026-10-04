@@ -72,7 +72,11 @@ function RootLayout() {
   return (
     <SafeAreaProvider key={language}>
       <ThemeProvider value={navigationTheme(colors, dark)}>
-        <Sentry.ErrorBoundary fallback={({ resetError }) => <ErrorFallback onRetry={resetError} />}>
+        <Sentry.ErrorBoundary
+          fallback={({ error, resetError }) => (
+            <ErrorFallback onRetry={resetError} error={error} where="render" />
+          )}
+        >
           <AuthProvider>
             <OnboardingProvider>
               <RootNavigator />

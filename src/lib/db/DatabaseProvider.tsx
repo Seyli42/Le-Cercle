@@ -12,7 +12,7 @@ const DatabaseContext = createContext<LocalDb | null>(null);
 type State =
   | { readonly status: 'opening' }
   | { readonly status: 'ready'; readonly db: LocalDb }
-  | { readonly status: 'failed' };
+  | { readonly status: 'failed'; readonly error: unknown };
 
 /** Opens the encrypted local database once, then makes it available to every screen. */
 export function DatabaseProvider({ children }: { readonly children: ReactNode }) {
@@ -27,7 +27,7 @@ export function DatabaseProvider({ children }: { readonly children: ReactNode })
       .then((db) => active && setState({ status: 'ready', db }))
       .catch((error: unknown) => {
         reportError(error, 'db.open');
-        if (active) setState({ status: 'failed' });
+        if (active) setState({ status: 'failed', error });
       });
     return () => {
       active = false;
@@ -39,7 +39,9 @@ export function DatabaseProvider({ children }: { readonly children: ReactNode })
     setAttempt((n) => n + 1);
   };
 
-  if (state.status === 'failed') return <ErrorFallback onRetry={retry} />;
+  if (state.status === 'failed') {
+    return <ErrorFallback onRetry={retry} error={state.error} where="db.open" />;
+  }
   if (state.status === 'opening') {
     return (
       <View style={styles.center} accessibilityLabel="Chargement">

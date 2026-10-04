@@ -35,7 +35,7 @@ export default function MedicationListScreen() {
     return (
       <>
         {header}
-        <ErrorFallback onRetry={reload} />
+        <ErrorFallback onRetry={reload} error={state.error} where="medications.list" />
       </>
     );
   }
