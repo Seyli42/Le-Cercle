@@ -3,12 +3,14 @@
 --
 -- À exécuter UNE FOIS dans Supabase → SQL Editor, après avoir :
 --   1. activé les extensions pg_cron et pg_net (Database → Extensions) ;
---   2. remplacé <PROJECT_REF> et <CRON_SECRET> ci-dessous
---      (CRON_SECRET = la même valeur que `npx supabase secrets set CRON_SECRET=...`).
--- Le secret est rangé dans le coffre-fort Supabase (Vault), jamais en clair dans la tâche.
+--   2. remplacé <PROJECT_REF> ci-dessous.
+-- Le secret est tiré au hasard PAR LA BASE et rangé dans le coffre-fort (Vault) : il
+-- n'apparaît jamais en clair. Copiez-le ensuite dans Edge Functions → Secrets
+-- (nom CRON_SECRET) avec :
+--   select decrypted_secret from vault.decrypted_secrets where name = 'missed_dose_cron_secret';
 -- =============================================================================
 
-select vault.create_secret('<CRON_SECRET>', 'missed_dose_cron_secret');
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'missed_dose_cron_secret');
 
 select cron.schedule(
   'missed-dose-check',
