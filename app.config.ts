@@ -19,7 +19,7 @@ const ADMOB_ANDROID_APP_ID =
 
 // Filled once with the id printed by `npx eas-cli@latest init` (not a secret).
 // Empty = over-the-air updates disabled (local development).
-const EAS_PROJECT_ID = '';
+const EAS_PROJECT_ID = '4498b3d2-1593-450b-bc4c-779983b4001f';
 
 /** Apple privacy manifest: what the app collects (must match the App Store "App Privacy"
  * answers in docs/STORES.md) and why it uses APIs Apple considers sensitive. */
