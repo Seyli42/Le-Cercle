@@ -14,6 +14,24 @@ Apple et Google existent déjà. Tout le reste est gratuit au départ.
 
 ---
 
+## ✅ Déjà fait (état au 4 octobre 2026)
+
+- **Supabase** : projet `DoseCircle` (réf. `crpztgvgffhkyozixyfq`, région Paris, offre
+  gratuite, organisation « Najah »). Toutes les migrations appliquées, fonctions
+  `missed-dose-check` et `delete-account` en ligne, détection des oublis toutes les 5 min
+  (pg_cron, secret `CRON_SECRET` rangé), code e-mail à 6 chiffres (10 min), modèle d'e-mail
+  en 11 langues, verrou anti-mot de passe activé.
+- **Brevo** : SMTP branché dans Supabase (expéditeur Gmail pour l'instant, blocage des IP
+  désactivé). À refaire avec une adresse du domaine quand il sera acheté.
+- Valeurs publiques de l'app :
+  `EXPO_PUBLIC_SUPABASE_URL=https://crpztgvgffhkyozixyfq.supabase.co`,
+  `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_QUOydw5QA9Yy4UynTF_HAQ_0jQKGsuo`.
+- **Prochaine étape** : construire l'app dans le cloud (EAS) depuis une session Claude Code,
+  avec un jeton Expo rangé dans la variable d'environnement `EXPO_TOKEN` (jamais dans le
+  chat). Les phases 0 et 2 ci-dessous sont donc inutiles si on passe par là.
+
+---
+
 ## Phase 0 — Préparer l'ordinateur (1 h)
 
 _Analogie : avant de cuisiner, on sort les ustensiles._
