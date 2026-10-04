@@ -45,8 +45,8 @@ Vérification : **Table Editor** doit montrer `profiles`, `medications`, `schedu
 
 **Authentication → Emails → Templates** : dans **Magic Link** _et_ **Confirm signup**,
 remplacez le sujet et le contenu par ceux de `supabase/templates/code.html`
-(le sujet est la ligne `subject` de `supabase/config.toml` : il change selon la langue de
-l'utilisateur, comme l'e-mail, voir `docs/LANGUES.md`). Le contenu doit contenir `{{ .Token }}` :
+(sujet : `DoseCircle · {{ .Token }}`, identique dans toutes les langues ; le contenu, lui,
+suit la langue de l'utilisateur, voir `docs/LANGUES.md`). Le contenu doit contenir `{{ .Token }}` :
 c'est le code à 6 chiffres. Sans cela, l'utilisateur reçoit un lien au lieu d'un code.
 
 **Authentication → Rate Limits** : laissez les valeurs par défaut.

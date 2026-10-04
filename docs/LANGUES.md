@@ -14,7 +14,7 @@ La langue suit **celle du téléphone**, sans réglage dans l'app. Langue non pr
 | ---------------------------------------- | ---------------------------------------------------------- |
 | Écrans, notifications, messages d'erreur | `src/i18n/locales/<langue>.json` (référence : `fr.json`)   |
 | Alerte envoyée aux proches               | `supabase/functions/_shared/push.ts` (`ALERT_WORDS`)       |
-| E-mail du code de connexion + sujet      | `supabase/templates/code.html`, `supabase/config.toml`     |
+| E-mail du code de connexion              | `supabase/templates/code.html`, `supabase/config.toml`     |
 | Fiches App Store / Google Play           | `store/listing.<langue>.json`                              |
 | Site web (confidentialité, suppression…) | français à la racine, anglais dans `en/` (`website/pages`) |
 

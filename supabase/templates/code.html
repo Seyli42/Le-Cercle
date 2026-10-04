@@ -2,7 +2,8 @@
 <!--
   One email, 11 languages: the app sends the account language in user_metadata.language
   (src/features/auth/AuthProvider.tsx). Unknown or missing language: French (first users).
-  The subject in supabase/config.toml follows the same rule. Checked by __tests__/emailTemplate.test.ts.
+  The subject (supabase/config.toml) is the same in every language: "DoseCircle · <code>".
+  Checked by __tests__/emailTemplate.test.ts.
 -->
 <html>
   <body style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #0f172a">

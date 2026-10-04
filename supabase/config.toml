@@ -252,15 +252,16 @@ otp_expiry = 600
 # sender_name = "Admin"
 
 # DoseCircle signs users in with a 6-digit code (no link, no password).
-# Both templates must contain {{ .Token }}. Subject and body follow the account language
-# (user_metadata.language, see supabase/templates/code.html). On the hosted project, paste them in
+# Both templates must contain {{ .Token }}. The body follows the account language
+# (user_metadata.language, see supabase/templates/code.html). The subject is the same in
+# every language (Supabase caps it at 255 characters) and shows the code itself. On the hosted project, paste them in
 # Authentication > Emails (see docs/SUPABASE.md).
 [auth.email.template.magic_link]
-subject = '{{ if eq .Data.language "en" }}Your DoseCircle sign-in code{{ else if eq .Data.language "es" }}Tu código de acceso a DoseCircle{{ else if eq .Data.language "pt" }}O seu código de acesso DoseCircle{{ else if eq .Data.language "zh" }}您的 DoseCircle 登录验证码{{ else if eq .Data.language "ja" }}DoseCircle のログインコード{{ else if eq .Data.language "ru" }}Ваш код входа в DoseCircle{{ else if eq .Data.language "ar" }}رمز الدخول إلى DoseCircle{{ else if eq .Data.language "hi" }}आपका DoseCircle लॉगिन कोड{{ else if eq .Data.language "id" }}Kode masuk DoseCircle Anda{{ else if eq .Data.language "ms" }}Kod log masuk DoseCircle anda{{ else }}Votre code de connexion DoseCircle{{ end }}'
+subject = "DoseCircle · {{ .Token }}"
 content_path = "./supabase/templates/code.html"
 
 [auth.email.template.confirmation]
-subject = '{{ if eq .Data.language "en" }}Your DoseCircle sign-in code{{ else if eq .Data.language "es" }}Tu código de acceso a DoseCircle{{ else if eq .Data.language "pt" }}O seu código de acesso DoseCircle{{ else if eq .Data.language "zh" }}您的 DoseCircle 登录验证码{{ else if eq .Data.language "ja" }}DoseCircle のログインコード{{ else if eq .Data.language "ru" }}Ваш код входа в DoseCircle{{ else if eq .Data.language "ar" }}رمز الدخول إلى DoseCircle{{ else if eq .Data.language "hi" }}आपका DoseCircle लॉगिन कोड{{ else if eq .Data.language "id" }}Kode masuk DoseCircle Anda{{ else if eq .Data.language "ms" }}Kod log masuk DoseCircle anda{{ else }}Votre code de connexion DoseCircle{{ end }}'
+subject = "DoseCircle · {{ .Token }}"
 content_path = "./supabase/templates/code.html"
 
 # Uncomment to customize email template

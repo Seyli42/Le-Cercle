@@ -37,13 +37,14 @@ describe('sign-in email', () => {
     expect(body.get('ar')).toContain('dir="rtl"');
   });
 
-  it('has a subject per language, in both templates', () => {
-    const subjects = [...config.matchAll(/^subject = '(.*)'$/gm)].map((m) => m[1] ?? '');
+  it('has a short subject showing the code, in both templates', () => {
+    const subjects = [...config.matchAll(/^subject = "(.*)"$/gm)].map((m) => m[1] ?? '');
     expect(subjects).toHaveLength(2);
     for (const subject of subjects) {
-      const bySubject = branches(subject);
-      expect(bySubject.size).toBe(LANGUAGES.length);
-      for (const text of bySubject.values()) expect(text).toContain('DoseCircle');
+      // Supabase refuses subjects longer than 255 characters.
+      expect(subject.length).toBeLessThanOrEqual(255);
+      expect(subject).toContain('DoseCircle');
+      expect(subject).toContain('{{ .Token }}');
     }
   });
 });
